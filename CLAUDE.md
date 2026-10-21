@@ -2,6 +2,11 @@
 
 React + TypeScript (Vite) demo, styled with CSS Modules, in English and Arabic. These rules apply to every person and every AI session working in this repo. Follow them exactly.
 
+## Requirements
+
+- Node.js 24 and npm 11 (pinned in `.nvmrc` and `engines` in `package.json`; npm warns on other versions).
+- VS Code with the recommended extensions in `.vscode/extensions.json` (Oxc, Stylelint, CSS Modules).
+
 ## Commands
 
 - `npm run dev`: start the dev server
