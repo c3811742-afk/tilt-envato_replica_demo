@@ -24,8 +24,12 @@ const themeFonts: Plugin = {
   ],
 }
 
+// GitHub Pages serves the site from https://<owner>.github.io/<repo-name>/
+const pagesBasePath = '/tilt-envato_replica_demo/'
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? pagesBasePath : '/',
   plugins: [react(), themeFonts],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
@@ -33,4 +37,4 @@ export default defineConfig({
   css: {
     postcss: { plugins: [themeBreakpoints, postcssCustomMedia()] },
   },
-})
+}))

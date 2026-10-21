@@ -8,6 +8,13 @@ React + TypeScript (Vite) demo, styled with CSS Modules, in English and Arabic. 
 - `npm run check`: type-check, lint the code (oxlint) and lint the CSS (Stylelint). Must pass before every PR.
 - `npm run build`: production build
 
+## Deployment: GitHub Pages
+
+- Every push to `main` runs `.github/workflows/deploy.yml`: `npm ci` → `npm run check` → `npm run build` → deploy. If the check fails, nothing is deployed.
+- The site is served from `https://c3811742-afk.github.io/tilt-envato_replica_demo/`. The build uses that sub-path (`base` in `vite.config.ts`). If the repo is renamed, update `pagesBasePath` there.
+- Routing uses `HashRouter` (URLs like `/#/item/123`), because GitHub Pages can't serve a normal path like `/item/123` on refresh. Always link with React Router (`<Link>`, `navigate()`) and paths from `routes.ts`, never a hard-coded `href`.
+- Files in `public/` and assets are referenced through Vite (imports, or `import.meta.env.BASE_URL`), never by an absolute path like `/images/x.png`, which would break under the sub-path.
+
 ## Golden rules
 
 1. **Nothing is implemented twice.** Before writing a component, hook, helper or style, search `src/shared/`. If it exists, use or extend it. If it doesn't exist and will be used more than once, create it in `src/shared/`.
