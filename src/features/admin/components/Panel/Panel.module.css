@@ -1,0 +1,9 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  min-inline-size: 0;
+  padding: var(--panel-padding);
+  border: var(--borders-width-thin) var(--borders-style) var(--panel-border-color);
+  background: var(--panel-background);
+}
