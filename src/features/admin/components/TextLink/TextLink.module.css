@@ -1,0 +1,15 @@
+.textLink {
+  color: var(--text-link-color);
+  font-weight: var(--font-weight-bold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.textLink:hover {
+  text-decoration-thickness: var(--borders-width-thin);
+}
+
+.textLink:focus-visible {
+  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
+  outline-offset: 0;
+}

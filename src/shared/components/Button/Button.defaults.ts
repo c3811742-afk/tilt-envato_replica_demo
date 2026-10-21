@@ -6,6 +6,7 @@ export const buttonVariants: Record<ButtonVariant, { background: string; color: 
   secondary: { background: vars.colors.secondary, color: vars.colors.onSecondary },
   muted: { background: vars.colors.surfaceMuted, color: vars.colors.text },
   highlight: { background: vars.colors.highlight, color: vars.colors.onHighlight },
+  danger: { background: vars.colors.danger, color: vars.colors.onDanger },
 };
 
 export const buttonHeights: Record<ButtonSize, string> = vars.sizes.button.height;

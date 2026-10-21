@@ -23,6 +23,9 @@ export const sizes = {
     gap: spacing[3],
   },
   input: { height: '3rem', paddingX: spacing[4] }, // 48
+  textarea: { minHeight: '7.5rem' }, // 120
+  checkbox: { size: '1.25rem' }, // 20
+  mediaPreview: { maxHeight: '60dvh' }, // element previews never take more than most of the screen
   tag: { height: '1.375rem', paddingX: spacing[2] }, // 22
   card: { padding: spacing[5], minWidth: 'min(17.5rem, 100%)' }, // 280, never wider than its column
   badge: { size: '5rem' }, // 80
