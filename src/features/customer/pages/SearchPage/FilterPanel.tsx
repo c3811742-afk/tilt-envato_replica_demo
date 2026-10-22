@@ -1,4 +1,4 @@
-import { Checkbox, ChipGroup, FieldMessage, Stack, SwatchGroup, Text } from '@/shared/components';
+import { Checkbox, ChipGroup, FieldMessage, Stack, Text } from '@/shared/components';
 import { filterControls, filterOptions, type FilterKey } from '@/shared/constants';
 import { useCategories, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -59,20 +59,6 @@ export const FilterPanel = ({ categoryId, keys, filters, facets, onCategoryChang
             </Text>
             {control === 'toggle' && (
               <Checkbox label={withCount(options[0])} checked={selected.length > 0} onChange={(checked) => set(key, checked ? [options[0]] : [])} />
-            )}
-            {control === 'colors' && (
-              <SwatchGroup<string>
-                label={text.filters[key].label}
-                multiple
-                values={selected}
-                onValuesChange={(values) => set(key, values)}
-                options={options.map((value) => ({
-                  value,
-                  label: withCount(value),
-                  color: vars.colorSwatches[value as keyof typeof vars.colorSwatches].bg,
-                  onColor: vars.colorSwatches[value as keyof typeof vars.colorSwatches].text,
-                }))}
-              />
             )}
             {(control === 'chips' || control === 'single') && (
               <ChipGroup<string>

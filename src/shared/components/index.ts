@@ -7,6 +7,7 @@ export * from './Stack';
 export * from './Grid';
 export * from './SplitLayout';
 export * from './Page';
+export * from './PageBackground';
 export * from './Section';
 export * from './SectionHeader';
 export * from './Icon';

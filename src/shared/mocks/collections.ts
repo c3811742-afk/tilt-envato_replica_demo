@@ -19,7 +19,7 @@ export const mockCollections: Collection[] = [
       'photographer-portfolio-site',
       'documentary-piano',
     ],
-    accent: 'yellow',
+    accent: 'lime',
     publishedAt: '2026-10-20',
   },
   {
@@ -38,7 +38,7 @@ export const mockCollections: Collection[] = [
       'eid-greetings-pack',
       'baking-kahk-at-home',
     ],
-    accent: 'purple',
+    accent: 'black',
     publishedAt: '2026-10-15',
   },
   {
@@ -51,7 +51,7 @@ export const mockCollections: Collection[] = [
     },
     creatorId: 'wekala-sounds',
     itemIds: ['zaffa-wedding-drums', 'nubian-sunset', 'tuk-tuk-microbus-sounds', 'mahraganat-party-beat', 'ramadan-nights'],
-    accent: 'hotPink',
+    accent: 'royalBlue',
     publishedAt: '2026-10-10',
   },
   {
@@ -84,7 +84,7 @@ export const mockCollections: Collection[] = [
       'logo-templates-bundle',
       'business-card-set',
     ],
-    accent: 'orange',
+    accent: 'lime',
     publishedAt: '2026-09-20',
   },
   {
@@ -96,7 +96,7 @@ export const mockCollections: Collection[] = [
       ar: 'عروض صور وموسيقى زفة ودعوات وخطوط ليوم العمر.',
     },
     itemIds: ['wedding-slideshow', 'zaffa-wedding-drums', 'engagement-invitation', 'thuluth-calligraphy', 'playfair-serif'],
-    accent: 'red',
+    accent: 'black',
     publishedAt: '2026-08-01',
   },
   {
@@ -115,7 +115,7 @@ export const mockCollections: Collection[] = [
       'rainy-city-night',
       'tuk-tuk-microbus-sounds',
     ],
-    accent: 'skyBlue',
+    accent: 'royalBlue',
     publishedAt: '2026-07-12',
   },
 ];

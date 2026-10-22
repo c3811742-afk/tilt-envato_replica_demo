@@ -1,5 +1,4 @@
 import type { IconName } from '@/shared/assets';
-import { colorSwatches, type ColorSwatchName } from '@/shared/theme';
 import type { CategoryId } from '@/shared/types';
 
 // Occasions people make templates for. Labels: text.browse.occasions.
@@ -75,9 +74,9 @@ export type Orientation = (typeof orientations)[number];
 export const plugins = ['none', 'element3d', 'trapcode', 'saber'] as const;
 export type Plugin = Exclude<(typeof plugins)[number], 'none'>;
 
-// The main color of an item's preview. Each has a swatch in the theme (vars.colorSwatches).
-export const colorFilters = Object.keys(colorSwatches) as ColorSwatchName[];
-export type ColorFilter = ColorSwatchName;
+// The main color of an item's preview, filtered by name (the UI only uses the SYNC colors, so there are no swatches).
+export const colorFilters = ['red', 'orange', 'yellow', 'green', 'teal', 'blue', 'purple', 'pink', 'brown', 'black', 'white', 'gray'] as const;
+export type ColorFilter = (typeof colorFilters)[number];
 
 export const musicMoods = ['calm', 'happy', 'energetic', 'dramatic', 'romantic', 'inspiring'] as const;
 export type MusicMood = (typeof musicMoods)[number];
@@ -143,13 +142,13 @@ export type FilterKey = keyof typeof filterOptions;
 export const filterKeys = Object.keys(filterOptions) as FilterKey[];
 
 // How each filter is shown: chips (pick several), one choice, color swatches, or a single on / off switch.
-export const filterControls: Record<FilterKey, 'chips' | 'single' | 'colors' | 'toggle'> = {
+export const filterControls: Record<FilterKey, 'chips' | 'single' | 'toggle'> = {
   software: 'chips',
   fileType: 'chips',
   resolution: 'chips',
   orientation: 'chips',
   duration: 'chips',
-  color: 'colors',
+  color: 'chips',
   date: 'single',
   plugins: 'chips',
   mood: 'chips',

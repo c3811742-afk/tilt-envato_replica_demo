@@ -92,10 +92,7 @@ export const ar: TextShape<typeof en> = {
     accent: 'اللون الأساسي',
     accents: {
       blue: 'أزرق',
-      pink: 'وردي',
       green: 'أخضر',
-      orange: 'برتقالي',
-      purple: 'بنفسجي',
     },
   },
   cookies: {

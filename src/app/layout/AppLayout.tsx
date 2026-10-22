@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
+import { PageBackground } from '@/shared/components';
 import { useSession } from '@/shared/hooks';
 import { onboardingState } from '@/shared/utils';
 import { SiteTour } from '@/features/common/components';
@@ -24,6 +25,7 @@ export const AppLayout = () => {
 
   return (
     <div className={styles.layout}>
+      <PageBackground />
       <LanguageSuggestion />
       <Header />
       <main className={styles.main}>

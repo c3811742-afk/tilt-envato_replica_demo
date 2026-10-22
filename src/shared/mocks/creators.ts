@@ -23,7 +23,7 @@ export const mockCreators = {
       ar: 'مؤلفون ومصممو صوت يسجلون العود والقانون والإيقاعات وأصوات المدينة.',
     },
     joinedAt: '2022-09-03',
-    accent: 'hotPink',
+    accent: 'royalBlue',
   },
   khattType: {
     id: 'khatt-type',
@@ -35,7 +35,7 @@ export const mockCreators = {
       ar: 'دار خطوط عربية ترسم خطوط الكوفي والنسخ والرقعة مع حروف لاتينية متناسقة.',
     },
     joinedAt: '2021-11-20',
-    accent: 'yellow',
+    accent: 'lime',
   },
   zamalekPixels: {
     id: 'zamalek-pixels',
@@ -59,7 +59,7 @@ export const mockCreators = {
       ar: 'صنّاع أفلام يصورون لقطات الدرون والتايم لابس والحياة اليومية بدقة 4K.',
     },
     joinedAt: '2023-06-01',
-    accent: 'red',
+    accent: 'black',
   },
   sahelStudio: {
     id: 'sahel-studio',
@@ -71,7 +71,7 @@ export const mockCreators = {
       ar: 'قوالب عروض تقديمية ومواقع للشركات الناشئة والطلاب والمشروعات الصغيرة.',
     },
     joinedAt: '2023-01-09',
-    accent: 'purple',
+    accent: 'black',
   },
   fayrouzDesign: {
     id: 'fayrouz-design',
@@ -83,7 +83,7 @@ export const mockCreators = {
       ar: 'قوالب مطبوعات وسوشيال ميديا للمطاعم والعيادات والمحلات والمناسبات العائلية.',
     },
     joinedAt: '2022-07-25',
-    accent: 'orange',
+    accent: 'lime',
   },
   siwaLens: {
     id: 'siwa-lens',
@@ -95,7 +95,7 @@ export const mockCreators = {
       ar: 'مصورون يوثقون الناس والأكل والشوارع والمناظر الطبيعية في كل أنحاء البلد.',
     },
     joinedAt: '2021-05-14',
-    accent: 'skyBlue',
+    accent: 'royalBlue',
   },
   pixelHarbor: {
     id: 'pixel-harbor',
@@ -107,7 +107,7 @@ export const mockCreators = {
       ar: 'فريق صغير يصمم قوالب فيديو بسيطة ولقطات جوية.',
     },
     joinedAt: '2020-10-02',
-    accent: 'mint',
+    accent: 'lime',
   },
   northline: {
     id: 'northline',
@@ -119,7 +119,7 @@ export const mockCreators = {
       ar: 'موسيقى إلكترونية وتصميم صوت سينمائي وتصوير للمدن بأجواء هادئة.',
     },
     joinedAt: '2019-03-28',
-    accent: 'forest',
+    accent: 'black',
   },
   gulfBeats: {
     id: 'gulf-beats',
@@ -131,7 +131,7 @@ export const mockCreators = {
       ar: 'منتجو موسيقى خليجية وبوب عربي يصنعون مقطوعات للإعلانات والفلوجات.',
     },
     joinedAt: '2022-12-12',
-    accent: 'purple',
+    accent: 'black',
   },
   atlasType: {
     id: 'atlas-type',

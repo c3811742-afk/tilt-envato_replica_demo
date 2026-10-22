@@ -1,4 +1,5 @@
 export const zIndex = {
+  behind: -1, // the page background, under all content
   base: 0,
   dropdown: 100,
   sticky: 200,

@@ -6,7 +6,7 @@ import { itemVisuals } from './itemVisuals';
 const megabyte = 1024 * 1024;
 
 // Each item gets one of the accents from its id, so neighbouring cards look different and never change.
-const accents: AccentName[] = ['royalBlue', 'yellow', 'hotPink', 'mint', 'red', 'lime', 'purple', 'orange', 'skyBlue', 'forest'];
+const accents: AccentName[] = ['royalBlue', 'lime', 'black'];
 const accentFor = (id: string) =>
   accents[[...id].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 9973, 7) % accents.length];
 

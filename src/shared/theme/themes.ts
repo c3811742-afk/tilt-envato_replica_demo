@@ -2,7 +2,6 @@ import {
   accentPairs,
   accentThemes,
   colors,
-  colorSwatches,
   darkColors,
   defaultAccentTheme,
   type AccentTheme,
@@ -43,7 +42,6 @@ export const buildTheme = ({ locale, mode, accent }: ThemeOptions) => {
     breakpoints,
     colors: themeColors,
     accentPairs,
-    colorSwatches,
     accentThemes, // every accent the user can pick, so the picker can show them all
     typography: typographyByLocale[locale],
     spacing,

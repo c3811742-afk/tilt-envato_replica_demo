@@ -6,6 +6,6 @@ export type { PreviewFont } from './typography';
 export { mediaQuery, customMedia } from './breakpoints';
 export { locales, defaultLocale, isLocale } from './locales';
 export type { Locale, Direction } from './locales';
-export { colorModes, accentThemes, defaultAccentTheme, colorSwatches } from './colors';
-export type { AccentName, AccentTheme, ColorMode, ColorSwatchName } from './colors';
+export { colorModes, accentThemes, defaultAccentTheme } from './colors';
+export type { AccentName, AccentTheme, ColorMode } from './colors';
 export type { Breakpoint } from './breakpoints';

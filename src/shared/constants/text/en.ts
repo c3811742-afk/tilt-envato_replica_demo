@@ -92,10 +92,7 @@ export const en = {
     accent: 'Accent color',
     accents: {
       blue: 'Blue',
-      pink: 'Pink',
       green: 'Green',
-      orange: 'Orange',
-      purple: 'Purple',
     },
   },
   cookies: {
