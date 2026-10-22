@@ -4,12 +4,13 @@ import { pageBackgroundDefaults } from './PageBackground.defaults';
 import type { PageBackgroundProps } from './PageBackground.types';
 import styles from './PageBackground.module.css';
 
-// Drawing coordinates (SVG user units, not CSS sizes): the lines sweep in from the bottom end corner.
+// Drawing coordinates (SVG user units, not CSS sizes): the lines sweep in from the bottom end corner,
+// spread apart enough that they cross in a soft twist instead of a sharp crease.
 const width = 1440;
 const height = 900;
 const linePath = (index: number) => {
   const startX = -200 + index * 22;
-  return `M${startX} ${height + 40} C ${500 + index * 14} ${780 - index * 9}, ${900 + index * 6} ${560 - index * 8}, ${width + 60} ${180 + index * 12}`;
+  return `M${startX} ${height + 40} C ${500 + index * 16} ${780 - index * 7}, ${900 + index * 12} ${560 - index * 3}, ${width + 60} ${180 + index * 12}`;
 };
 
 // The site background: a ribbon of hairlines from the bottom end corner, fading out before the content.
