@@ -1,0 +1,82 @@
+.player {
+  display: flex;
+  flex-direction: column;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+.stage {
+  position: relative;
+  cursor: pointer;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.audio .controls {
+  flex-wrap: nowrap;
+  padding: var(--spacing-4);
+}
+
+.position {
+  flex: 1;
+  min-inline-size: var(--sizes-player-time);
+}
+
+.time {
+  white-space: nowrap;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--sizes-tap-target);
+  min-block-size: var(--sizes-tap-target);
+  border: 0;
+  background: transparent;
+  color: var(--colors-text);
+  cursor: pointer;
+}
+
+/* The volume slider needs room: on phones the device buttons control the volume. */
+.volume {
+  display: none;
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+/* In full screen the picture fills the screen above the controls. */
+.fullScreen {
+  justify-content: center;
+  background: var(--colors-surface-inverse);
+}
+
+.fullScreen .controls {
+  background: var(--colors-surface);
+}
+
+@media (--md-up) {
+  .volume {
+    display: block;
+  }
+}

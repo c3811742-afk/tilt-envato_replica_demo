@@ -1,0 +1,18 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--swatch-size);
+  block-size: var(--swatch-size);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--radii-full);
+  background: var(--swatch-color);
+  color: var(--swatch-on-color);
+  cursor: pointer;
+}

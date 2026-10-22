@@ -1,6 +1,6 @@
 import type { MouseEventHandler, ReactNode } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'muted' | 'highlight';
+export type ButtonVariant = 'primary' | 'secondary' | 'muted' | 'highlight' | 'outline' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {
@@ -13,5 +13,9 @@ export interface ButtonProps {
   fullWidth?: boolean;
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
-  onClick?: MouseEventHandler<HTMLButtonElement>;
+  to?: string; // renders a router link to this app path (from routes.ts) instead of a button
+  href?: string; // renders a link to an external site, opened in a new tab
+  ariaLabel?: string; // accessible name when the button only shows an icon
+  pressed?: boolean; // a toggle button that is on (e.g. Saved)
+  onClick?: MouseEventHandler<HTMLElement>;
 }

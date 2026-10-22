@@ -1,0 +1,12 @@
+.slider {
+  inline-size: var(--slider-width);
+  block-size: var(--sizes-slider-thumb);
+  margin: 0;
+  accent-color: var(--slider-color);
+  cursor: pointer;
+}
+
+.slider:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}

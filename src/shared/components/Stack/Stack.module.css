@@ -1,0 +1,12 @@
+.stack {
+  display: flex;
+  flex-flow: var(--stack-direction) var(--stack-wrap);
+  align-items: var(--stack-align);
+  justify-content: var(--stack-justify);
+  gap: var(--stack-gap);
+  min-inline-size: 0;
+}
+
+.grow {
+  flex: 1;
+}

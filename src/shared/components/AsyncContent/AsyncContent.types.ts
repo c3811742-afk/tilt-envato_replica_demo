@@ -7,4 +7,5 @@ export interface AsyncContentProps<T> {
   loading?: ReactNode; // replace the default LoadingState
   error?: ReactNode; // replace the default ErrorState (with "Try again")
   empty?: ReactNode; // replace the default EmptyState
+  minHeight?: string; // height of the default loading / error / empty states (e.g. compact inside a section)
 }

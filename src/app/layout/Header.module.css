@@ -1,0 +1,79 @@
+.header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-index-sticky);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  min-block-size: var(--sizes-header-height);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--spacing-3);
+  background: var(--colors-highlight);
+  color: var(--colors-on-highlight);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-body);
+  text-decoration: none;
+}
+
+/* The logo is the focus color, so its ring uses the border color instead. */
+.logo:focus-visible {
+  outline-color: var(--colors-border);
+}
+
+/* Phones search from the Search tab; the bar and the links appear from tablet width up. */
+.search,
+.nav,
+.wideOnly {
+  display: none;
+}
+
+@media (--sm-up) {
+  .wideOnly {
+    display: inline-flex;
+  }
+}
+
+@media (--md-up) {
+  .search {
+    display: block;
+    flex: 1;
+  }
+}
+
+@media (--lg-up) {
+  .nav {
+    display: flex;
+    gap: var(--spacing-4);
+  }
+}
+
+.navLink {
+  color: var(--colors-text);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navLink:hover,
+.active {
+  color: var(--colors-primary);
+}
+
+.active {
+  text-decoration: underline;
+  text-decoration-thickness: var(--borders-width-thin);
+  text-underline-offset: var(--spacing-2);
+}

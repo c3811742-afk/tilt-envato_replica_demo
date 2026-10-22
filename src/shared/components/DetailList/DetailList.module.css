@@ -1,0 +1,12 @@
+.list {
+  display: grid;
+  inline-size: 100%;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  padding-block: var(--spacing-2);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--detail-list-divider);
+}

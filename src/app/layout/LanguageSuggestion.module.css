@@ -1,0 +1,5 @@
+.bar {
+  padding-block: var(--spacing-2);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface-muted);
+}

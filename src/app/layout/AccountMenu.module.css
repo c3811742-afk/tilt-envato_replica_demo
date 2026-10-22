@@ -1,0 +1,14 @@
+/* Phones show only the icon; the name appears from tablet width up. */
+.name {
+  display: none;
+  max-inline-size: var(--sizes-sidebar-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (--md-up) {
+  .name {
+    display: inline;
+  }
+}

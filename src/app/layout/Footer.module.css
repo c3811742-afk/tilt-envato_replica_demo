@@ -1,0 +1,22 @@
+.footer {
+  padding-block: var(--spacing-7) var(--spacing-5);
+  background: var(--colors-surface-inverse);
+  color: var(--colors-text-inverse);
+}
+
+.columns {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.bottom {
+  margin-block-start: var(--spacing-6);
+  padding-block-start: var(--spacing-4);
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-text-muted);
+}
+
+@media (--md-up) {
+  .columns {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+}

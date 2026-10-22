@@ -1,0 +1,12 @@
+.sample {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  color: var(--font-sample-color);
+  font-family: var(--font-sample-family);
+  font-size: var(--font-sample-size);
+  line-height: var(--line-height-snug);
+  text-align: var(--font-sample-align);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--font-sample-lines);
+}

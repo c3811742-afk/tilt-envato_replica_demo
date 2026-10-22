@@ -1,0 +1,14 @@
+/* Shared interaction styles. Use them from a CSS module with `composes`, never copy them:
+   .card { composes: lift from '@/shared/styles/interactions.module.css'; } */
+
+/* The brand hover: the element lifts and casts a hard shadow toward the end of the reading direction. */
+.lift {
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.lift:hover:not(:disabled) {
+  transform: var(--shadows-hard-lift);
+  box-shadow: var(--shadows-hard);
+}

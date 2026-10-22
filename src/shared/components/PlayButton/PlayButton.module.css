@@ -1,0 +1,18 @@
+.play {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--play-size);
+  block-size: var(--play-size);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--radii-full);
+  background: var(--play-background);
+  color: var(--play-color);
+  cursor: pointer;
+}
+
+.play:hover {
+  background: var(--colors-primary);
+  color: var(--colors-on-primary);
+}

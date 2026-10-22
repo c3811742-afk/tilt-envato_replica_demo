@@ -1,0 +1,14 @@
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+}
+
+.box {
+  flex-shrink: 0;
+  inline-size: var(--sizes-icon-md);
+  block-size: var(--sizes-icon-md);
+  margin: 0;
+  accent-color: var(--colors-primary);
+  cursor: pointer;
+}

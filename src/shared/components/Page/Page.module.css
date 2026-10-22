@@ -1,0 +1,8 @@
+.page {
+  max-inline-size: var(--page-content-max-width);
+  padding-block-start: var(--spacing-6);
+}
+
+.centered {
+  margin-inline: auto;
+}

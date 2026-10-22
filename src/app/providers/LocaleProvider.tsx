@@ -1,18 +1,21 @@
 import { useCallback, useLayoutEffect, useMemo, useState, type ReactNode } from 'react';
-import { applyTheme, defaultLocale, isLocale, nextLocale, themes, type Locale } from '@/shared/theme';
+import { applyTheme, buildTheme, defaultLocale, isLocale, type Locale } from '@/shared/theme';
 import { storageKeys, texts } from '@/shared/constants';
-import { LocaleContext } from '@/shared/hooks';
-import { storage } from '@/shared/utils';
+import { LocaleContext, useAppearance, useStoredValue } from '@/shared/hooks';
+import { convertPrice, formatPrice, preferences, storage } from '@/shared/utils';
 
 const savedLocale = (): Locale => {
   const saved = storage.get(storageKeys.locale);
   return isLocale(saved) ? saved : defaultLocale;
 };
 
-// Holds the active language and applies its theme (CSS variables, lang, dir) before each paint.
+// Holds the active language and currency, and applies the language's theme (CSS variables, lang, dir) before each paint.
+// The theme also follows the user's appearance choice (light / dark mode and accent color).
 export const LocaleProvider = ({ children }: { children: ReactNode }) => {
-  const [locale, setLocale] = useState<Locale>(savedLocale);
-  const theme = themes[locale];
+  const [locale, setLocaleState] = useState<Locale>(savedLocale);
+  const [currency, setCurrency] = useStoredValue(preferences.currency);
+  const { mode, accent } = useAppearance();
+  const theme = useMemo(() => buildTheme({ locale, mode, accent }), [locale, mode, accent]);
   const text = texts[locale];
 
   useLayoutEffect(() => {
@@ -21,11 +24,23 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
     storage.set(storageKeys.locale, locale);
   }, [locale, theme, text]);
 
-  const switchLocale = useCallback(() => setLocale(nextLocale), []);
+  // Picking a language is a choice we remember: the language suggestion isn't shown again.
+  const setLocale = useCallback((next: Locale) => {
+    preferences.localeChosen.set(true);
+    setLocaleState(next);
+  }, []);
 
   const value = useMemo(
-    () => ({ locale, theme, text, setLocale, switchLocale }),
-    [locale, theme, text, switchLocale],
+    () => ({
+      locale,
+      theme,
+      text,
+      setLocale,
+      currency,
+      setCurrency,
+      price: (amount: number) => formatPrice(convertPrice(amount, currency), locale, currency),
+    }),
+    [locale, theme, text, setLocale, currency, setCurrency],
   );
 
   return <LocaleContext value={value}>{children}</LocaleContext>;

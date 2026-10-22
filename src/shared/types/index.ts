@@ -1,1 +1,41 @@
 export type { TextShape } from './text';
+export type { CookieConsent } from './consent';
+export { categoryIds } from './catalog';
+export type {
+  AssetCredit,
+  CategoryId,
+  Category,
+  LocalizedText,
+  Creator,
+  ItemTier,
+  TrackVersion,
+  MusicInfo,
+  FontInfo,
+  Item,
+  FilterValues,
+  Facets,
+  SoundProfile,
+  SearchQuery,
+  Page,
+  SearchResults,
+  CatalogStats,
+  CreatorProfile,
+  Collection,
+  CollectionWithItems,
+  SearchSuggestion,
+  SearchReport,
+} from './catalog';
+export type {
+  PlanId,
+  Plan,
+  UserProfile,
+  NotificationSettings,
+  LicensingSettings,
+  BillingAddress,
+  Download,
+  User,
+  SubscriptionStatus,
+  Subscription,
+  Session,
+  License,
+} from './account';

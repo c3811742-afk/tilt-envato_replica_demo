@@ -1,4 +1,13 @@
-import { colors, accentPairs } from './colors';
+import {
+  accentPairs,
+  accentThemes,
+  colors,
+  colorSwatches,
+  darkColors,
+  defaultAccentTheme,
+  type AccentTheme,
+  type ColorMode,
+} from './colors';
 import { typographyByLocale } from './typography';
 import { spacing } from './spacing';
 import { radii } from './radii';
@@ -11,20 +20,36 @@ import { opacity } from './opacity';
 import { sizes } from './sizes';
 import { locales, defaultLocale, type Locale } from './locales';
 
-const buildTheme = (locale: Locale) => {
+export interface ThemeOptions {
+  locale: Locale;
+  mode: ColorMode;
+  accent: AccentTheme;
+}
+
+// The theme for a language, a light or dark mode and an accent color. Every combination has the same keys,
+// so `vars` (built from the default theme) points to the right CSS variable whatever the user picked.
+export const buildTheme = ({ locale, mode, accent }: ThemeOptions) => {
   const { lang, dir } = locales[locale];
+  const themeColors: Record<keyof typeof colors, string> = {
+    ...colors,
+    ...(mode === 'dark' ? darkColors : {}),
+    ...accentThemes[accent],
+  };
   return {
     locale,
     lang,
     dir,
+    colorScheme: mode, // tells the browser to draw its own controls (checkboxes, scrollbars) light or dark
     breakpoints,
-    colors,
+    colors: themeColors,
     accentPairs,
+    colorSwatches,
+    accentThemes, // every accent the user can pick, so the picker can show them all
     typography: typographyByLocale[locale],
     spacing,
     radii,
     borders,
-    shadows: buildShadows(dir),
+    shadows: buildShadows(dir, themeColors.shadow),
     zIndex,
     motion,
     opacity,
@@ -32,12 +57,8 @@ const buildTheme = (locale: Locale) => {
   };
 };
 
-// One theme per language. The active one is chosen by the app's current locale.
-export const themes = {
-  en: buildTheme('en'),
-  ar: buildTheme('ar'),
-} as const;
+export const defaultThemeOptions: ThemeOptions = { locale: defaultLocale, mode: 'light', accent: defaultAccentTheme };
 
-export const theme = themes[defaultLocale];
+export const theme = buildTheme(defaultThemeOptions);
 
 export type Theme = ReturnType<typeof buildTheme>;

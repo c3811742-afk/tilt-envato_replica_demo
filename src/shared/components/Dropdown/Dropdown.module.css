@@ -1,0 +1,29 @@
+.dropdown {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-block-size: var(--dropdown-trigger-height);
+  padding-inline: var(--spacing-3);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+/* Opens under the button, lined up with its end edge (mirrors in Arabic). */
+.panel {
+  position: absolute;
+  inset-block-start: calc(100% + var(--spacing-2));
+  inset-inline-end: 0;
+  z-index: var(--z-index-dropdown);
+  inline-size: var(--dropdown-width);
+  padding: var(--spacing-4);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  box-shadow: var(--shadows-hard);
+}

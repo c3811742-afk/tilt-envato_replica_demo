@@ -1,0 +1,91 @@
+.cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  inline-size: 100%;
+  aspect-ratio: var(--cover-ratio);
+  padding: var(--spacing-4);
+  overflow: hidden;
+  background: var(--cover-background);
+  color: var(--cover-color);
+}
+
+.shape {
+  position: absolute;
+  inset-block-end: var(--sizes-cover-shape-bleed-block);
+  inset-inline-end: var(--sizes-cover-shape-bleed-inline);
+  inline-size: var(--sizes-cover-shape);
+  aspect-ratio: 1;
+  border: var(--borders-width-thick) var(--borders-style) currentcolor;
+}
+
+.circle {
+  border-radius: var(--radii-full);
+}
+
+.square {
+  transform: rotate(var(--sizes-cover-shape-tilt));
+}
+
+.arch {
+  border-start-start-radius: var(--radii-pill);
+  border-start-end-radius: var(--radii-pill);
+}
+
+.icon {
+  position: relative;
+  display: inline-flex;
+}
+
+.title {
+  position: relative;
+  max-inline-size: var(--sizes-cover-title-max-width);
+}
+
+/* A real preview fills the cover; crops instead of stretching. */
+.image {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.sample {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Video items: hovering plays a short moving preview, with its progress along the bottom. */
+.progress {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  inline-size: 0;
+  block-size: var(--borders-width-thick);
+  background: var(--colors-highlight);
+}
+
+.preview:hover .image {
+  animation: drift var(--motion-hover-preview) linear forwards;
+}
+
+.preview:hover .progress {
+  animation: grow var(--motion-hover-preview) linear forwards;
+}
+
+@keyframes drift {
+  to {
+    transform: scale(var(--sizes-stage-zoom)) translate(var(--sizes-stage-drift), 0);
+  }
+}
+
+@keyframes grow {
+  to {
+    inline-size: 100%;
+  }
+}

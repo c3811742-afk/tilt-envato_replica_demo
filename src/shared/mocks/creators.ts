@@ -1,0 +1,148 @@
+import type { Creator } from '@/shared/types';
+
+export const mockCreators = {
+  nileMotion: {
+    id: 'nile-motion',
+    name: 'Nile Motion',
+    city: { en: 'Cairo', ar: 'القاهرة' },
+    country: 'EG',
+    bio: {
+      en: 'A motion design studio making intros, openers and social videos for After Effects and Premiere Pro.',
+      ar: 'استوديو موشن جرافيك يصمم مقدمات وافتتاحيات وفيديوهات سوشيال ميديا لبرنامجي After Effects وPremiere Pro.',
+    },
+    joinedAt: '2023-02-11',
+    accent: 'royalBlue',
+  },
+  wekalaSounds: {
+    id: 'wekala-sounds',
+    name: 'Wekala Sounds',
+    city: { en: 'Alexandria', ar: 'الإسكندرية' },
+    country: 'EG',
+    bio: {
+      en: 'Composers and sound designers recording oud, qanun, percussion and city sounds.',
+      ar: 'مؤلفون ومصممو صوت يسجلون العود والقانون والإيقاعات وأصوات المدينة.',
+    },
+    joinedAt: '2022-09-03',
+    accent: 'hotPink',
+  },
+  khattType: {
+    id: 'khatt-type',
+    name: 'Khatt Type Foundry',
+    city: { en: 'Cairo', ar: 'القاهرة' },
+    country: 'EG',
+    bio: {
+      en: 'An Arabic type foundry drawing Kufi, Naskh and Ruqaa fonts with Latin companions.',
+      ar: 'دار خطوط عربية ترسم خطوط الكوفي والنسخ والرقعة مع حروف لاتينية متناسقة.',
+    },
+    joinedAt: '2021-11-20',
+    accent: 'yellow',
+  },
+  zamalekPixels: {
+    id: 'zamalek-pixels',
+    name: 'Zamalek Pixels',
+    city: { en: 'Cairo', ar: 'القاهرة' },
+    country: 'EG',
+    bio: {
+      en: 'Graphic designers making patterns, icons, logos and social media kits.',
+      ar: 'مصممو جرافيك يصنعون الزخارف والأيقونات والشعارات وقوالب السوشيال ميديا.',
+    },
+    joinedAt: '2022-04-17',
+    accent: 'lime',
+  },
+  deltaFrames: {
+    id: 'delta-frames',
+    name: 'Delta Frames',
+    city: { en: 'Mansoura', ar: 'المنصورة' },
+    country: 'EG',
+    bio: {
+      en: 'Filmmakers shooting drone footage, time-lapses and everyday life in 4K.',
+      ar: 'صنّاع أفلام يصورون لقطات الدرون والتايم لابس والحياة اليومية بدقة 4K.',
+    },
+    joinedAt: '2023-06-01',
+    accent: 'red',
+  },
+  sahelStudio: {
+    id: 'sahel-studio',
+    name: 'Sahel Studio',
+    city: { en: 'Alexandria', ar: 'الإسكندرية' },
+    country: 'EG',
+    bio: {
+      en: 'Presentation and website templates for startups, students and small businesses.',
+      ar: 'قوالب عروض تقديمية ومواقع للشركات الناشئة والطلاب والمشروعات الصغيرة.',
+    },
+    joinedAt: '2023-01-09',
+    accent: 'purple',
+  },
+  fayrouzDesign: {
+    id: 'fayrouz-design',
+    name: 'Fayrouz Design',
+    city: { en: 'Giza', ar: 'الجيزة' },
+    country: 'EG',
+    bio: {
+      en: 'Print and social templates for restaurants, clinics, shops and family occasions.',
+      ar: 'قوالب مطبوعات وسوشيال ميديا للمطاعم والعيادات والمحلات والمناسبات العائلية.',
+    },
+    joinedAt: '2022-07-25',
+    accent: 'orange',
+  },
+  siwaLens: {
+    id: 'siwa-lens',
+    name: 'Siwa Lens',
+    city: { en: 'Cairo', ar: 'القاهرة' },
+    country: 'EG',
+    bio: {
+      en: 'Photographers covering people, food, streets and landscapes across the country.',
+      ar: 'مصورون يوثقون الناس والأكل والشوارع والمناظر الطبيعية في كل أنحاء البلد.',
+    },
+    joinedAt: '2021-05-14',
+    accent: 'skyBlue',
+  },
+  pixelHarbor: {
+    id: 'pixel-harbor',
+    name: 'Pixel Harbor',
+    city: { en: 'Lisbon', ar: 'لشبونة' },
+    country: 'PT',
+    bio: {
+      en: 'A small team making clean video templates and aerial footage.',
+      ar: 'فريق صغير يصمم قوالب فيديو بسيطة ولقطات جوية.',
+    },
+    joinedAt: '2020-10-02',
+    accent: 'mint',
+  },
+  northline: {
+    id: 'northline',
+    name: 'Northline Studio',
+    city: { en: 'Berlin', ar: 'برلين' },
+    country: 'DE',
+    bio: {
+      en: 'Electronic music, cinematic sound design and moody city photography.',
+      ar: 'موسيقى إلكترونية وتصميم صوت سينمائي وتصوير للمدن بأجواء هادئة.',
+    },
+    joinedAt: '2019-03-28',
+    accent: 'forest',
+  },
+  gulfBeats: {
+    id: 'gulf-beats',
+    name: 'Gulf Beats',
+    city: { en: 'Dubai', ar: 'دبي' },
+    country: 'AE',
+    bio: {
+      en: 'Khaleeji and Arabic pop producers making tracks for ads and vlogs.',
+      ar: 'منتجو موسيقى خليجية وبوب عربي يصنعون مقطوعات للإعلانات والفلوجات.',
+    },
+    joinedAt: '2022-12-12',
+    accent: 'purple',
+  },
+  atlasType: {
+    id: 'atlas-type',
+    name: 'Atlas Type',
+    city: { en: 'London', ar: 'لندن' },
+    country: 'GB',
+    bio: {
+      en: 'Display and text fonts for Latin script, from condensed headlines to elegant serifs.',
+      ar: 'خطوط عناوين ونصوص للحروف اللاتينية، من العناوين المضغوطة إلى الخطوط المذيلة الأنيقة.',
+    },
+    joinedAt: '2020-06-19',
+    accent: 'royalBlue',
+  },
+} satisfies Record<string, Creator>;
