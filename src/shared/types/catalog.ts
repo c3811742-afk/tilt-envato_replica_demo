@@ -152,6 +152,8 @@ export interface SearchQuery {
   spotlight?: Spotlight;
   look?: string; // search by image: the reference image's color layout
   soundsLike?: SoundProfile; // find similar music
+  uploadedFrom?: string; // ISO date: uploaded on or after
+  uploadedTo?: string; // ISO date: uploaded on or before
   offset?: number;
   limit?: number;
 }

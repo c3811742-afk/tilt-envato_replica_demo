@@ -53,7 +53,17 @@ export const SearchPage = () => {
       onCategoryChange={(categoryId) =>
         navigate(search.pathWith({ categoryId, filters: keepFilters(search.filters, categoryId ? categoryFilters[categoryId] : categoryFilters.all) }))
       }
-      onChange={(filters) => navigate(search.pathWith({ filters }), { replace: true })}
+      // A quick date choice (past week…) and a custom range replace each other.
+      onChange={(filters) =>
+        navigate(
+          search.pathWith(filters.date ? { filters, uploadedFrom: undefined, uploadedTo: undefined } : { filters }),
+          { replace: true },
+        )
+      }
+      range={{ from: search.uploadedFrom, to: search.uploadedTo }}
+      onRangeChange={({ from, to }) =>
+        navigate(search.pathWith({ uploadedFrom: from, uploadedTo: to, filters: { ...search.filters, date: undefined } }), { replace: true })
+      }
     />
   );
 
@@ -95,7 +105,11 @@ export const SearchPage = () => {
       <SplitLayout
         asideAt="start"
         columns={`${vars.sizes.sidebar.width} minmax(0, 1fr)`}
-        aside={<div className={styles.sidebar}>{filterPanel}</div>}
+        aside={
+          <div className={styles.sidebar} data-tour="filters">
+            {filterPanel}
+          </div>
+        }
         main={
           <Stack gap={vars.spacing[6]}>
             <SearchResultsView

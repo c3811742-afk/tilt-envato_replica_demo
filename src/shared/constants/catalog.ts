@@ -24,6 +24,7 @@ export const catalog = {
   tutorialStepSeconds: 6, // how long each tutorial step is shown
   defaultPreviewSeconds: 20, // preview length when an item has no duration
   waveformBars: 96, // bars drawn in a waveform
+  earliestUploadYear: 2020, // the upload date filter accepts years from this one to the current year
 } as const;
 
 export const sortOptions = ['relevant', 'popular', 'newest'] as const;

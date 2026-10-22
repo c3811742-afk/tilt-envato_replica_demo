@@ -84,6 +84,7 @@ export {
   formatExpiry,
   keepDigits,
   isGovernorate,
+  isIsoDate,
 } from './validation';
 export type { FieldError } from './validation';
 export {

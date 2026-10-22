@@ -17,7 +17,7 @@ import {
   type Spotlight,
 } from '@/shared/constants';
 import type { CategoryId, FilterValues, SearchQuery, SoundProfile } from '@/shared/types';
-import { isCategoryId, isImageLook, isOneOf, soundProfileFromParam, soundProfileToParam } from '@/shared/utils';
+import { isCategoryId, isImageLook, isIsoDate, isOneOf, soundProfileFromParam, soundProfileToParam } from '@/shared/utils';
 
 export type SoundSource = MusicLinkService | 'file';
 const soundSources: readonly SoundSource[] = ['youtube', 'spotify', 'file'];
@@ -38,6 +38,8 @@ export interface SearchState {
   look?: string; // search by image
   soundsLike?: SoundProfile; // find similar music
   soundSource?: SoundSource; // what the sound profile was measured from
+  uploadedFrom?: string; // upload date range (ISO dates)
+  uploadedTo?: string;
   page: number;
   isEmpty: boolean; // no parameter at all in the URL (the bare search page)
 }
@@ -57,6 +59,8 @@ export const useSearchFilters = () => {
   const look = get('look');
   const soundSource = get('soundSource');
   const page = Number(get('page'));
+  const uploadedFrom = get('uploadedFrom');
+  const uploadedTo = get('uploadedTo');
 
   const filters: FilterValues = {};
   for (const key of filterKeys) {
@@ -79,6 +83,8 @@ export const useSearchFilters = () => {
     look: isImageLook(look) ? look : undefined,
     soundsLike: soundProfileFromParam(get('soundsLike')),
     soundSource: isOneOf(soundSource, soundSources) ? soundSource : undefined,
+    uploadedFrom: isIsoDate(uploadedFrom) ? uploadedFrom : undefined,
+    uploadedTo: isIsoDate(uploadedTo) ? uploadedTo : undefined,
     page: Number.isInteger(page) && page > 1 ? page : 1,
     isEmpty: params.size === 0,
   };
@@ -101,6 +107,8 @@ export const useSearchFilters = () => {
       look: next.look,
       soundsLike: next.soundsLike && soundProfileToParam(next.soundsLike),
       soundSource: next.soundsLike ? next.soundSource : undefined,
+      uploadedFrom: next.uploadedFrom,
+      uploadedTo: next.uploadedTo,
       page: next.page,
     });
   };
@@ -120,6 +128,8 @@ export const useSearchFilters = () => {
     spotlight: state.spotlight,
     look: state.look,
     soundsLike: state.soundsLike,
+    uploadedFrom: state.uploadedFrom,
+    uploadedTo: state.uploadedTo,
   };
 
   return { ...state, pathWith, searchQuery: query, searchKey: params.toString() };

@@ -197,6 +197,10 @@ export const en = {
     notByAuthors: 'Not by {authors}',
     activeFilters: 'Active filters',
     removeFilter: 'Remove {filter}',
+    uploadedIn: 'Uploaded in {year}',
+    uploadedBetween: 'Uploaded {from} to {to}',
+    uploadedSince: 'Uploaded since {from}',
+    uploadedUntil: 'Uploaded until {to}',
     reportPrompt: 'Results not what you expected?',
   },
   categories: {
@@ -862,7 +866,10 @@ export const en = {
     steps: {
       search: { title: 'Search everything', text: 'Find templates, music, fonts and more from the search bar.' },
       categories: { title: 'Browse by category', text: 'Go straight to video, music, fonts, photos and more.' },
-      downloads: { title: 'Download with a license', text: 'Every download comes with a license for your project. Find your downloads in Notifications.' },
+      filters: { title: 'Narrow your results', text: 'Filter by file type, orientation, color, upload date and more, then sort the results.' },
+      preview: { title: 'Preview before you download', text: 'Play videos and music, try fonts with your own text, and look inside template files.' },
+      downloads: { title: 'Download with a license', text: 'Every download comes with a license for your project.' },
+      notifications: { title: 'Notifications', text: "Your downloads and what's new on the site are here." },
       account: { title: 'Your account', text: 'Manage your plan, notifications and settings from the account menu.' },
     },
   },
@@ -1022,6 +1029,13 @@ export const en = {
     },
     date: {
       label: 'Upload date',
+      customRange: 'Or choose dates',
+      year: 'Year',
+      yearPlaceholder: 'e.g. {year}',
+      yearInvalid: 'Enter a year from {min} to {max}.',
+      from: 'From',
+      to: 'To',
+      rangeInvalid: 'The start date must be before the end date.',
       options: {
         pastWeek: 'Past week',
         pastMonth: 'Past month',

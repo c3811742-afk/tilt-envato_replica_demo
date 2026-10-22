@@ -3,7 +3,26 @@ import { Chip, Icon, Stack, TextLink } from '@/shared/components';
 import { filterKeys, searchPath } from '@/shared/constants';
 import { useAsync, useLocale, type useSearchFilters } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { api, fillText } from '@/shared/utils';
+import { api, fillText, formatDate } from '@/shared/utils';
+
+// The custom upload date range as one chip: "Uploaded in 2026", "Uploaded 1 Mar 2026 to 30 Jun 2026"…
+const uploadRangeFilter = (
+  search: ReturnType<typeof useSearchFilters>,
+  text: ReturnType<typeof useLocale>['text'],
+  locale: ReturnType<typeof useLocale>['locale'],
+): ActiveFilter[] => {
+  const { uploadedFrom: from, uploadedTo: to } = search;
+  if (!from && !to) return [];
+  const sameYear = from?.endsWith('-01-01') && to?.endsWith('-12-31') && from.slice(0, 4) === to.slice(0, 4);
+  const label = sameYear
+    ? fillText(text.search.uploadedIn, { year: from?.slice(0, 4) ?? '' })
+    : from && to
+      ? fillText(text.search.uploadedBetween, { from: formatDate(from, locale), to: formatDate(to, locale) })
+      : from
+        ? fillText(text.search.uploadedSince, { from: formatDate(from, locale) })
+        : fillText(text.search.uploadedUntil, { to: formatDate(to ?? '', locale) });
+  return [{ key: 'uploaded', label, path: search.pathWith({ uploadedFrom: undefined, uploadedTo: undefined }) }];
+};
 
 interface ActiveFilter {
   key: string;
@@ -13,7 +32,7 @@ interface ActiveFilter {
 
 // Everything that narrows the results, each removable, and "Clear all" (keeps the query and category).
 export const ActiveFilters = ({ search }: { search: ReturnType<typeof useSearchFilters> }) => {
-  const { text } = useLocale();
+  const { text, locale } = useLocale();
   const navigate = useNavigate();
   const needsCreators = search.authors.length > 0 || search.excludeAuthors.length > 0;
   const creators = useAsync(() => (needsCreators ? api.getCreators() : Promise.resolve([])), [needsCreators]);
@@ -47,6 +66,7 @@ export const ActiveFilters = ({ search }: { search: ReturnType<typeof useSearchF
           },
         ]
       : []),
+    ...uploadRangeFilter(search, text, locale),
     ...(search.look ? [{ key: 'look', label: text.search.imageActive, path: search.pathWith({ look: undefined }) }] : []),
     ...(search.soundsLike
       ? [

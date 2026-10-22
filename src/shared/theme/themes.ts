@@ -49,7 +49,7 @@ export const buildTheme = ({ locale, mode, accent }: ThemeOptions) => {
     spacing,
     radii,
     borders,
-    shadows: buildShadows(dir, themeColors.shadow),
+    shadows: buildShadows(dir, themeColors.shadow, themeColors.overlay),
     zIndex,
     motion,
     opacity,

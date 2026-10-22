@@ -50,7 +50,9 @@ export const ItemDetails = ({ item }: { item: Item }) => {
         <SplitLayout
           main={
             <Stack gap={vars.spacing[5]}>
-              <ItemPreview item={item} title={title} />
+              <div data-tour="preview">
+                <ItemPreview item={item} title={title} />
+              </div>
               <Section title={text.item.about} variant="h3" gap={vars.spacing[2]}>
                 <Text autoDirection>{item.description[textLanguage]}</Text>
                 {item.imageCredit && (
@@ -102,10 +104,12 @@ export const ItemDetails = ({ item }: { item: Item }) => {
                 <ItemDownload
                   item={item}
                   trigger={(open) => (
-                    <Button size="lg" fullWidth onClick={open}>
-                      <Icon name="download" />
-                      {item.tier === 'free' ? text.item.freeThisMonth : text.item.download}
-                    </Button>
+                    <div data-tour="download">
+                      <Button size="lg" fullWidth onClick={open}>
+                        <Icon name="download" />
+                        {item.tier === 'free' ? text.item.freeThisMonth : text.item.download}
+                      </Button>
+                    </div>
                   )}
                 />
                 <Grid as="div" columns={2} gap={vars.spacing[3]}>

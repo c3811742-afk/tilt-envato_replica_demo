@@ -71,6 +71,13 @@ export const searchSynonyms: Record<string, readonly string[]> = {
   حلو: ['elegant', 'أنيق'],
   clip: ['video', 'footage'],
   footage: ['video', 'stock'],
+  // Other names of file types.
+  jpeg: ['jpg'],
+  ppt: ['pptx'],
+  woff: ['woff2'],
+  ae: ['aep'],
+  prproj: ['premiere'],
+  pr: ['prproj'],
 };
 
 // Words that carry no meaning in a search ("music for my video" searches "music" and "video").

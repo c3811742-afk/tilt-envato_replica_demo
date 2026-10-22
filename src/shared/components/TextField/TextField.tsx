@@ -25,6 +25,8 @@ export const TextField = (props: TextFieldProps) => {
     endAction,
     direction,
     maxLength,
+    min,
+    max,
     disabled,
     required,
     autoFocus,
@@ -58,6 +60,8 @@ export const TextField = (props: TextFieldProps) => {
           onChange={(event) => onChange?.(event.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
+          min={min}
+          max={max}
           disabled={disabled}
           required={required}
           autoFocus={autoFocus}

@@ -2,6 +2,7 @@ import {
   arabicPrefixes,
   arabicStemMinLength,
   defaultSort,
+  formatSoftware,
   naturalSearch,
   searchStopWords,
   searchSynonyms,
@@ -81,6 +82,7 @@ interface SearchFields {
   titles: Words;
   tags: string[]; // whole tags, normalized ("real estate")
   tagWords: Words;
+  formats: Words; // file types ("psd", "mp4")
   meta: Words; // category, occasion and business names, and labels of its filter values, in both languages
   creator: Words;
   descriptions: Words;
@@ -103,6 +105,11 @@ const labelsOf = (item: Item, categories: readonly Pick<Category, 'id' | 'keywor
     ...(item.font ? [text.filters.fontCategory.options[item.font.category]] : []),
     ...(item.orientation ? [text.filters.orientation.options[item.orientation]] : []),
     ...(item.resolution ? [text.filters.resolution.options[item.resolution]] : []),
+    // The apps that open its files ("photoshop", "after effects").
+    ...item.formats.flatMap((format) => {
+      const app = formatSoftware[format];
+      return app ? [text.filters.software.options[app]] : [];
+    }),
     ...(categories.find((category) => category.id === item.categoryId)?.keywords ?? []),
   ]);
 
@@ -113,6 +120,7 @@ const fieldsOf = (item: Item, categories: readonly Pick<Category, 'id' | 'keywor
       titles: Object.values(item.title).flatMap(wordsOf),
       tags: item.tags.map(normalizeSearchText),
       tagWords: item.tags.flatMap(wordsOf),
+      formats: item.formats.map(normalizeSearchText),
       meta: labelsOf(item, categories).flatMap(wordsOf),
       creator: wordsOf(item.creator.name),
       descriptions: Object.values(item.description).flatMap(wordsOf),
@@ -133,7 +141,7 @@ const wordScore = (fields: SearchFields, alternatives: string[]) =>
     ...alternatives.map((word) =>
       Math.max(
         matches(fields.titles, word) ? 3 : 0,
-        fields.tags.includes(word) ? 3 : matches(fields.tagWords, word) ? 2 : 0,
+        fields.tags.includes(word) || fields.formats.includes(word) ? 3 : matches(fields.tagWords, word) ? 2 : 0,
         matches(fields.meta, word) ? 1.5 : 0,
         matches(fields.creator, word) ? 1 : 0,
         matches(fields.descriptions, word) ? 0.5 : 0,

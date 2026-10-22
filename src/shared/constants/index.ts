@@ -58,6 +58,10 @@ export {
   accountSections,
   downloadPreparingSeconds,
   tourSteps,
+  tourItemId,
+  tourStepPlaces,
+  tourTargetWaitMs,
+  tourScroll,
 } from './account';
 export type {
   UseCase,

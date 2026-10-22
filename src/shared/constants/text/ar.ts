@@ -197,6 +197,10 @@ export const ar: TextShape<typeof en> = {
     notByAuthors: 'ليست من {authors}',
     activeFilters: 'الفلاتر المختارة',
     removeFilter: 'إزالة {filter}',
+    uploadedIn: 'رُفع في {year}',
+    uploadedBetween: 'رُفع من {from} إلى {to}',
+    uploadedSince: 'رُفع منذ {from}',
+    uploadedUntil: 'رُفع حتى {to}',
     reportPrompt: 'النتائج ليست كما توقعت؟',
   },
   categories: {
@@ -862,7 +866,10 @@ export const ar: TextShape<typeof en> = {
     steps: {
       search: { title: 'ابحث في كل شيء', text: 'اعثر على القوالب والموسيقى والخطوط وغيرها من شريط البحث.' },
       categories: { title: 'تصفّح حسب القسم', text: 'انتقل مباشرة إلى الفيديو والموسيقى والخطوط والصور وغيرها.' },
-      downloads: { title: 'نزّل مع ترخيص', text: 'كل تنزيل يأتي مع ترخيص لمشروعك. تجد تنزيلاتك في الإشعارات.' },
+      filters: { title: 'ضيّق النتائج', text: 'استخدم الفلاتر حسب نوع الملف والاتجاه واللون وتاريخ الرفع وغيرها، ثم رتّب النتائج.' },
+      preview: { title: 'عاين قبل التنزيل', text: 'شغّل الفيديو والموسيقى، وجرّب الخطوط بنصك، وتعرّف على محتوى ملفات القوالب.' },
+      downloads: { title: 'نزّل مع ترخيص', text: 'كل تنزيل يأتي مع ترخيص لمشروعك.' },
+      notifications: { title: 'الإشعارات', text: 'تجد هنا تنزيلاتك وكل جديد على الموقع.' },
       account: { title: 'حسابك', text: 'أدِر باقتك وإشعاراتك وإعداداتك من قائمة الحساب.' },
     },
   },
@@ -1021,6 +1028,13 @@ export const ar: TextShape<typeof en> = {
     },
     date: {
       label: 'تاريخ الرفع',
+      customRange: 'أو اختر التواريخ',
+      year: 'السنة',
+      yearPlaceholder: 'مثلًا {year}',
+      yearInvalid: 'اكتب سنة من {min} إلى {max}.',
+      from: 'من',
+      to: 'إلى',
+      rangeInvalid: 'يجب أن يكون تاريخ البداية قبل تاريخ النهاية.',
       options: {
         pastWeek: 'آخر أسبوع',
         pastMonth: 'آخر شهر',

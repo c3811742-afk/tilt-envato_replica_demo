@@ -48,6 +48,7 @@ export const sizes = {
   // A video preview's slow zoom and drift (the "Ken Burns" move) over its whole length.
   stage: { zoom: '1.18', drift: '-4%' },
   suggestions: { maxHeight: 'min(60dvh, 24rem)' },
+  tour: { width: 'min(90vw, 22rem)' }, // the card next to a highlighted element
   categoryCard: { minWidth: 'min(10rem, 100%)' },
   // Generated item cover art: icon size, the decorative shape (size, how far it bleeds off the corner, tilt) and title width.
   cover: {

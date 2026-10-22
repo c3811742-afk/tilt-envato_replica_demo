@@ -48,11 +48,16 @@ export const Header = () => {
 
             {session.status === 'signedIn' ? (
               <>
-                <Button variant="outline" size="sm" to={routes.notifications} ariaLabel={text.nav.notifications}>
-                  <Icon name="bell" size={vars.sizes.icon.sm} />
-                  {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
-                </Button>
-                <AccountMenu user={session.user} subscription={session.subscription} />
+                {/* data-tour: the first-login tour points at these. */}
+                <span data-tour="notifications">
+                  <Button variant="outline" size="sm" to={routes.notifications} ariaLabel={text.nav.notifications}>
+                    <Icon name="bell" size={vars.sizes.icon.sm} />
+                    {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
+                  </Button>
+                </span>
+                <div data-tour="account">
+                  <AccountMenu user={session.user} subscription={session.subscription} />
+                </div>
               </>
             ) : (
               <>

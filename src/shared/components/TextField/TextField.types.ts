@@ -6,7 +6,7 @@ export interface TextFieldProps {
   onChange?: (value: string) => void;
   id?: string; // generated when not given
   name?: string;
-  type?: 'text' | 'email' | 'password' | 'tel';
+  type?: 'text' | 'email' | 'password' | 'tel' | 'date'; // 'date' opens the device's calendar
   inputMode?: 'text' | 'email' | 'numeric' | 'tel';
   placeholder?: string;
   hint?: string; // help text under the field
@@ -15,6 +15,8 @@ export interface TextFieldProps {
   endAction?: ReactNode; // a small button at the end of the field, e.g. "Show password"
   direction?: 'auto' | 'ltr'; // 'ltr' for numbers and codes, which read left to right in every language
   maxLength?: number;
+  min?: string; // earliest date (YYYY-MM-DD) for a date field
+  max?: string; // latest date for a date field
   disabled?: boolean;
   required?: boolean;
   autoFocus?: boolean;

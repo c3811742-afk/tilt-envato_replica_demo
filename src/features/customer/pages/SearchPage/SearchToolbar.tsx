@@ -27,8 +27,8 @@ export const SearchToolbar = ({ search, onOpen }: SearchToolbarProps) => {
   return (
     <Stack direction="row" wrap align="flex-end" justify="space-between" gap={vars.spacing[3]}>
       <Stack direction="row" wrap align="flex-end" gap={vars.spacing[3]}>
-        <div className={styles.phoneFilters}>
-          <Button variant="outline" size="sm" onClick={() => onOpen('filters')}>
+        <div className={styles.phoneFilters} data-tour="filtersButton">
+          <Button variant="outline" onClick={() => onOpen('filters')}>
             <Icon name="filter" size={vars.sizes.icon.sm} />
             {selected ? fillText(text.filters.titleWithCount, { count: formatNumber(selected, locale) }) : text.filters.title}
           </Button>
@@ -39,8 +39,10 @@ export const SearchToolbar = ({ search, onOpen }: SearchToolbarProps) => {
           onChange={(sort) => navigate(search.pathWith({ sort: sort as typeof search.sort }))}
           options={sortOptions.map((option) => ({ value: option, label: text.search.sort[option] }))}
         />
+        {/* As tall as the sort box next to it. */}
         <Dropdown
           label={text.search.view}
+          triggerHeight={vars.sizes.input.height}
           trigger={
             <>
               <Icon name="grid" size={vars.sizes.icon.sm} />
@@ -91,16 +93,16 @@ export const SearchToolbar = ({ search, onOpen }: SearchToolbarProps) => {
       </Stack>
 
       <Stack direction="row" wrap gap={vars.spacing[2]}>
-        <Button variant="muted" size="sm" onClick={() => onOpen('advanced')}>
+        <Button variant="muted" onClick={() => onOpen('advanced')}>
           <Icon name="search" size={vars.sizes.icon.sm} />
           {text.search.advanced}
         </Button>
-        <Button variant="muted" size="sm" onClick={() => onOpen('image')}>
+        <Button variant="muted" onClick={() => onOpen('image')}>
           <Icon name="camera" size={vars.sizes.icon.sm} />
           {text.search.byImage}
         </Button>
         {(!search.categoryId || tracks) && (
-          <Button variant="muted" size="sm" onClick={() => onOpen('music')}>
+          <Button variant="muted" onClick={() => onOpen('music')}>
             <Icon name="music" size={vars.sizes.icon.sm} />
             {text.search.similarMusic}
           </Button>

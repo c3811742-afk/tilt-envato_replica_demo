@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { useSession } from '@/shared/hooks';
 import { onboardingState } from '@/shared/utils';
-import { TourDialog } from '@/features/common/components';
+import { SiteTour } from '@/features/common/components';
 import { BottomNav } from './BottomNav';
 import { CookieBanner } from './CookieBanner';
 import { CookieSettingsDialog } from './CookieSettingsDialog';
@@ -33,7 +33,7 @@ export const AppLayout = () => {
       <BottomNav />
       <CookieBanner />
       <CookieSettingsDialog />
-      {showTour && <TourDialog />}
+      {showTour && <SiteTour />}
     </div>
   );
 };

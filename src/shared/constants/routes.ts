@@ -43,6 +43,8 @@ export const searchParamKeys = {
   look: 'look',
   soundsLike: 'soundsLike',
   soundSource: 'source',
+  uploadedFrom: 'from',
+  uploadedTo: 'to',
   page: 'page',
 } as const;
 
@@ -64,6 +66,8 @@ export interface SearchPathOptions {
   look?: string;
   soundsLike?: string;
   soundSource?: string;
+  uploadedFrom?: string; // ISO date
+  uploadedTo?: string; // ISO date
   page?: number; // left out for the first page
 }
 

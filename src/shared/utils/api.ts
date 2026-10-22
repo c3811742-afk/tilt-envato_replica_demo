@@ -42,7 +42,7 @@ const withItems = (collection: Collection): CollectionWithItems => ({
 });
 
 // Items a search starts from: the category, browse section and advanced-search authors narrow it down.
-const searchBase = ({ categoryId, occasion, business, spotlight, authors, excludeAuthors }: SearchQuery) =>
+const searchBase = ({ categoryId, occasion, business, spotlight, authors, excludeAuthors, uploadedFrom, uploadedTo }: SearchQuery) =>
   mockItems.filter(
     (item) =>
       (!categoryId || item.categoryId === categoryId) &&
@@ -50,7 +50,10 @@ const searchBase = ({ categoryId, occasion, business, spotlight, authors, exclud
       (!business || item.businesses.includes(business)) &&
       (!spotlight || (item.local && (spotlights[spotlight].categoryIds as readonly CategoryId[]).includes(item.categoryId))) &&
       (!authors?.length || authors.includes(item.creator.id)) &&
-      !excludeAuthors?.includes(item.creator.id),
+      !excludeAuthors?.includes(item.creator.id) &&
+      // ISO dates compare as text: "2026-03-01" < "2026-10-22".
+      (!uploadedFrom || item.createdAt >= uploadedFrom) &&
+      (!uploadedTo || item.createdAt <= uploadedTo),
   );
 
 // Items in result order: by text match, by look (search by image) or by sound (find similar music).

@@ -65,13 +65,25 @@
   padding: 0 var(--spacing-4) var(--spacing-4);
 }
 
-/* In full screen the picture fills the screen above the controls. */
+/* In full screen the controls stay whole at the bottom, and the picture fills the space above them
+   (its edges are cropped rather than pushing the controls off screen). */
 .fullScreen {
-  justify-content: center;
   background: var(--colors-surface-inverse);
 }
 
+.fullScreen .stage {
+  display: flex;
+  flex: 1;
+  min-block-size: 0;
+}
+
+.fullScreen .stage > :first-child {
+  block-size: 100%;
+  aspect-ratio: auto;
+}
+
 .fullScreen .controls {
+  flex-shrink: 0;
   background: var(--colors-surface);
 }
 

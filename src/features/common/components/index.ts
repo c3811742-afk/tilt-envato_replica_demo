@@ -2,7 +2,7 @@ export { AuthPage } from './AuthPage';
 export { AuthSwitch } from './AuthSwitch';
 export { CodeVerification } from './CodeVerification';
 export { ProfileForm } from './ProfileForm';
-export { TourDialog } from './TourDialog';
+export { SiteTour } from './SiteTour';
 export { DemoCodeNote } from './DemoCodeNote';
 export { LegalPage } from './LegalPage';
 export { SocialSignIn, SocialAuthDialog } from './SocialSignIn';
