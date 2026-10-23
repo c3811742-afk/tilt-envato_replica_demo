@@ -1,0 +1,49 @@
+/* The image being worked on, shown at the width of the form. */
+.preview {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: var(--sizes-ai-preview-width);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+/* Earlier results to pick from: small square buttons. */
+.thumbButton {
+  display: block;
+  padding: 0;
+  border: var(--borders-width-thick) var(--borders-style) transparent;
+  background: none;
+  cursor: pointer;
+}
+
+.thumbButton[aria-pressed='true'] {
+  border-color: var(--colors-primary);
+}
+
+.thumb {
+  display: block;
+  inline-size: var(--sizes-ai-thumb);
+  block-size: var(--sizes-ai-thumb);
+  object-fit: cover;
+  background: var(--colors-surface-muted);
+}
+
+/* Marking on an image: the drawing layer sits exactly over the picture. */
+.stage {
+  position: relative;
+  max-inline-size: var(--sizes-ai-preview-width);
+}
+
+.stageImage {
+  display: block;
+  inline-size: 100%;
+}
+
+.marks {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  opacity: var(--opacity-muted);
+  cursor: crosshair;
+  touch-action: none;
+}

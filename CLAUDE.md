@@ -55,6 +55,7 @@ src/
       images/
       icons/
       index.ts        # asset registry: every asset is imported and exported here
+    styles/           # shared CSS shapes used with `composes` (e.g. the hover lift); never copy these rules
     hooks/            # shared React hooks (useLocale...)
     utils/            # shared pure functions (withDefaults, cx, storage, formatters...)
     constants/        # routes, storage keys
@@ -197,6 +198,7 @@ Rules:
 - Override at the call site through props: `<Button variant="secondary" size="lg" />`. Never wrap a shared component just to restyle it, and never copy it to make a variant. Add a variant or prop to the shared one instead.
 - Build bigger components from smaller shared ones (a `Card` uses the shared `Button`, `Text`, `Container`).
 - Use `Text` for all text and `Container` for page width; don't restyle headings or containers per page.
+- Lay pages out with `Page`, `Section`, `Stack` and `Grid` instead of writing flex/grid CSS per page. Page CSS modules only hold what is unique to that page.
 - Join class names with `cx()` from `shared/utils`.
 
 ## Assets

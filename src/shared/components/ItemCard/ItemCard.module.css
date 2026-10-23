@@ -1,0 +1,81 @@
+.card {
+  position: relative;
+  block-size: 100%;
+}
+
+/* The picture takes most of the card; the text under it only what it needs. */
+.link {
+  composes: lift from '@/shared/styles/interactions.module.css';
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  text-decoration: none;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: var(--sizes-item-card-cover-ratio);
+}
+
+/* "Free" or "Premium" sits on the picture's top end corner. */
+.tier {
+  position: absolute;
+  inset-block-start: var(--spacing-3);
+  inset-inline-end: var(--spacing-3);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.creator {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.stat {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+/* The play button sits on the cover's top start corner. */
+.play {
+  position: absolute;
+  inset-block-start: var(--spacing-3);
+  inset-inline-start: var(--spacing-3);
+}
+
+/* Favorite and "Save to collection" sit on the cover's bottom end corner, outside the link:
+   a layer the size of the cover that only its buttons catch clicks on. */
+.actions {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: var(--spacing-2);
+  aspect-ratio: var(--sizes-item-card-cover-ratio);
+  padding: var(--spacing-3);
+  pointer-events: none;
+}
+
+.actions > * {
+  pointer-events: auto;
+}

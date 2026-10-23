@@ -1,0 +1,38 @@
+.group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--segment-background);
+}
+
+.fullWidth {
+  display: flex;
+  inline-size: 100%;
+}
+
+.segment {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  min-block-size: var(--segment-height);
+  padding-inline: var(--sizes-segment-padding-x);
+  border: none;
+  background: transparent;
+  color: var(--segment-color);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Inset, so the ring isn't hidden by the neighbouring option. */
+.segment:focus-visible {
+  outline-offset: calc(-1 * var(--borders-width-thick));
+}
+
+.selected {
+  background: var(--segment-selected-background);
+  color: var(--segment-selected-color);
+}

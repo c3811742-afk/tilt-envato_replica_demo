@@ -4,7 +4,7 @@ import { useLocale } from '@/shared/hooks';
 export const NotFoundPage = () => {
   const { text } = useLocale();
   return (
-    <Container as="main">
+    <Container>
       <ErrorState title={text.notFound.title} message={text.notFound.message} showHomeLink />
     </Container>
   );

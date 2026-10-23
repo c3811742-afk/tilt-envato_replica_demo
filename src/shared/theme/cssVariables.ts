@@ -1,7 +1,7 @@
 import { theme, type Theme } from './themes';
 
 // Keys that describe the theme but are not CSS values.
-const nonStyleKeys = ['locale', 'lang', 'dir', 'breakpoints'] as const;
+const nonStyleKeys = ['locale', 'lang', 'dir', 'colorScheme', 'breakpoints'] as const;
 // Groups whose children become top-level variables (`--font-size-md`, not `--typography-font-size-md`).
 const flattenedKeys = ['typography'];
 
@@ -41,10 +41,11 @@ export const toCssVariables = (activeTheme: Theme) => collectVariables(activeThe
 // Components and defaults use these, so they follow the active language and a typo is a compile error.
 export const vars = buildVarRefs(theme, []) as VarRefs<StyleTokens>;
 
-// Writes the theme onto <html> as CSS variables and sets its lang and dir.
+// Writes the theme onto <html> as CSS variables and sets its lang, dir and color scheme.
 export const applyTheme = (activeTheme: Theme) => {
   const root = document.documentElement;
   Object.entries(toCssVariables(activeTheme)).forEach(([name, value]) => root.style.setProperty(name, value));
   root.lang = activeTheme.lang;
   root.dir = activeTheme.dir;
+  root.style.colorScheme = activeTheme.colorScheme;
 };

@@ -4,4 +4,6 @@ export const motion = {
   fast: '120ms',
   base: '200ms',
   spin: '800ms', // one spinner rotation
+  hoverPreview: '6s', // a video card's moving preview while hovered
+  slow: '400ms',
 } as const;

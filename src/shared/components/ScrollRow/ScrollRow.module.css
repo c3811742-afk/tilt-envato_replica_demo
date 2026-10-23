@@ -1,0 +1,16 @@
+.row {
+  display: flex;
+  gap: var(--scroll-row-gap);
+  inline-size: 100%; /* never wider than its container, even inside a shrink-to-fit parent */
+  padding-block: var(--spacing-2) var(--spacing-4);
+  padding-inline-end: var(--spacing-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.item {
+  flex: 0 0 var(--scroll-row-item-width);
+  scroll-snap-align: start;
+}

@@ -1,0 +1,15 @@
+import type { FormEvent, ReactNode } from 'react';
+
+export interface StackProps {
+  children?: ReactNode;
+  as?: 'div' | 'section' | 'ul' | 'ol' | 'li' | 'nav' | 'form';
+  direction?: 'column' | 'row';
+  gap?: string;
+  align?: 'stretch' | 'flex-start' | 'center' | 'flex-end' | 'baseline';
+  justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between';
+  wrap?: boolean;
+  grow?: boolean; // fills the remaining space of a flex parent
+  onSubmit?: (event: FormEvent<HTMLFormElement>) => void; // when rendered as a form
+  noValidate?: boolean; // when rendered as a form: validate in code, not with browser bubbles
+  ariaLabel?: string;
+}

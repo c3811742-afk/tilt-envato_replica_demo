@@ -1,0 +1,49 @@
+.stage {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: var(--stage-ratio);
+  overflow: hidden;
+  background: var(--colors-surface-inverse);
+}
+
+/* The slow zoom and drift follows the playing position. */
+.picture {
+  block-size: 100%;
+  transform: scale(calc(1 + (var(--sizes-stage-zoom) - 1) * var(--stage-progress)))
+    translate(calc(var(--sizes-stage-drift) * var(--stage-progress)), 0);
+  transform-origin: center;
+}
+
+/* The cover fills the frame whatever its shape (e.g. a full screen that isn't 16:9). */
+.picture > * {
+  block-size: 100%;
+  aspect-ratio: auto;
+}
+
+.title {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-6);
+  background: var(--colors-overlay);
+  text-align: center;
+  opacity: 0;
+  transition: opacity var(--motion-slow) var(--motion-ease);
+}
+
+.visible {
+  opacity: var(--opacity-full);
+}
+
+.caption {
+  position: absolute;
+  inset-block-end: var(--spacing-4);
+  inset-inline: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--colors-highlight);
+}

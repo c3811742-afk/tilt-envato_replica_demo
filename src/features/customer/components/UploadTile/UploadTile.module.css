@@ -1,0 +1,19 @@
+/* An uploaded file's preview: the picture or video fills a square; audio sits in the middle. */
+.preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: var(--sizes-item-card-cover-ratio);
+  overflow: hidden;
+  background: var(--colors-surface-muted);
+}
+
+.media {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.audio {
+  inline-size: 100%;
+}

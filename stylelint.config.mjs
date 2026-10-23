@@ -46,6 +46,8 @@ export default {
   extends: ['stylelint-config-standard'],
   plugins: ['stylelint-declaration-strict-value'],
   rules: {
+    // `composes` shares a class between CSS modules (e.g. the hover lift in shared/styles).
+    'property-no-unknown': [true, { ignoreProperties: ['composes'] }],
     'selector-class-pattern': [
       '^[a-z][a-zA-Z0-9]*$',
       { message: 'CSS module class names are camelCase (e.g. .fullWidth)' },
