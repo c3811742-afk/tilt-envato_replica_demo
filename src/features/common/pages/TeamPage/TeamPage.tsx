@@ -97,7 +97,7 @@ const TeamView = ({ team, myId, planId }: { team: TeamSession; myId: string; pla
       <Card gap={vars.spacing[4]}>
         {isOwner ? <TeamName name={team.name} /> : <Text variant="h3" autoDirection>{team.name}</Text>}
         <Meter
-          label={text.team.membersTitle}
+          label={text.checkout.members}
           value={used}
           max={team.seats}
           valueText={fillText(text.team.seatsUsed, { used: formatNumber(used, locale), seats: formatNumber(team.seats, locale) })}

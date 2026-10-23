@@ -377,6 +377,9 @@ export interface VideoRequest {
   motion: 'pan' | 'zoom';
 }
 
+// How long to wait for the browser to start sound before recording a video without it.
+const audioStartTimeoutMs = 1000;
+
 // Records a short video in real time: the frames move (pan or zoom) and cross-fade, with the prompt's tune when sound is on.
 export const makeVideo = async ({ duration, aspect, resolution, audio, prompt, frames, motion }: VideoRequest) => {
   const scale = aiVideoScale[resolution];
@@ -390,11 +393,19 @@ export const makeVideo = async ({ duration, aspect, resolution, audio, prompt, f
   let audioContext: AudioContext | null = null;
   if (audio) {
     audioContext = new AudioContext();
-    const destination = audioContext.createMediaStreamDestination();
-    scheduleTune(audioContext, destination, prompt, duration);
-    destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+    // The browser only lets sound start after the person has used the page; until then the context stays paused,
+    // and recording a paused sound track gives an empty file. In that case the video is recorded without sound.
+    await Promise.race([audioContext.resume(), new Promise((resolve) => setTimeout(resolve, audioStartTimeoutMs))]);
+    if (audioContext.state === 'running') {
+      const destination = audioContext.createMediaStreamDestination();
+      scheduleTune(audioContext, destination, prompt, duration);
+      destination.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+    }
   }
-  const recorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : '' });
+  // With sound, the recorder needs the audio codec named as well as the video one.
+  const withSound = stream.getAudioTracks().length > 0;
+  const mimeType = (withSound ? ['video/webm;codecs=vp8,opus', 'video/webm'] : ['video/webm']).find((type) => MediaRecorder.isTypeSupported(type)) ?? '';
+  const recorder = new MediaRecorder(stream, { mimeType });
   const chunks: Blob[] = [];
   recorder.ondataavailable = (event) => chunks.push(event.data);
   const done = new Promise<Blob>((resolve) => (recorder.onstop = () => resolve(new Blob(chunks, { type: recorder.mimeType || 'video/webm' }))));
