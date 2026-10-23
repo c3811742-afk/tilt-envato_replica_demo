@@ -42,6 +42,13 @@ export const icons = {
   pencil: ['M17 3l4 4L8 20H4v-4z', 'M14 6l4 4'],
   pin: ['M12 17v5', 'M9 3h6l-1 6 4 4v2H6v-2l4-4z'],
   share: [circle(18, 5, 3), circle(6, 12, 3), circle(18, 19, 3), 'M8.6 13.5l6.8 4', 'M15.4 6.5l-6.8 4'],
+  // Social media (line versions that follow the text color)
+  instagram: ['M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z', circle(12, 12, 4), 'M17.5 6.5h.01'],
+  facebook: ['M15 3h-3a4 4 0 0 0-4 4v3H6v4h2v7h4v-7h3l1-4h-4V7a1 1 0 0 1 1-1h2z'],
+  youtube: ['M2.5 7.5A3 3 0 0 1 5 5c3-.5 11-.5 14 0a3 3 0 0 1 2.5 2.5c.5 3 .5 6 0 9A3 3 0 0 1 19 19c-3 .5-11 .5-14 0a3 3 0 0 1-2.5-2.5c-.5-3-.5-6 0-9z', 'M10 9l5 3-5 3z'],
+  tiktok: ['M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5', 'M14 3c.5 3 2.5 5 5.5 5'],
+  linkedin: [rect(2, 9, 4, 12), circle(4, 4, 2), 'M10 21v-7a4 4 0 0 1 8 0v7', 'M10 9v12', 'M18 21h4v-7a6 6 0 0 0-6-6'],
+  x: ['M4 4l16 16', 'M20 4L4 20'],
   shield: ['M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', 'M9 12l2 2 4-4'],
   upload: ['M21 15v6H3v-6', 'M17 8l-5-5-5 5', 'M12 3v12'],
   camera: ['M23 19V8h-5l-2-3H8L6 8H1v11z', circle(12, 13, 4)],

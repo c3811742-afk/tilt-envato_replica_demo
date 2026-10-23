@@ -1,7 +1,6 @@
-import { Card, ContactButton, Page, Section, Text } from '@/shared/components';
+import { Card, ContactButton, FaqAccordion, Page, Section, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { FaqAccordion } from '@/features/customer/components';
 
 export const FaqPage = () => {
   const { text } = useLocale();

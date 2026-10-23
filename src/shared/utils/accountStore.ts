@@ -1,8 +1,11 @@
 import { accountPath, auth, defaultLicensingPreference, notificationTopics, renewalReminderDays, storageKeys, type AlertKind } from '@/shared/constants';
-import { mockLicenses } from '@/shared/mocks';
+import { mockLicenses, mockPlans } from '@/shared/mocks';
 import type { Locale } from '@/shared/theme';
 import type {
   Alert,
+  Team,
+  TeamInvitation,
+  TeamSession,
   LicenseRecord,
   LicensingSettings,
   NotificationSettings,
@@ -30,8 +33,10 @@ export interface StoredAccount extends User {
 
 export interface SessionAccount {
   user: User;
-  subscription: Subscription | null;
+  subscription: Subscription | null; // the user's own plan, or their team's when they don't have one
   pass: PassPurchase | null;
+  team: TeamSession | null;
+  invitations: TeamInvitation[];
 }
 
 const defaultNotifications = (language: Locale): NotificationSettings => ({
@@ -60,6 +65,9 @@ const emptyAccountFields = {
   invoices: [],
   balance: 0,
   generations: [],
+  supportRequests: [],
+  copyrightReports: [],
+  suspension: null,
   pendingCode: null,
   subscription: null,
   pass: null,
@@ -97,6 +105,8 @@ const upgrade = (saved: LegacyAccount): StoredAccount => {
     profile,
     subscription,
     downloads: (saved.downloads ?? []).map((download) => ({ ...download, use: download.use ?? 'other' })),
+    // Generations from before AI Studio were all images drawn from the request.
+    generations: (saved.generations ?? []).map((generation) => ({ ...generation, tool: generation.tool ?? 'image', outputs: generation.outputs ?? Array.from({ length: generation.count ?? 1 }, () => ({ kind: 'image' as const })) })),
   } as StoredAccount;
 };
 
@@ -124,11 +134,19 @@ export const saveAccount = (updated: StoredAccount) => {
   return updated;
 };
 
-export const toSessionAccount = ({ passwordHash: _hash, pendingCode: _code, subscription, pass, ...user }: StoredAccount): SessionAccount => ({
-  user,
-  subscription,
-  pass,
-});
+// What the signed-in user sees: their account, the plan they use (their own, or their team's), their team and invitations.
+export const toSessionAccount = (account: StoredAccount): SessionAccount => {
+  const { passwordHash: _hash, pendingCode: _code, subscription: _subscription, pass, ...user } = account;
+  const access = planAccess(account);
+  const team = teamOf(account.id);
+  return {
+    user,
+    subscription: access.subscription,
+    pass,
+    team: team && teamSession(team, account.id, access.pool, access.viaTeam),
+    invitations: invitationsFor(account),
+  };
+};
 
 export const startSession = (account: StoredAccount) => {
   storage.set(storageKeys.sessionUserId, account.id);
@@ -261,3 +279,63 @@ export const readCatalogEvents = (): CatalogEvents => {
 };
 
 export const writeCatalogEvents = (events: CatalogEvents) => storage.set(storageKeys.catalogEvents, JSON.stringify(events));
+
+// ---------- Teams ----------
+
+export const readTeams = (): Team[] => {
+  const saved = storage.get(storageKeys.teams);
+  if (!saved) return [];
+  try {
+    const parsed: unknown = JSON.parse(saved);
+    return Array.isArray(parsed) ? (parsed as Team[]) : [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+export const writeTeams = (teams: Team[]) => storage.set(storageKeys.teams, JSON.stringify(teams));
+
+export const saveTeam = (updated: Team) => {
+  writeTeams([...readTeams().filter((team) => team.id !== updated.id), updated]);
+  return updated;
+};
+
+// The team an account belongs to (as owner, admin or member).
+export const teamOf = (accountId: string) => readTeams().find((team) => team.members.some((member) => member.accountId === accountId)) ?? null;
+
+// Plans that come with a team: priced per seat.
+const isTeamPlan = (subscription: Subscription | null) => subscription !== null && mockPlans.some((plan) => plan.id === subscription.planId && plan.perMember);
+
+// The plan an account downloads and generates with, and whose usage counts against it:
+// their own plan, or (for team members without one) the owner's, shared by the whole team.
+export const planAccess = (account: StoredAccount): { subscription: Subscription | null; pool: StoredAccount[]; viaTeam: boolean } => {
+  const team = teamOf(account.id);
+  const owner = team && (team.ownerId === account.id ? account : findById(team.ownerId));
+  const teamPlan = owner && isTeamPlan(owner.subscription) && owner.subscription?.status === 'active' ? owner.subscription : null;
+  const usesTeam = teamPlan && (team?.ownerId === account.id || !account.subscription || account.subscription.status !== 'active');
+  if (!team || !usesTeam) return { subscription: account.subscription, pool: [account], viaTeam: false };
+  const members = team.members.map((member) => (member.accountId === account.id ? account : findById(member.accountId))).filter((member): member is StoredAccount => member !== undefined);
+  return { subscription: teamPlan, pool: members, viaTeam: true };
+};
+
+const teamSession = (team: Team, accountId: string, pool: StoredAccount[], usesTeamPlan: boolean): TeamSession => {
+  const owner = findById(team.ownerId);
+  return {
+    ...team,
+    role: team.members.find((member) => member.accountId === accountId)?.role ?? 'member',
+    ownerName: owner?.name ?? '',
+    seats: owner?.subscription && isTeamPlan(owner.subscription) ? owner.subscription.members : team.members.length,
+    usesTeamPlan,
+    downloads: pool.flatMap((member) => member.downloads).sort((a, b) => b.requestedAt.localeCompare(a.requestedAt)),
+    generations: pool.flatMap((member) => member.generations).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+  };
+};
+
+// Invitations waiting for this account's email address.
+const invitationsFor = (account: StoredAccount): TeamInvitation[] =>
+  readTeams().flatMap((team) =>
+    team.invites
+      .filter((invite) => invite.email === account.email && !team.members.some((member) => member.accountId === account.id))
+      .map((invite) => ({ teamId: team.id, teamName: team.name, inviteId: invite.id, role: invite.role, invitedBy: invite.invitedBy })),
+  );

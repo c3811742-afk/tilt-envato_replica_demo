@@ -18,12 +18,14 @@ import {
   randomDigits,
   saveAccount,
   signedInAccount,
+  teamOf,
   toSessionAccount,
   updateSignedIn,
   withAlert,
   type StoredAccount,
 } from './accountStore';
 import { ApiError } from './apiError';
+import { ensureTeam, seatsInUse } from './teamApi';
 import { getSubscriptionTotal, paymentBreakdown, prorate, vatIncluded } from './pricing';
 import { isSubscriptionActive } from './session';
 import { keepDigits, validateCardNumber } from './validation';
@@ -227,9 +229,10 @@ export const billingApi = {
         ...periodFrom(new Date(), duration),
         ...(pending && { fawryCode: randomDigits(fawry.codeLength), payBy: minutesFromNow(fawry.payWithinHours * 60) }),
       };
-      return toSessionAccount(
-        saveAccount({ ...account, subscription, balance: account.balance - usedBalance(lines), invoices: [invoice, ...account.invoices] }),
-      );
+      const saved = saveAccount({ ...account, subscription, balance: account.balance - usedBalance(lines), invoices: [invoice, ...account.invoices] });
+      // A plan with seats comes with a team the buyer owns.
+      if (plan.perMember) ensureTeam(saved);
+      return toSessionAccount(saved);
     }),
 
   // Buys a short project pass.
@@ -289,6 +292,9 @@ export const billingApi = {
       const newTotal = planTotal(account, planId, duration, seats, credits);
       const proration = prorate(current, newTotal);
       if (proration.net !== confirmedNet) throw new ApiError('priceChanged');
+      // Fewer seats than the team already uses (members and waiting invites) would leave people without one.
+      const team = teamOf(account.id);
+      if (plan.perMember && team && seatsInUse(team) > seats) throw new ApiError('seatsInUse');
       const method = chargeableMethod(account, current);
       if (proration.net > 0 && !method) throw new ApiError('noPaymentMethod');
 
@@ -308,7 +314,9 @@ export const billingApi = {
         paid: newTotal,
       };
       // A downgrade leaves a credit, used on the next payment.
-      return toSessionAccount(saveAccount({ ...account, subscription, invoices, balance: account.balance + Math.max(0, -proration.net) }));
+      const saved = saveAccount({ ...account, subscription, invoices, balance: account.balance + Math.max(0, -proration.net) });
+      if (plan.perMember) ensureTeam(saved);
+      return toSessionAccount(saved);
     }),
 
   // Cancels the plan: it keeps working until the end of the period, then ends instead of renewing.

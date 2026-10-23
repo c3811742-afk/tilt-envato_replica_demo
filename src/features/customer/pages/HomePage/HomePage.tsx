@@ -5,6 +5,7 @@ import {
   Chip,
   CollectionCard,
   Container,
+  FaqAccordion,
   Grid,
   ReleaseNotesList,
   ScrollRow,
@@ -25,7 +26,7 @@ import {
 import { useAsync, useCategories, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { api, fillText, unreadReleaseNotes } from '@/shared/utils';
-import { ChipLinks, FaqAccordion, HowItWorksSteps, ItemRowSection, SearchBox } from '@/features/customer/components';
+import { ChipLinks, HowItWorksSteps, ItemRowSection, SearchBox } from '@/features/customer/components';
 import styles from './HomePage.module.css';
 
 export const HomePage = () => {

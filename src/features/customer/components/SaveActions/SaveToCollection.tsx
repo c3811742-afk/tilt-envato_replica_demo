@@ -38,7 +38,8 @@ export const SaveToCollection = ({ itemId, size = 'md', iconOnly = false, fullWi
     );
   }
 
-  const savedIn = session.user.collections.filter((collection) => collection.itemIds.includes(itemId)).length;
+  const teamCollections = session.team?.collections ?? [];
+  const savedIn = [...session.user.collections, ...teamCollections].filter((collection) => collection.itemIds.includes(itemId)).length;
 
   return (
     <>
@@ -58,13 +59,19 @@ export const SaveToCollection = ({ itemId, size = 'md', iconOnly = false, fullWi
             {fillText(text.myCollections.savedIn, { count: formatNumber(savedIn, locale) })}
           </Text>
         )}
-        {open && <CollectionPicker itemId={itemId} collections={session.user.collections} />}
+        {open && <CollectionPicker itemId={itemId} collections={session.user.collections} teamCollections={session.team ? teamCollections : undefined} />}
       </Modal>
     </>
   );
 };
 
-const CollectionPicker = ({ itemId, collections }: { itemId: string; collections: UserCollection[] }) => {
+interface CollectionPickerProps {
+  itemId: string;
+  collections: UserCollection[];
+  teamCollections?: UserCollection[]; // the team's shared collections, for team members
+}
+
+const CollectionPicker = ({ itemId, collections, teamCollections }: CollectionPickerProps) => {
   const { text } = useLocale();
   const { setAccount } = useSession();
   const { requestError } = useMessages();
@@ -98,17 +105,33 @@ const CollectionPicker = ({ itemId, collections }: { itemId: string; collections
 
   return (
     <Stack gap={vars.spacing[5]}>
-      {collections.length === 0 ? (
+      {collections.length === 0 && !teamCollections?.length ? (
         <Text variant="bodySm" color={vars.colors.textMuted}>
           {text.myCollections.emptyMessage}
         </Text>
       ) : (
-        <Stack as="ul" gap={vars.spacing[2]}>
-          {collectionTree(collections).map(({ collection, depth }) => (
-            <li key={collection.id} className={styles.row} style={{ '--depth': depth } as CSSProperties}>
-              <Checkbox label={collection.name} checked={collection.itemIds.includes(itemId)} disabled={busy} onChange={() => void toggle(collection.id)} />
-            </li>
-          ))}
+        <Stack gap={vars.spacing[4]}>
+          {[
+            { key: 'own' as const, list: collections },
+            { key: 'team' as const, list: teamCollections ?? [] },
+          ]
+            .filter((group) => group.list.length > 0)
+            .map((group) => (
+              <Stack key={group.key} gap={vars.spacing[2]}>
+                {teamCollections && (
+                  <Text as="h3" variant="label" color={vars.colors.textMuted}>
+                    {text.myCollections.scopes[group.key]}
+                  </Text>
+                )}
+                <Stack as="ul" gap={vars.spacing[2]}>
+                  {collectionTree(group.list).map(({ collection, depth }) => (
+                    <li key={collection.id} className={styles.row} style={{ '--depth': depth } as CSSProperties}>
+                      <Checkbox label={collection.name} checked={collection.itemIds.includes(itemId)} disabled={busy} onChange={() => void toggle(collection.id)} />
+                    </li>
+                  ))}
+                </Stack>
+              </Stack>
+            ))}
         </Stack>
       )}
       <Stack gap={vars.spacing[2]}>

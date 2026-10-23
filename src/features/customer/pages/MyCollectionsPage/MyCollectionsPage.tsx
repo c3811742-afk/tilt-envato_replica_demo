@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Button, EmptyState, FieldMessage, Grid, Icon, Page, Stack, Text, TextField } from '@/shared/components';
-import { myCollectionPath } from '@/shared/constants';
+import { useNavigate, useSearchParams } from 'react-router';
+import { Button, EmptyState, FieldMessage, Grid, Icon, Page, SegmentedControl, Stack, Text, TextField } from '@/shared/components';
+import { collectionScopeParam, myCollectionPath } from '@/shared/constants';
 import { useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { collectionTree, fillText, formatNumber, libraryApi, matchesText, safeAsync } from '@/shared/utils';
@@ -16,19 +16,24 @@ import {
 
 type Dialog = 'new' | 'import' | 'rename' | 'move' | 'share' | 'delete' | null;
 
-// "My collections": the user's own collections, pinned first. Search them, create or import one,
-// or select some to rename, move, share, pin or delete. Only signed-in users reach this page.
+type Scope = 'own' | 'team';
+
+// "My collections": the user's own collections, or their team's shared ones, pinned first. Search them, create
+// or import one, or select some to rename, move, share, pin or delete. Only signed-in users reach this page.
 export const MyCollectionsPage = () => {
   const { text, locale } = useLocale();
   const { session, setAccount } = useSession();
   const { requestError } = useMessages();
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const team = session.status === 'signedIn' ? session.team : null;
+  const scope: Scope = team && params.get(collectionScopeParam) === 'team' ? 'team' : 'own';
   const [query, setQuery] = useState('');
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [error, setError] = useState<string>();
-  const collections = session.status === 'signedIn' ? session.user.collections : [];
+  const collections = scope === 'team' ? (team?.collections ?? []) : session.status === 'signedIn' ? session.user.collections : [];
 
   // Searching looks through every level; otherwise the top level is listed.
   const shown = query.trim()
@@ -57,7 +62,18 @@ export const MyCollectionsPage = () => {
   };
 
   return (
-    <Page title={text.myCollections.title} subtitle={text.myCollections.subtitle} gap={vars.spacing[6]}>
+    <Page title={text.myCollections.title} subtitle={scope === 'team' ? text.team.collectionsText : text.myCollections.subtitle} gap={vars.spacing[6]}>
+      {team && (
+        <SegmentedControl<Scope>
+          label={text.myCollections.title}
+          value={scope}
+          onChange={(next) => {
+            stopSelecting();
+            setParams(next === 'team' ? { [collectionScopeParam]: next } : {}, { replace: true });
+          }}
+          options={(['own', 'team'] as const).map((key) => ({ value: key, label: text.myCollections.scopes[key] }))}
+        />
+      )}
       <Stack direction="row" wrap align="flex-end" gap={vars.spacing[3]}>
         <Stack grow>
           <TextField label={text.myCollections.search} value={query} onChange={setQuery} />
@@ -66,10 +82,12 @@ export const MyCollectionsPage = () => {
           <Icon name="plus" size={vars.sizes.icon.sm} />
           {text.myCollections.new}
         </Button>
-        <Button variant="outline" onClick={() => setDialog('import')}>
-          <Icon name="upload" size={vars.sizes.icon.sm} />
-          {text.myCollections.import}
-        </Button>
+        {scope === 'own' && (
+          <Button variant="outline" onClick={() => setDialog('import')}>
+            <Icon name="upload" size={vars.sizes.icon.sm} />
+            {text.myCollections.import}
+          </Button>
+        )}
         {collections.length > 0 && (
           <Button variant="outline" onClick={() => (selecting ? stopSelecting() : setSelecting(true))} pressed={selecting}>
             <Icon name="check" size={vars.sizes.icon.sm} />
@@ -134,7 +152,7 @@ export const MyCollectionsPage = () => {
         </Grid>
       )}
 
-      {dialog === 'new' && <CollectionNameDialog onClose={() => setDialog(null)} onCreated={(id) => navigate(myCollectionPath(id))} />}
+      {dialog === 'new' && <CollectionNameDialog team={scope === 'team'} onClose={() => setDialog(null)} onCreated={(id) => navigate(myCollectionPath(id))} />}
       {dialog === 'import' && <ImportDialog onClose={() => setDialog(null)} onImported={(id) => navigate(myCollectionPath(id))} />}
       {dialog === 'rename' && single && <CollectionNameDialog collection={single} onClose={() => setDialog(null)} />}
       {dialog === 'move' && single && <MoveCollectionDialog collection={single} collections={collections} onClose={() => setDialog(null)} />}

@@ -23,6 +23,7 @@ import {
   collectionMaxDepth,
   collectionSources,
   myCollectionPath,
+  myCollectionsPath,
   routes,
   uploadKinds,
   uploadMaxBytes,
@@ -52,7 +53,10 @@ export const MyCollectionPage = () => {
   const { text } = useLocale();
   const { session } = useSession();
   const { id } = useParams();
-  const collections = session.status === 'signedIn' ? session.user.collections : [];
+  // The collection is one of the user's own, or one of their team's shared ones; its neighbours come from the same place.
+  const own = session.status === 'signedIn' ? session.user.collections : [];
+  const shared = session.status === 'signedIn' ? (session.team?.collections ?? []) : [];
+  const collections = own.some((candidate) => candidate.id === id) ? own : shared;
   const collection = collections.find((candidate) => candidate.id === id);
 
   if (!collection) {
@@ -66,10 +70,10 @@ export const MyCollectionPage = () => {
       </Page>
     );
   }
-  return <CollectionView key={collection.id} collection={collection} collections={collections} />;
+  return <CollectionView key={collection.id} collection={collection} collections={collections} scope={collections === own ? 'own' : 'team'} />;
 };
 
-const CollectionView = ({ collection, collections }: { collection: UserCollection; collections: UserCollection[] }) => {
+const CollectionView = ({ collection, collections, scope }: { collection: UserCollection; collections: UserCollection[]; scope: 'own' | 'team' }) => {
   const { text, locale } = useLocale();
   const { session, setAccount } = useSession();
   const { requestError } = useMessages();
@@ -119,8 +123,8 @@ const CollectionView = ({ collection, collections }: { collection: UserCollectio
 
   return (
     <Page title={collection.name} gap={vars.spacing[6]}>
-      <TextLink to={parent ? myCollectionPath(parent.id) : routes.myCollections} variant="bodySm">
-        {parent ? parent.name : text.myCollections.back}
+      <TextLink to={parent ? myCollectionPath(parent.id) : myCollectionsPath(scope)} variant="bodySm">
+        {parent ? parent.name : scope === 'team' ? text.myCollections.scopes.team : text.myCollections.back}
       </TextLink>
 
       <Stack direction="row" wrap gap={vars.spacing[2]}>
@@ -265,7 +269,7 @@ const CollectionView = ({ collection, collections }: { collection: UserCollectio
         <DeleteCollectionsDialog
           ids={[collection.id]}
           onClose={() => setDialog(null)}
-          onDeleted={() => navigate(parent ? myCollectionPath(parent.id) : routes.myCollections)}
+          onDeleted={() => navigate(parent ? myCollectionPath(parent.id) : myCollectionsPath(scope))}
         />
       )}
       {dialog === 'downloadAll' && <DownloadAllDialog collection={collection} onClose={() => setDialog(null)} />}

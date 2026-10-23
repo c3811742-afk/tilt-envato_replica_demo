@@ -3,7 +3,7 @@ import { Page, ReleaseNotesList, SegmentedControl } from '@/shared/components';
 import type { ReleaseNoteId } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { authApi, creditAllowance, safeAsync, unreadReleaseNotes } from '@/shared/utils';
+import { accountCredits, authApi, planUsage, safeAsync, unreadReleaseNotes } from '@/shared/utils';
 import { GenerationQueue } from '@/features/common/components';
 import { AlertsList } from './AlertsList';
 import { DownloadsQueue } from './DownloadsQueue';
@@ -44,7 +44,11 @@ export const NotificationsPage = () => {
       {tab === 'updates' && <ReleaseNotesList unread={unreadNotes} />}
       {tab === 'downloads' && <DownloadsQueue />}
       {tab === 'generations' && user && (
-        <GenerationQueue generations={user.generations} concurrent={creditAllowance(user.generations, session.status === 'signedIn' ? session.subscription : null).concurrent} />
+        <GenerationQueue
+          generations={user.generations}
+          queue={session.status === 'signedIn' ? planUsage(session).generations : []}
+          concurrent={session.status === 'signedIn' ? accountCredits(session).concurrent : 0}
+        />
       )}
     </Page>
   );

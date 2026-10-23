@@ -13,6 +13,7 @@ export const mockPlans: Plan[] = [
     creditTiers: [],
     concurrentGenerations: 1,
     models: ['tiltImage1'],
+    videoModels: ['tiltMotion1'],
     studentPrice: true,
   },
   {
@@ -30,6 +31,7 @@ export const mockPlans: Plan[] = [
     ],
     concurrentGenerations: 3,
     models: ['tiltImage1', 'tiltImage2', 'tiltImage2Pro'],
+    videoModels: ['tiltMotion1', 'tiltMotion2'],
     studentPrice: false,
   },
   {
@@ -43,6 +45,7 @@ export const mockPlans: Plan[] = [
     creditTiers: [],
     concurrentGenerations: 2,
     models: ['tiltImage1', 'tiltImage2'],
+    videoModels: ['tiltMotion1'],
     studentPrice: false,
   },
   {
@@ -56,6 +59,7 @@ export const mockPlans: Plan[] = [
     creditTiers: [],
     concurrentGenerations: 5,
     models: ['tiltImage1', 'tiltImage2', 'tiltImage2Pro'],
+    videoModels: ['tiltMotion1', 'tiltMotion2'],
     studentPrice: false,
   },
 ];

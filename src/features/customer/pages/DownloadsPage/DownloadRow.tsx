@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Badge, Button, Card, FieldMessage, Icon, Modal, Select, Stack, Text, TextLink } from '@/shared/components';
-import { brokenDownloadReasons, itemPath, type BrokenDownloadReason } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { Badge, Button, Card, Icon, Stack, Text, TextLink } from '@/shared/components';
+import { itemPath } from '@/shared/constants';
+import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Download, Item, LicenseRecord } from '@/shared/types';
-import { buildLicenseCertificate, buildProofLetter, downloadTextFile, fillText, formatDate, libraryApi, safeAsync, toFileName } from '@/shared/utils';
-import { ItemDownload } from '@/features/customer/components';
+import { buildLicenseCertificate, buildProofLetter, downloadTextFile, fillText, formatDate, toFileName } from '@/shared/utils';
+import { ItemDownload, ReportProblemDialog } from '@/features/customer/components';
 
 interface DownloadRowProps {
   download: Download;
@@ -98,55 +98,7 @@ export const DownloadRow = ({ download, license, item }: DownloadRowProps) => {
         )}
       </Stack>
 
-      {reporting && <ReportDialog downloadId={download.id} onClose={() => setReporting(false)} />}
+      {reporting && <ReportProblemDialog downloadId={download.id} onClose={() => setReporting(false)} />}
     </Card>
-  );
-};
-
-// "A broken download doesn't count once reported": the user says what went wrong.
-const ReportDialog = ({ downloadId, onClose }: { downloadId: string; onClose: () => void }) => {
-  const { text } = useLocale();
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
-  const [reason, setReason] = useState<BrokenDownloadReason>(brokenDownloadReasons[0]);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string>();
-
-  const send = async () => {
-    setSending(true);
-    const result = await safeAsync(() => libraryApi.reportBroken(downloadId, reason));
-    setSending(false);
-    if (!result.ok) {
-      setError(requestError(result.error));
-      return;
-    }
-    setAccount(result.data);
-    onClose();
-  };
-
-  return (
-    <Modal
-      open
-      onClose={onClose}
-      title={text.downloadsPage.reportTitle}
-      actions={
-        <>
-          <Button variant="outline" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button disabled={sending} onClick={() => void send()}>
-            {sending ? text.common.processing : text.downloadsPage.reportSubmit}
-          </Button>
-        </>
-      }
-    >
-      <Select
-        label={text.downloadsPage.reportReason}
-        value={reason}
-        onChange={(value) => setReason(value as BrokenDownloadReason)}
-        options={brokenDownloadReasons.map((option) => ({ value: option, label: text.downloadsPage.reasons[option] }))}
-      />
-      <FieldMessage tone="error" message={error} />
-    </Modal>
   );
 };

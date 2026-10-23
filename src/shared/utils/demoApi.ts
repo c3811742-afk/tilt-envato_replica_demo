@@ -1,12 +1,16 @@
 import { mockItems } from '@/shared/mocks';
-import { accountPath, itemPath, licenseCheckPath, renewalReminderDays, routes, type RevokeReason } from '@/shared/constants';
+import { accountPath, itemPath, licenseCheckPath, renewalReminderDays, routes, type RevokeReason, type SuspensionReason } from '@/shared/constants';
 import {
   call,
+  findByEmail,
+  newAccount,
   readAccounts,
   readCatalogEvents,
   readLicenses,
   saveAccount,
+  saveTeam,
   signedInAccount,
+  teamOf,
   toSessionAccount,
   withAlert,
   writeAccounts,
@@ -84,6 +88,28 @@ export const demoApi = {
       );
       return toSessionAccount(signedInAccount());
     }),
+
+  // Someone accepts the team's oldest invitation (an account is made for them), so the team can be tried out alone.
+  teammateJoins: () =>
+    call(() => {
+      const account = signedInAccount();
+      const team = teamOf(account.id);
+      const invite = team?.invites[0];
+      if (!team || !invite) throw new ApiError('inviteNotFound');
+      const teammate = findByEmail(invite.email) ?? saveAccount(newAccount({ name: invite.email.split('@')[0], email: invite.email, emailVerified: true, passwordHash: null, linkedProviders: [] }, 'en'));
+      saveTeam({
+        ...team,
+        members: [...team.members, { accountId: teammate.id, name: teammate.name, email: teammate.email, role: invite.role, joinedAt: new Date().toISOString() }],
+        invites: team.invites.filter((candidate) => candidate.id !== invite.id),
+      });
+      return toSessionAccount(signedInAccount());
+    }),
+
+  // Suspends the account with a reason (the user is told why and can appeal), or lifts the suspension.
+  suspend: (reason: SuspensionReason) =>
+    call(() => toSessionAccount(saveAccount({ ...signedInAccount(), suspension: { reason, at: new Date().toISOString(), appeal: null } }))),
+
+  liftSuspension: () => call(() => toSessionAccount(saveAccount({ ...signedInAccount(), suspension: null }))),
 
   // Puts removed and published items back the way they were.
   resetCatalog: () =>

@@ -4,19 +4,42 @@
   color: var(--colors-text-inverse);
 }
 
+/* One column on phones, two on tablets, then the brand and newsletter beside five link columns. */
 .columns {
   display: grid;
   gap: var(--spacing-6);
 }
 
 .bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
   margin-block-start: var(--spacing-6);
   padding-block-start: var(--spacing-4);
   border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-text-muted);
 }
 
-@media (--md-up) {
+.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizes-tap-target);
+  block-size: var(--sizes-tap-target);
+  color: var(--colors-text-inverse);
+}
+
+.social:hover {
+  color: var(--colors-highlight);
+}
+
+@media (--sm-up) {
   .columns {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (--lg-up) {
+  .columns {
+    grid-template-columns: 2fr repeat(5, 1fr);
   }
 }

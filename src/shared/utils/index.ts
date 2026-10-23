@@ -66,7 +66,7 @@ export {
   paymentBreakdown,
 } from './pricing';
 export type { PaymentBreakdown, PlanPrice, PriceOptions, Proration } from './pricing';
-export { downloadTextFile, toFileName } from './download';
+export { downloadFile, downloadTextFile, toFileName } from './download';
 export {
   projectNameMaxLength,
   validateProjectName,
@@ -81,22 +81,25 @@ export { buildInvoiceText, invoiceAddress, invoiceBuyer, invoiceLineLabel } from
 export { api } from './api';
 export { billingApi } from './billingApi';
 export type { PaymentChoice, SubscribeRequest, PassRequest, PlanChangeRequest, PaymentMethodRequest, SalesRequest } from './billingApi';
-export { accountAllowance, libraryApi } from './libraryApi';
+export { accountAllowance, accountCredits, planUsage, libraryApi } from './libraryApi';
 export type { LicenseRequest } from './libraryApi';
 export { aiApi } from './aiApi';
-export type { GenerationRequest } from './aiApi';
+export type { GeneratedFile } from './aiApi';
 export { demoApi } from './demoApi';
 export type { SessionAccount, CodePurpose } from './accountStore';
 export { collectionTree, collectionWithDescendants, downloadAllowance, itemIdFromLink, monthStart } from './library';
 export type { DownloadAllowance } from './library';
-export { generationCost, scheduleGenerations, generationStatus, creditAllowance, generatedImage } from './ai';
+export { generationCost, scheduleGenerations, generationStatus, creditAllowance, generatedImage, generatedGraphic, imageOutputCount, newSeed, seededRandom } from './ai';
 export type { GenerationStatus, GenerationTiming, CreditAllowance } from './ai';
 export { fileStore } from './fileStore';
+export { teamApi, seatsInUse } from './teamApi';
+export { supportApi } from './supportApi';
 export { respond, respondError } from './mockResponse';
 export { ApiError, isApiError, apiErrorCodes } from './apiError';
 export type { ApiErrorCode } from './apiError';
 export {
   validateRequired,
+  validateMessage,
   validateEmail,
   validatePassword,
   validatePasswordConfirmation,
@@ -128,3 +131,8 @@ export { authApi } from './authApi';
 export type { SignUpRequest, SocialRequest } from './authApi';
 export { allOptionalCookies } from './cookies';
 export { unreadReleaseNotes, unreadCount, downloadStatus } from './notifications';
+export { averageColor, canvasBlob, editImage, fitImage, eraseArea, imageCanvas, loadImage, makeMockup, makeMusic, makeSoundEffect, makeVideo, relightImage, removeBackground, speak, stopSpeaking, swapBackground, upscaleImage, voiceFor } from './aiMedia';
+export type { VideoRequest } from './aiMedia';
+export { contentApi } from './contentApi';
+export { resourcesApi } from './resourcesApi';
+export type { AuthorApplication, PartnerApplication } from './resourcesApi';

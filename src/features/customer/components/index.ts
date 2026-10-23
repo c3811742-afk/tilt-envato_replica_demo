@@ -1,6 +1,4 @@
 export { HowItWorksSteps } from './HowItWorksSteps';
-export { FaqAccordion } from './FaqAccordion';
-export type { FaqEntry } from './FaqAccordion';
 export { PlanCard } from './PlanCard';
 export { ItemDownload } from './ItemDownload';
 export { FavoriteButton, ItemSaveActions, SaveToCollection } from './SaveActions';
@@ -13,3 +11,5 @@ export { CollectionNameDialog, DeleteCollectionsDialog, ImportDialog, MoveCollec
 export { UserCollectionCard } from './UserCollectionCard';
 export { UploadTile } from './UploadTile';
 export { FollowButton } from './FollowButton';
+export { ReportProblemDialog } from './ReportProblemDialog';
+export { CopyrightReportDialog } from './CopyrightReportDialog';

@@ -6,6 +6,9 @@ export const storageKeys = {
   accounts: 'tilt.accounts', // demo "server": every account created in this browser
   licenses: 'tilt.licenses', // demo license server: every license issued in this browser
   catalogEvents: 'tilt.catalogEvents', // demo: items removed from the library, items creators published
+  teams: 'tilt.teams', // demo: every team (members, invites, shared collections)
+  newsletter: 'tilt.newsletter', // demo: email addresses signed up for the newsletter
+  applications: 'tilt.applications', // demo: author and partner program applications
   sessionUserId: 'tilt.sessionUserId', // the signed-in account
   localeChosen: 'tilt.localeChosen', // the user picked a language themselves (no more suggestions)
   languageSuggestionDismissed: 'tilt.languageSuggestionDismissed',

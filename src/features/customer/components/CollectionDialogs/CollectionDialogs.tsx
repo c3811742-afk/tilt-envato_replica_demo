@@ -42,11 +42,13 @@ const DialogButtons = ({ busy, label, onClose, danger = false }: { busy: boolean
 export const CollectionNameDialog = ({
   collection,
   parentId = null,
+  team = false,
   onClose,
   onCreated,
 }: {
   collection?: UserCollection; // rename this one; otherwise a new collection is created
   parentId?: string | null;
+  team?: boolean; // a new collection among the team's shared ones
   onClose: () => void;
   onCreated?: (id: string) => void;
 }) => {
@@ -64,7 +66,7 @@ export const CollectionNameDialog = ({
       if (await run(() => libraryApi.renameCollection(collection.id, name), (account) => account)) onClose();
       return;
     }
-    const created = await run(() => libraryApi.createCollection({ name, parentId }), (data) => data.account);
+    const created = await run(() => libraryApi.createCollection({ name, parentId, team }), (data) => data.account);
     if (created) {
       onCreated?.(created.id);
       onClose();

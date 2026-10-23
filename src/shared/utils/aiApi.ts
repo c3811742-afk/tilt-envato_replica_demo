@@ -1,36 +1,73 @@
-import { aiGeneration, type AiAspectRatio, type AiModelId } from '@/shared/constants';
-import type { Generation } from '@/shared/types';
-import { call, signedInAccount, updateSignedIn } from './accountStore';
-import { creditAllowance, generationCost } from './ai';
+import { aiGeneration, aiLicense, aiModels, aiVideoModels, type AiModelId, type AiVideoModelId } from '@/shared/constants';
+import type { AiRequest, Generation, GenerationOutput, LicenseRecord } from '@/shared/types';
+import { call, planAccess, readLicenses, saveAccount, signedInAccount, teamOf, toSessionAccount, writeLicenses } from './accountStore';
+import { creditAllowance, generationCost, imageOutputCount, newSeed } from './ai';
 import { ApiError } from './apiError';
+import { fileStore } from './fileStore';
+import { createLicenseCode } from './license';
 
-export interface GenerationRequest {
-  prompt: string;
-  model: AiModelId;
-  count: number;
-  aspect: AiAspectRatio;
+// A result the browser made for the request (an edited image, a video, music): kept in the browser's file store.
+export interface GeneratedFile {
+  kind: GenerationOutput['kind'];
+  blob: Blob;
 }
 
-// The AI image tool: a request spends credits and joins the user's queue (see scheduleGenerations).
+const isImageModel = (model: string): model is AiModelId => (aiModels as readonly string[]).includes(model);
+const isVideoModel = (model: string): model is AiVideoModelId => (aiVideoModels as readonly string[]).includes(model);
+
+// AI Studio: a request spends credits (the team's on a team plan), joins the queue (see scheduleGenerations),
+// and gets a license, like a download.
 export const aiApi = {
-  generate: ({ prompt, model, count, aspect }: GenerationRequest) =>
-    call(() => {
+  generate: ({ request, files = [] }: { request: AiRequest; files?: GeneratedFile[] }) =>
+    call(async () => {
       const account = signedInAccount();
-      const allowance = creditAllowance(account.generations, account.subscription);
+      if (account.suspension) throw new ApiError('accountSuspended');
+      const access = planAccess(account);
+      const allowance = creditAllowance(access.pool.flatMap((member) => member.generations), access.subscription);
       if (!allowance.total) throw new ApiError('noAiAccess');
-      if (!allowance.models.includes(model)) throw new ApiError('modelNotIncluded');
-      const credits = generationCost(model, count);
+      if (request.model && isImageModel(request.model) && !allowance.models.includes(request.model)) throw new ApiError('modelNotIncluded');
+      if (request.model && isVideoModel(request.model) && !allowance.videoModels.includes(request.model)) throw new ApiError('modelNotIncluded');
+      const credits = generationCost(request);
       if (credits > allowance.remaining) throw new ApiError('notEnoughCredits');
+
+      const id = crypto.randomUUID();
+      // Images and graphics are drawn from the request; anything the browser made is stored as a file.
+      const stored = await Promise.all(
+        files.map(async (file, index) => {
+          const fileId = `${id}:${index}`;
+          await fileStore.put(fileId, file.blob);
+          return { kind: file.kind, fileId, mime: file.blob.type };
+        }),
+      );
+      const drawn = request.tool === 'image' || request.tool === 'graphics' ? Array.from({ length: imageOutputCount(request) }, () => ({ kind: 'image' as const })) : [];
+      const spoken = request.tool === 'voice' ? [{ kind: 'speech' as const }] : [];
+
+      const prompt = request.prompt.trim().slice(0, request.tool === 'voice' ? aiGeneration.voiceMaxLength : aiGeneration.promptMaxLength);
+      const team = access.viaTeam ? teamOf(account.id) : null;
+      const license: LicenseRecord = {
+        code: createLicenseCode(),
+        itemId: `${aiLicense.itemPrefix}${id}`,
+        itemTitle: prompt || request.sourceName || request.tool,
+        creatorName: aiLicense.creatorName,
+        licenseeName: team ? team.name : account.name,
+        projectName: aiLicense.projectName,
+        use: 'other',
+        issuedAt: new Date().toISOString(),
+        ownerId: account.id,
+        teamId: team?.id,
+      };
+      writeLicenses([license, ...readLicenses()]);
+
       const generation: Generation = {
-        id: crypto.randomUUID(),
-        prompt: prompt.trim().slice(0, aiGeneration.promptMaxLength),
-        model,
-        count,
-        aspect,
+        ...request,
+        prompt,
+        id,
         credits,
         createdAt: new Date().toISOString(),
-        seed: Math.floor(Math.random() * 1_000_000),
+        seed: newSeed(),
+        outputs: [...drawn, ...stored, ...spoken],
+        licenseCode: license.code,
       };
-      return updateSignedIn((current) => ({ generations: [generation, ...current.generations] }));
+      return toSessionAccount(saveAccount({ ...account, generations: [generation, ...account.generations] }));
     }),
 };

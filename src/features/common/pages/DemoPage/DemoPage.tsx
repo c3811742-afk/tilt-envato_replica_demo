@@ -5,7 +5,7 @@ import { useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { demoApi, safeAsync, type SessionAccount } from '@/shared/utils';
 
-type DemoAction = 'renewalSoon' | 'paymentFailed' | 'removeItem' | 'revokeLicense' | 'creatorPublishes' | 'resetCatalog';
+type DemoAction = 'renewalSoon' | 'paymentFailed' | 'removeItem' | 'revokeLicense' | 'creatorPublishes' | 'teammateJoins' | 'suspend' | 'liftSuspension' | 'resetCatalog';
 
 // "Demo controls": events that would happen over time (a renewal coming up, a failed payment, an item
 // removed, a license revoked, a followed creator publishing), triggered on demand to see their notifications.
@@ -23,7 +23,7 @@ export const DemoPage = () => {
       </Page>
     );
   }
-  const { user, subscription } = session;
+  const { user, subscription, team } = session;
   const latestDownload = user.downloads[0];
   const followed = user.following[0];
 
@@ -34,6 +34,8 @@ export const DemoPage = () => {
     { key: 'removeItem', missing: latestDownload ? undefined : text.demo.needsDownload, run: () => demoApi.removeItem(latestDownload.itemId) },
     { key: 'revokeLicense', missing: latestDownload ? undefined : text.demo.needsDownload, run: () => demoApi.revokeLatestLicense('rightsDispute') },
     { key: 'creatorPublishes', missing: followed ? undefined : text.demo.needsFollow, run: () => demoApi.creatorPublishes(followed) },
+    { key: 'teammateJoins', missing: team?.invites.length ? undefined : text.demo.needsInvite, run: demoApi.teammateJoins },
+    user.suspension ? { key: 'liftSuspension', run: demoApi.liftSuspension } : { key: 'suspend', run: () => demoApi.suspend('licenseMisuse') },
     { key: 'resetCatalog', run: demoApi.resetCatalog },
   ];
 

@@ -13,7 +13,7 @@ export const revokeReasons = ['rightsDispute', 'paymentReversed', 'termsBreach']
 export type RevokeReason = (typeof revokeReasons)[number];
 
 // Account notifications, newest first in the Notifications page. Their text is in text.alerts.
-export const alertKinds = ['renewalReminder', 'paymentFailed', 'itemRemoved', 'licenseRevoked', 'creatorPublished'] as const;
+export const alertKinds = ['renewalReminder', 'paymentFailed', 'itemRemoved', 'licenseRevoked', 'creatorPublished', 'teamInvite', 'teamRemoved'] as const;
 export type AlertKind = (typeof alertKinds)[number];
 
 // A YouTube channel link: youtube.com/@handle, /channel/ID, /c/name or /user/name.

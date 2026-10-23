@@ -13,14 +13,15 @@ export const activeSubscription = (session: Session) =>
 export const activePass = (session: Session, now: Date = new Date()) =>
   session.status === 'signedIn' && session.pass && new Date(session.pass.endsAt) > now ? session.pass : null;
 
-// Where a visitor is in onboarding: not signed in, signed in with steps left, or ready.
-export type OnboardingState = 'guest' | 'verifyEmail' | 'completeProfile' | 'verifyPhone' | 'ready';
+// Where a visitor is in onboarding: not signed in, signed in with steps left, suspended, or ready.
+export type OnboardingState = 'guest' | 'verifyEmail' | 'completeProfile' | 'verifyPhone' | 'suspended' | 'ready';
 
 export const onboardingState = (session: Session): OnboardingState => {
   if (session.status === 'guest') return 'guest';
   if (!session.user.emailVerified) return 'verifyEmail';
   if (!session.user.profile) return 'completeProfile';
   if (!session.user.phoneVerified) return 'verifyPhone';
+  if (session.user.suspension) return 'suspended';
   return 'ready';
 };
 
@@ -30,6 +31,7 @@ export const onboardingRoutes: Record<Exclude<OnboardingState, 'ready'>, string>
   verifyEmail: routes.verifyEmail,
   completeProfile: routes.completeProfile,
   verifyPhone: routes.verifyPhone,
+  suspended: routes.accountSuspended,
 };
 
 // Only paths inside the app are followed after signing in, never an outside address.

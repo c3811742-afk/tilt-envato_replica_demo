@@ -31,6 +31,14 @@ export const apiErrorCodes = [
   'notEnoughCredits',
   'modelNotIncluded',
   'noAiAccess',
+  'notInTeam',
+  'teamOwnerOnly',
+  'noSeatsLeft',
+  'alreadyInTeam',
+  'alreadyInvited',
+  'inviteNotFound',
+  'seatsInUse',
+  'accountSuspended',
 ] as const;
 export type ApiErrorCode = (typeof apiErrorCodes)[number];
 

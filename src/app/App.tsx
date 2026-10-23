@@ -1,5 +1,5 @@
 import { HashRouter, Route, Routes } from 'react-router';
-import { routes } from '@/shared/constants';
+import { companyPages, routes } from '@/shared/constants';
 import { HomePage } from '@/features/customer/pages/HomePage';
 import { SearchPage } from '@/features/customer/pages/SearchPage';
 import { ItemPage } from '@/features/customer/pages/ItemPage';
@@ -30,8 +30,22 @@ import { AccountPage } from '@/features/common/pages/AccountPage';
 import { NotificationsPage } from '@/features/common/pages/NotificationsPage';
 import { NotFoundPage } from '@/features/common/pages/NotFoundPage';
 import { LicenseCheckPage } from '@/features/common/pages/LicenseCheckPage';
-import { AiPage } from '@/features/common/pages/AiPage';
+import { AiHubPage } from '@/features/common/pages/AiHubPage';
+import { AiToolPage } from '@/features/common/pages/AiToolPage';
+import { AiHistoryPage } from '@/features/common/pages/AiHistoryPage';
+import { AiGuidesPage } from '@/features/common/pages/AiGuidesPage';
 import { DemoPage } from '@/features/common/pages/DemoPage';
+import { TeamPage } from '@/features/common/pages/TeamPage';
+import { SupportPage } from '@/features/common/pages/SupportPage';
+import { AccountSuspendedPage } from '@/features/common/pages/AccountSuspendedPage';
+import { HelpArticlePage, HelpCenterPage } from '@/features/common/pages/HelpCenterPage';
+import { LearnGuidePage, LearnPage } from '@/features/common/pages/LearnPage';
+import { BlogPage, BlogPostPage } from '@/features/common/pages/BlogPage';
+import { CoursePage, CoursesPage } from '@/features/common/pages/CoursesPage';
+import { CompanyPage } from '@/features/common/pages/CompanyPage';
+import { AuthorsPage, PartnersPage } from '@/features/common/pages/ProgramsPage';
+import { FairUsePage, LicenseTermsPage } from '@/features/common/pages/LegalPages';
+import { UnsubscribePage } from '@/features/common/pages/UnsubscribePage';
 import { AppErrorBoundary } from './AppErrorBoundary';
 import { AppLayout } from './layout';
 import { AppearanceProvider } from './providers/AppearanceProvider';
@@ -67,6 +81,26 @@ export const App = () => (
                   <Route path={routes.sharedCollection} element={<SharedCollectionPage />} />
                   <Route path={routes.contactSales} element={<ContactSalesPage />} />
                   <Route path={routes.demo} element={<DemoPage />} />
+                  <Route path={routes.ai} element={<AiHubPage />} />
+                  <Route path={routes.aiTool} element={<AiToolPage />} />
+                  <Route path={routes.aiGuides} element={<AiGuidesPage />} />
+                  <Route path={routes.support} element={<SupportPage />} />
+                  <Route path={routes.help} element={<HelpCenterPage />} />
+                  <Route path={routes.helpArticle} element={<HelpArticlePage />} />
+                  <Route path={routes.learn} element={<LearnPage />} />
+                  <Route path={routes.learnGuide} element={<LearnGuidePage />} />
+                  <Route path={routes.blog} element={<BlogPage />} />
+                  <Route path={routes.blogPost} element={<BlogPostPage />} />
+                  <Route path={routes.courses} element={<CoursesPage />} />
+                  <Route path={routes.course} element={<CoursePage />} />
+                  {companyPages.map((page) => (
+                    <Route key={page} path={routes[page]} element={<CompanyPage page={page} />} />
+                  ))}
+                  <Route path={routes.authors} element={<AuthorsPage />} />
+                  <Route path={routes.partners} element={<PartnersPage />} />
+                  <Route path={routes.licenseTerms} element={<LicenseTermsPage />} />
+                  <Route path={routes.fairUse} element={<FairUsePage />} />
+                  <Route path={routes.unsubscribe} element={<UnsubscribePage />} />
 
                   {/* Onboarding: each page is only shown at its step; anyone else is sent to theirs. */}
                   <Route element={<OnboardingGate allow="guest" />}>
@@ -84,6 +118,9 @@ export const App = () => (
                   <Route element={<OnboardingGate allow="verifyPhone" />}>
                     <Route path={routes.verifyPhone} element={<VerifyPhonePage />} />
                   </Route>
+                  <Route element={<OnboardingGate allow="suspended" />}>
+                    <Route path={routes.accountSuspended} element={<AccountSuspendedPage />} />
+                  </Route>
                   <Route element={<OnboardingGate allow="ready" />}>
                     <Route path={routes.checkout} element={<CheckoutPage />} />
                     <Route path={routes.account} element={<AccountPage />} />
@@ -92,7 +129,8 @@ export const App = () => (
                     <Route path={routes.myCollections} element={<MyCollectionsPage />} />
                     <Route path={routes.myCollection} element={<MyCollectionPage />} />
                     <Route path={routes.downloads} element={<DownloadsPage />} />
-                    <Route path={routes.ai} element={<AiPage />} />
+                    <Route path={routes.aiHistory} element={<AiHistoryPage />} />
+                    <Route path={routes.team} element={<TeamPage />} />
                   </Route>
 
                   <Route path={routes.notFound} element={<NotFoundPage />} />

@@ -1,4 +1,4 @@
-import { auth, socialProviders, type SocialProvider } from '@/shared/constants';
+import { auth, socialProviders, supportLimits, type SocialProvider } from '@/shared/constants';
 import { fillText, isApiError, type FieldError } from '@/shared/utils';
 import { useLocale } from './useLocale';
 
@@ -10,7 +10,7 @@ export const useMessages = () => {
 
   // A form field's validation error, e.g. 'passwordTooShort' -> "Use at least 8 characters."
   const fieldError = (error: FieldError | null | undefined) =>
-    error ? fillText(text.validation[error], { min: auth.passwordMinLength, length: auth.codeLength }) : undefined;
+    error ? fillText(text.validation[error], { min: auth.passwordMinLength, length: auth.codeLength, count: supportLimits.messageMinLength }) : undefined;
 
   // A failed request: the server's explanation when it gave one, otherwise the generic "try again" message.
   const requestError = (error: unknown, fallback: string = text.states.error.message) => {

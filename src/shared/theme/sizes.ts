@@ -44,6 +44,7 @@ export const sizes = {
     coverRatio: '1 / 1',
   },
   collectionCard: { minWidth: 'min(20rem, 100%)' },
+  ai: { previewWidth: 'min(100%, 32rem)', thumb: '4.5rem' }, // the image an AI tool works on; earlier results to pick from
   // Music and sound effects list: cover thumbnail, waveform height, the columns for duration and BPM.
   track: { thumb: '3rem', waveform: '2.5rem', meta: '4.5rem', name: '14rem', barGap: '0.0625rem' }, // 48 / 40 / 72 / 224 / 1
   player: { waveform: '4.5rem', time: '6.5rem' }, // 72 / 104: item page audio waveform, "1:05 / 2:30" label

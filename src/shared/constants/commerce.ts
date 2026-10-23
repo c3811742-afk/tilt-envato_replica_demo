@@ -67,25 +67,6 @@ export const paymentMethodIcons: Record<PaymentMethod, IconName> = {
 // A plan's renewal reminder is sent this many days before it renews.
 export const renewalReminderDays = 7;
 
-// AI image models, oldest first. Each plan includes some of them; newer models cost more credits per image.
-export const aiModels = ['tiltImage1', 'tiltImage2', 'tiltImage2Pro'] as const;
-export type AiModelId = (typeof aiModels)[number];
-export const aiModelCredits: Record<AiModelId, number> = {
-  tiltImage1: 1,
-  tiltImage2: 2,
-  tiltImage2Pro: 4,
-};
-
-// The AI tool: images per request, shapes, and how long a demo generation takes.
-export const aiGeneration = {
-  imageCounts: [1, 2, 4],
-  aspectRatios: ['square', 'landscape', 'portrait'],
-  baseSeconds: 4, // per request
-  secondsPerImage: 1.5,
-  promptMaxLength: 400,
-} as const;
-export type AiAspectRatio = (typeof aiGeneration.aspectRatios)[number];
-
 // The seller printed on e-invoices (demo registration number).
 export const seller = {
   taxRegistrationNumber: '100-234-567',

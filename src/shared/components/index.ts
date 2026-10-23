@@ -67,3 +67,4 @@ export * from './AsyncContent';
 export * from './ErrorBoundary';
 export * from './Table';
 export * from './Meter';
+export * from './FaqAccordion';

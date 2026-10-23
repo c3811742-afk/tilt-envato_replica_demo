@@ -1,6 +1,15 @@
 import type {
+  CopyrightRole,
+  SupportTopic,
+  SuspensionReason,
   AiAspectRatio,
   AiModelId,
+  AiOperation,
+  AiStyle,
+  AiVideoModelId,
+  AiVideoResolution,
+  AiVoiceLanguage,
+  AiVoiceType,
   AlertKind,
   BrokenDownloadReason,
   Governorate,
@@ -39,7 +48,8 @@ export interface Plan {
   credits: number; // AI credits a month (per seat on Teams); Ultimate: the smallest tier
   creditTiers: CreditTier[]; // empty when the credits are fixed
   concurrentGenerations: number; // AI generations that can run at the same time
-  models: AiModelId[]; // AI models the plan includes
+  models: AiModelId[]; // AI image models the plan includes
+  videoModels: AiVideoModelId[]; // AI video models the plan includes
   studentPrice: boolean; // verified students get the student discount
 }
 
@@ -176,15 +186,39 @@ export interface Alert {
   read: boolean;
 }
 
-export interface Generation {
+// What a generation asked for. Each tool uses the fields it needs.
+export interface AiRequest {
+  tool: AiOperation;
+  prompt: string; // the description, the edit to make, or the text to read out
+  model?: AiModelId | AiVideoModelId;
+  count?: number; // images
+  aspect?: AiAspectRatio;
+  style?: AiStyle;
+  burst?: boolean; // several variations of one image for one credit
+  kind?: string; // graphic or mockup kind, edit mode, relight direction
+  tint?: string; // the main color of a reference image, which guides the result (a hex color from the user's file)
+  sourceName?: string; // the image or upload the tool worked on
+  duration?: number; // seconds of video or music
+  resolution?: AiVideoResolution;
+  audio?: boolean; // video with sound
+  language?: AiVoiceLanguage;
+  voice?: AiVoiceType;
+}
+
+// One result: drawn from the request (images), or a file kept in the browser (edited images, video, audio).
+export interface GenerationOutput {
+  kind: 'image' | 'video' | 'audio' | 'speech'; // speech: read out by the browser's voices
+  fileId?: string;
+  mime?: string;
+}
+
+export interface Generation extends AiRequest {
   id: string;
-  prompt: string;
-  model: AiModelId;
-  count: number; // images
-  aspect: AiAspectRatio;
   credits: number; // spent
   createdAt: string; // ISO date; when it starts and finishes follows from the queue (see utils/ai)
   seed: number;
+  outputs: GenerationOutput[];
+  licenseCode?: string; // the license for what was generated
 }
 
 export interface User {
@@ -213,6 +247,39 @@ export interface User {
   invoices: Invoice[]; // newest first
   balance: number; // EGP credit from a downgrade, used on the next payment
   generations: Generation[]; // newest first
+  supportRequests: SupportRequest[]; // newest first
+  copyrightReports: CopyrightReport[]; // newest first
+  suspension: Suspension | null; // a suspended account can't download or generate until it's lifted
+}
+
+// ---------- Support ----------
+
+export interface SupportRequest {
+  id: string;
+  reference: string; // "SUP-482913"
+  topic: SupportTopic;
+  subject: string;
+  message: string;
+  createdAt: string; // ISO date
+  status: 'open' | 'answered';
+}
+
+export interface CopyrightReport {
+  id: string;
+  reference: string; // "CR-104822"
+  itemId: string;
+  itemTitle: string;
+  name: string;
+  email: string;
+  role: CopyrightRole;
+  details: string;
+  createdAt: string; // ISO date
+}
+
+export interface Suspension {
+  reason: SuspensionReason;
+  at: string; // ISO date
+  appeal: { message: string; at: string } | null; // under review once sent
 }
 
 // ---------- Subscriptions ----------
@@ -245,9 +312,67 @@ export interface PassPurchase {
   downloads: number; // included
 }
 
+// ---------- Teams ----------
+
+// The owner pays for the team and manages admins; admins invite and remove members.
+export type TeamRole = 'owner' | 'admin' | 'member';
+export type InviteRole = Exclude<TeamRole, 'owner'>;
+
+export interface TeamMember {
+  accountId: string;
+  name: string;
+  email: string;
+  role: TeamRole;
+  joinedAt: string; // ISO date
+}
+
+export interface TeamInvite {
+  id: string;
+  email: string;
+  role: InviteRole;
+  invitedAt: string; // ISO date
+  invitedBy: string; // the inviter's name
+}
+
+// A Teams or Enterprise plan's people and shared collections. The plan itself is the owner's subscription.
+export interface Team {
+  id: string;
+  name: string;
+  ownerId: string;
+  members: TeamMember[]; // the owner first
+  invites: TeamInvite[]; // waiting for an answer; each holds a seat
+  collections: UserCollection[]; // shared: every member can view and add to them
+}
+
+// The team as one member sees it: their role, the seats, and what the whole team has used this month.
+export interface TeamSession extends Team {
+  role: TeamRole;
+  ownerName: string;
+  seats: number;
+  usesTeamPlan: boolean; // this member downloads and generates with the team's plan
+  downloads: Download[]; // every member's downloads (the team's plan limit counts them together)
+  generations: Generation[]; // every member's AI generations (the team shares its credits)
+}
+
+// An invitation to someone's team, shown to the invited user.
+export interface TeamInvitation {
+  teamId: string;
+  teamName: string;
+  inviteId: string;
+  role: InviteRole;
+  invitedBy: string;
+}
+
 export type Session =
   | { status: 'guest' }
-  | { status: 'signedIn'; user: User; subscription: Subscription | null; pass: PassPurchase | null };
+  | {
+      status: 'signedIn';
+      user: User;
+      subscription: Subscription | null; // the user's own plan, or their team's when they don't have one
+      pass: PassPurchase | null;
+      team: TeamSession | null;
+      invitations: TeamInvitation[];
+    };
 
 // ---------- Licenses ----------
 
@@ -265,6 +390,7 @@ export interface License {
 // A license as the license server keeps it: who owns it and whether it is still valid.
 export interface LicenseRecord extends License {
   ownerId: string;
+  teamId?: string; // issued on a team plan: every member of the team can use it
   revoked?: { reason: RevokeReason; at: string };
   itemRemoved?: string; // ISO date the item left the library (the license stays valid)
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { AsyncContent, Badge, Button, Card, Grid, Icon, Page, Section, SegmentedControl, Stack, Table, Text, TextLink } from '@/shared/components';
+import { AsyncContent, Badge, Button, Card, FaqAccordion, Grid, Icon, Page, Section, SegmentedControl, Stack, Table, Text, TextLink } from '@/shared/components';
 import {
   accountPath,
   checkoutPassPath,
@@ -18,7 +18,7 @@ import { useAsync, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { CreditTier, Plan, ProjectPass } from '@/shared/types';
 import { activePass, activeSubscription, api, fillText, formatDate, formatNumber, formatPercent, getPlanPrice } from '@/shared/utils';
-import { FaqAccordion, PlanCard } from '@/features/customer/components';
+import { PlanCard } from '@/features/customer/components';
 
 export const PricingPage = () => {
   const { text, locale } = useLocale();

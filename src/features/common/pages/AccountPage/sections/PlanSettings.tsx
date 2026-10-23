@@ -23,8 +23,10 @@ export const PlanSettings = () => {
   const requested = params.get(planChangeParam) as PlanId | null;
   const [dialog, setDialog] = useState<Dialog>(requested ? { kind: 'change', planId: requested } : null);
   if (session.status !== 'signedIn') return null; // the account pages are only shown to signed-in users
-  const { user, subscription, pass } = session;
+  const { user, subscription, team } = session;
   const active = isSubscriptionActive(subscription) ? subscription : null;
+  // A member using their team's plan sees it, but the owner manages it.
+  const teamManaged = team?.usesTeamPlan && team.role !== 'owner' ? team : null;
 
   const closeDialog = () => {
     setDialog(null);
@@ -33,7 +35,9 @@ export const PlanSettings = () => {
 
   return (
     <Section title={text.account.sections.plan} variant="h3" gap={vars.spacing[5]}>
-      {subscription?.status === 'pendingPayment' ? (
+      {teamManaged ? (
+        <IconNote icon="users" title={teamManaged.name} text={fillText(text.planPage.teamPlanNote, { team: teamManaged.name, owner: teamManaged.ownerName })} />
+      ) : subscription?.status === 'pendingPayment' ? (
         <PendingPlan subscription={subscription} />
       ) : active ? (
         <CurrentPlan subscription={active} onDialog={setDialog} />
@@ -51,10 +55,10 @@ export const PlanSettings = () => {
 
       {user.balance > 0 && <IconNote icon="wallet" text={fillText(text.planPage.balance, { price: price(user.balance) })} />}
 
-      <UsageMeters user={user} subscription={subscription} pass={pass} />
+      <UsageMeters session={session} />
       <StudentVerification user={user} />
 
-      {active && dialog && (dialog.kind === 'change' || dialog.kind === 'seats') && (
+      {active && !teamManaged && dialog && (dialog.kind === 'change' || dialog.kind === 'seats') && (
         <AsyncContent state={plans}>
           {(data) => (
             <ChangePlanDialog

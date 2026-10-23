@@ -16,8 +16,31 @@ export const routes = {
   downloads: '/downloads',
   licenseCheck: '/license-check',
   ai: '/ai',
+  aiTool: '/ai/tools/:tool',
+  aiHistory: '/ai/history',
+  aiGuides: '/ai/guides',
   contactSales: '/contact-sales',
   demo: '/demo',
+  team: '/team',
+  support: '/support',
+  help: '/help',
+  helpArticle: '/help/:id',
+  learn: '/learn',
+  learnGuide: '/learn/:id',
+  accountSuspended: '/account-suspended',
+  blog: '/blog',
+  blogPost: '/blog/:id',
+  courses: '/courses',
+  course: '/courses/:id',
+  about: '/about',
+  products: '/products',
+  careers: '/careers',
+  news: '/news',
+  authors: '/authors',
+  partners: '/partners',
+  licenseTerms: '/license-terms',
+  fairUse: '/fair-use',
+  unsubscribe: '/newsletter/unsubscribe',
   howItWorks: '/how-it-works',
   pricing: '/pricing',
   faq: '/faq',
@@ -140,3 +163,27 @@ export const checkoutPassPath = (passId: string) => `${routes.checkout}?${new UR
 // The plan settings with the "Change plan" dialog open on a plan: planChangePath('ultimate') -> '/account/plan?change=ultimate'
 export const planChangeParam = 'change';
 export const planChangePath = (planId: string) => `${accountPath('plan')}?${new URLSearchParams({ [planChangeParam]: planId })}`;
+
+// "My collections" on the team's shared collections: myCollectionsPath('team') -> '/my-collections?scope=team'
+export const collectionScopeParam = 'scope';
+export const myCollectionsPath = (scope?: 'own' | 'team') =>
+  scope === 'team' ? `${routes.myCollections}?${new URLSearchParams({ [collectionScopeParam]: scope })}` : routes.myCollections;
+
+// An AI Studio tool, optionally working on an earlier result: aiToolPath('upscale', 'gen-id:0') -> '/ai/tools/upscale?source=gen-id:0'
+export const aiSourceParam = 'source';
+export const aiToolPath = (tool: string, source?: string) =>
+  `${routes.aiTool.replace(':tool', tool)}${source ? `?${new URLSearchParams({ [aiSourceParam]: source })}` : ''}`;
+
+export const helpArticlePath = (id: string) => routes.helpArticle.replace(':id', encodeURIComponent(id));
+export const learnGuidePath = (id: string) => routes.learnGuide.replace(':id', encodeURIComponent(id));
+
+export const blogPostPath = (id: string) => routes.blogPost.replace(':id', encodeURIComponent(id));
+export const coursePath = (id: string) => routes.course.replace(':id', encodeURIComponent(id));
+
+// The blog filtered by topic: blogPath('music') -> '/blog?topic=music'
+export const blogTopicParam = 'topic';
+export const blogPath = (topic?: string) => (topic ? `${routes.blog}?${new URLSearchParams({ [blogTopicParam]: topic })}` : routes.blog);
+
+// The unsubscribe page linked from newsletter emails: unsubscribePath('a@b.com') -> '/newsletter/unsubscribe?email=a%40b.com'
+export const unsubscribeParam = 'email';
+export const unsubscribePath = (email: string) => `${routes.unsubscribe}?${new URLSearchParams({ [unsubscribeParam]: email })}`;

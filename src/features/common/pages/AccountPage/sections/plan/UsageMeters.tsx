@@ -2,21 +2,18 @@ import { useState } from 'react';
 import { Button, Card, DetailList, Meter, Modal, Stack, Table, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import type { PassPurchase, Subscription, User } from '@/shared/types';
-import { accountAllowance, creditAllowance, fillText, formatDate, formatNumber } from '@/shared/utils';
+import type { Session } from '@/shared/types';
+import { operationName } from '@/features/common/components';
+import { accountAllowance, accountCredits, fillText, formatDate, formatNumber, planUsage } from '@/shared/utils';
 
-interface UsageMetersProps {
-  user: User;
-  subscription: Subscription | null;
-  pass: PassPurchase | null;
-}
+type SignedIn = Extract<Session, { status: 'signedIn' }>;
 
-// Downloads and AI credits left this month, as meters, with the credit details one click away.
-export const UsageMeters = ({ user, subscription, pass }: UsageMetersProps) => {
+// Downloads and AI credits left this month (the whole team's on a team plan), as meters, with the credit details one click away.
+export const UsageMeters = ({ session }: { session: SignedIn }) => {
   const { text, locale } = useLocale();
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const downloads = accountAllowance({ user, subscription, pass });
-  const credits = creditAllowance(user.generations, subscription);
+  const downloads = accountAllowance(session);
+  const credits = accountCredits(session);
   const count = (value: number) => formatNumber(value, locale);
 
   return (
@@ -60,18 +57,18 @@ export const UsageMeters = ({ user, subscription, pass }: UsageMetersProps) => {
         </Stack>
       )}
 
-      {detailsOpen && <CreditDetailsDialog user={user} subscription={subscription} onClose={() => setDetailsOpen(false)} />}
+      {detailsOpen && <CreditDetailsDialog session={session} onClose={() => setDetailsOpen(false)} />}
     </Card>
   );
 };
 
 // What the plan gives (credits a month, generations at once, models), and what was spent this month.
-const CreditDetailsDialog = ({ user, subscription, onClose }: { user: User; subscription: Subscription | null; onClose: () => void }) => {
+const CreditDetailsDialog = ({ session, onClose }: { session: SignedIn; onClose: () => void }) => {
   const { text, locale } = useLocale();
-  const credits = creditAllowance(user.generations, subscription);
+  const credits = accountCredits(session);
   const since = credits.resetsAt ? new Date(credits.resetsAt) : null;
   if (since) since.setMonth(since.getMonth() - 1);
-  const thisMonth = user.generations.filter((generation) => !since || new Date(generation.createdAt) >= since);
+  const thisMonth = planUsage(session).generations.filter((generation) => !since || new Date(generation.createdAt) >= since);
 
   return (
     <Modal open onClose={onClose} title={text.planPage.creditDetailsTitle} width={vars.sizes.modal.wideWidth}>
@@ -95,7 +92,7 @@ const CreditDetailsDialog = ({ user, subscription, onClose }: { user: User; subs
         columns={[
           { key: 'date', label: text.invoice.date },
           { key: 'prompt', label: text.ai.prompt },
-          { key: 'model', label: text.ai.model },
+          { key: 'model', label: text.ai.historyType },
           { key: 'credits', label: text.planPage.creditsTitle, align: 'end' },
         ]}
         rows={thisMonth.map((generation) => ({
@@ -107,7 +104,7 @@ const CreditDetailsDialog = ({ user, subscription, onClose }: { user: User; subs
                 {generation.prompt}
               </Text>
             ),
-            model: text.ai.models[generation.model],
+            model: operationName(text, generation.tool),
             credits: fillText(text.planPage.creditsSpent, { credits: formatNumber(generation.credits, locale) }),
           },
         }))}

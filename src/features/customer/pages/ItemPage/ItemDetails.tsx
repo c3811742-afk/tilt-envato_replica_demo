@@ -19,6 +19,7 @@ import { vars } from '@/shared/theme';
 import type { Item } from '@/shared/types';
 import { fillText, formatCountry, formatLanguageName, isTranslated } from '@/shared/utils';
 import { FavoriteButton, ItemDownload, SaveToCollection } from '@/features/customer/components';
+import { ItemReports } from './ItemReports';
 import { ItemFacts } from './ItemFacts';
 import { ItemPreview } from './ItemPreview';
 import { RelatedItems } from './RelatedItems';
@@ -125,6 +126,7 @@ export const ItemDetails = ({ item }: { item: Item }) => {
                     {text.common.copyFailed}
                   </Text>
                 )}
+                <ItemReports item={item} />
               </Stack>
 
               <IconNote icon="license" title={text.item.license} text={text.item.licenseSummary} />

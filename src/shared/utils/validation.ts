@@ -1,4 +1,4 @@
-import { auth, card, governorates, type Governorate } from '@/shared/constants';
+import { auth, card, governorates, supportLimits, type Governorate } from '@/shared/constants';
 
 // Why a form field is invalid. Each reason has a message in text.validation.
 export type FieldError =
@@ -14,13 +14,17 @@ export type FieldError =
   | 'invalidCvc'
   | 'invalidInstapay'
   | 'termsRequired'
-  | 'chooseAtLeastOne';
+  | 'chooseAtLeastOne'
+  | 'messageTooShort';
 
 type Validator = (value: string) => FieldError | null;
 
 const onlyDigits = (value: string) => value.replace(/\D/g, '');
 
 export const validateRequired: Validator = (value) => (value.trim() ? null : 'required');
+
+// A message the team has to act on (a support request, a report, an appeal): long enough to explain the problem.
+export const validateMessage: Validator = (value) => validateRequired(value) ?? (value.trim().length < supportLimits.messageMinLength ? 'messageTooShort' : null);
 
 export const validateEmail: Validator = (value) => {
   if (!value.trim()) return 'required';
