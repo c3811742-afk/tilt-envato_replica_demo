@@ -15,6 +15,7 @@ export interface TextFieldProps {
   endAction?: ReactNode; // a small button at the end of the field, e.g. "Show password"
   direction?: 'auto' | 'ltr'; // 'ltr' for numbers and codes, which read left to right in every language
   maxLength?: number;
+  rows?: number; // more than 1: a multi-line field (e.g. a message, a list of links)
   min?: string; // earliest date (YYYY-MM-DD) for a date field
   max?: string; // latest date for a date field
   disabled?: boolean;

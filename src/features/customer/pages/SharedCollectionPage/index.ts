@@ -1,0 +1,1 @@
+export { SharedCollectionPage } from './SharedCollectionPage';

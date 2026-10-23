@@ -11,7 +11,12 @@ import { CheckoutPage } from '@/features/customer/pages/CheckoutPage';
 import { CreatorPage } from '@/features/customer/pages/CreatorPage';
 import { CollectionsPage } from '@/features/customer/pages/CollectionsPage';
 import { CollectionPage } from '@/features/customer/pages/CollectionPage';
-import { SavedPage } from '@/features/customer/pages/SavedPage';
+import { FavoritesPage } from '@/features/customer/pages/FavoritesPage';
+import { MyCollectionsPage } from '@/features/customer/pages/MyCollectionsPage';
+import { MyCollectionPage } from '@/features/customer/pages/MyCollectionPage';
+import { SharedCollectionPage } from '@/features/customer/pages/SharedCollectionPage';
+import { DownloadsPage } from '@/features/customer/pages/DownloadsPage';
+import { ContactSalesPage } from '@/features/customer/pages/ContactSalesPage';
 import { SignInPage } from '@/features/common/pages/SignInPage';
 import { SignUpPage } from '@/features/common/pages/SignUpPage';
 import { VerifyEmailPage } from '@/features/common/pages/VerifyEmailPage';
@@ -24,6 +29,9 @@ import { VerifyPhonePage } from '@/features/common/pages/VerifyPhonePage';
 import { AccountPage } from '@/features/common/pages/AccountPage';
 import { NotificationsPage } from '@/features/common/pages/NotificationsPage';
 import { NotFoundPage } from '@/features/common/pages/NotFoundPage';
+import { LicenseCheckPage } from '@/features/common/pages/LicenseCheckPage';
+import { AiPage } from '@/features/common/pages/AiPage';
+import { DemoPage } from '@/features/common/pages/DemoPage';
 import { AppErrorBoundary } from './AppErrorBoundary';
 import { AppLayout } from './layout';
 import { AppearanceProvider } from './providers/AppearanceProvider';
@@ -55,6 +63,10 @@ export const App = () => (
                   <Route path={routes.faq} element={<FaqPage />} />
                   <Route path={routes.terms} element={<TermsPage />} />
                   <Route path={routes.privacy} element={<PrivacyPage />} />
+                  <Route path={routes.licenseCheck} element={<LicenseCheckPage />} />
+                  <Route path={routes.sharedCollection} element={<SharedCollectionPage />} />
+                  <Route path={routes.contactSales} element={<ContactSalesPage />} />
+                  <Route path={routes.demo} element={<DemoPage />} />
 
                   {/* Onboarding: each page is only shown at its step; anyone else is sent to theirs. */}
                   <Route element={<OnboardingGate allow="guest" />}>
@@ -76,7 +88,11 @@ export const App = () => (
                     <Route path={routes.checkout} element={<CheckoutPage />} />
                     <Route path={routes.account} element={<AccountPage />} />
                     <Route path={routes.notifications} element={<NotificationsPage />} />
-                    <Route path={routes.saved} element={<SavedPage />} />
+                    <Route path={routes.favorites} element={<FavoritesPage />} />
+                    <Route path={routes.myCollections} element={<MyCollectionsPage />} />
+                    <Route path={routes.myCollection} element={<MyCollectionPage />} />
+                    <Route path={routes.downloads} element={<DownloadsPage />} />
+                    <Route path={routes.ai} element={<AiPage />} />
                   </Route>
 
                   <Route path={routes.notFound} element={<NotFoundPage />} />

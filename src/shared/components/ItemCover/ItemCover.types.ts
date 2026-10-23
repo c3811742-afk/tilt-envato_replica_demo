@@ -12,4 +12,5 @@ export interface ItemCoverProps {
   label?: string; // accessible description; without it the cover is decorative
   sample?: { family: PreviewFont; text: string }; // a font item: its letters in the font instead of an image
   previewOnHover?: boolean; // video items: the picture slowly moves while the pointer is over it
+  fill?: boolean; // fill the height of its container instead of keeping `aspectRatio` (e.g. an item card)
 }

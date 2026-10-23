@@ -29,6 +29,13 @@
   font-size: var(--text-styles-body-font-size);
 }
 
+.multiline {
+  padding-block: var(--spacing-3);
+  font-family: inherit;
+  line-height: var(--text-styles-body-line-height);
+  resize: vertical;
+}
+
 .input:focus-visible {
   outline: none;
 }

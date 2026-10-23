@@ -9,6 +9,10 @@ export const isSubscriptionActive = (subscription: Subscription | null, now: Dat
 export const activeSubscription = (session: Session) =>
   session.status === 'signedIn' && isSubscriptionActive(session.subscription) ? session.subscription : null;
 
+// The signed-in user's project pass while it is still running, otherwise null.
+export const activePass = (session: Session, now: Date = new Date()) =>
+  session.status === 'signedIn' && session.pass && new Date(session.pass.endsAt) > now ? session.pass : null;
+
 // Where a visitor is in onboarding: not signed in, signed in with steps left, or ready.
 export type OnboardingState = 'guest' | 'verifyEmail' | 'completeProfile' | 'verifyPhone' | 'ready';
 

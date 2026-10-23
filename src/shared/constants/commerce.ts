@@ -1,40 +1,49 @@
 import type { IconName } from '@/shared/assets';
 
-// Prices are whole Egyptian pounds (other currencies are only shown, see region.ts).
+// Prices are whole Egyptian pounds and include VAT (other currencies are only shown, see region.ts).
 export const currency = {
   code: 'EGP',
 } as const;
 
-// Prepaid plan lengths in months, and the discount each one gets (0.1 = 10% off the monthly price).
-export const planDurations = [1, 3, 12] as const;
-export type PlanDuration = (typeof planDurations)[number];
+// VAT included in every price (0.14 = 14%). Invoices show the amount before VAT and the VAT on top.
+export const vatRate = 0.14;
 
-// Selected first on the pricing page: the longest plan has the biggest saving and offers installments.
+// Plans are paid monthly or yearly (in months). Yearly costs less per month.
+export const planDurations = [1, 12] as const;
+export type PlanDuration = (typeof planDurations)[number];
 export const defaultPlanDuration: PlanDuration = 12;
 
 export const planDurationDiscounts: Record<PlanDuration, number> = {
   1: 0,
-  3: 0.1,
-  12: 0.25,
+  12: 0.2,
 };
 
-// Most seats a team plan can buy at checkout (the minimum is the plan's own).
+// Students who verify a university email pay this much less on plans that offer a student price.
+export const studentDiscount = 0.5;
+// University email addresses end with one of these (e.g. name@cu.edu.eg).
+export const universityEmailEndings: readonly string[] = ['.edu.eg', '.edu', '.ac.uk', '.edu.sa', '.ac.ae'];
+
+// Most seats a Teams plan can have.
 export const teamMaxMembers = 30;
 
-// Number of monthly installments shown in the "or EGP X a month" hint (valU-style).
+// Monthly installments offered for a yearly plan (valU-style).
 export const installmentMonths = 12;
-// Only totals at or above this amount show the installments hint.
-export const installmentMinTotal = 1000;
 
-// Payment methods offered at checkout.
+// Payment methods offered at checkout. Installments are only for yearly plans.
 export const paymentMethods = ['card', 'meeza', 'wallet', 'instapay', 'fawry', 'installments'] as const;
 export type PaymentMethod = (typeof paymentMethods)[number];
 
+// Methods that can be saved to the account and charged again (renewals, upgrades, added seats).
+export const savedPaymentKinds = ['card', 'meeza', 'wallet', 'instapay'] as const satisfies readonly PaymentMethod[];
+export type SavedPaymentKind = (typeof savedPaymentKinds)[number];
+
 // Card payments (Visa, Mastercard, Meeza): the demo accepts any number that passes the checksum.
+// The "declined" number shows what happens when a payment fails.
 export const card = {
   numberLength: 16,
   cvcLength: { min: 3, max: 4 },
   demoNumber: '4242 4242 4242 4242', // shown as a hint on the card form
+  declinedNumber: '4000 0000 0000 0002',
 } as const;
 
 // Fawry: the user gets a reference code and pays it in cash or in the myFawry app before it expires.
@@ -54,3 +63,34 @@ export const paymentMethodIcons: Record<PaymentMethod, IconName> = {
   fawry: 'receipt',
   installments: 'calendar',
 };
+
+// A plan's renewal reminder is sent this many days before it renews.
+export const renewalReminderDays = 7;
+
+// AI image models, oldest first. Each plan includes some of them; newer models cost more credits per image.
+export const aiModels = ['tiltImage1', 'tiltImage2', 'tiltImage2Pro'] as const;
+export type AiModelId = (typeof aiModels)[number];
+export const aiModelCredits: Record<AiModelId, number> = {
+  tiltImage1: 1,
+  tiltImage2: 2,
+  tiltImage2Pro: 4,
+};
+
+// The AI tool: images per request, shapes, and how long a demo generation takes.
+export const aiGeneration = {
+  imageCounts: [1, 2, 4],
+  aspectRatios: ['square', 'landscape', 'portrait'],
+  baseSeconds: 4, // per request
+  secondsPerImage: 1.5,
+  promptMaxLength: 400,
+} as const;
+export type AiAspectRatio = (typeof aiGeneration.aspectRatios)[number];
+
+// The seller printed on e-invoices (demo registration number).
+export const seller = {
+  taxRegistrationNumber: '100-234-567',
+} as const;
+
+// Team sizes on the Enterprise "Contact sales" form.
+export const salesTeamSizes = ['small', 'medium', 'large'] as const;
+export type SalesTeamSize = (typeof salesTeamSizes)[number];

@@ -7,7 +7,7 @@ import type { Item, SearchResults } from '@/shared/types';
 import { preferences } from '@/shared/utils';
 import { DownloadButton } from './DownloadButton';
 import { FontResults } from './FontResults';
-import { LoadMore, SaveButton } from '@/features/customer/components';
+import { LoadMore, ItemSaveActions } from '@/features/customer/components';
 
 interface SearchResultsViewProps {
   search: ReturnType<typeof useSearchFilters>;
@@ -34,7 +34,7 @@ export const SearchResultsView = ({ search, results, title, empty }: SearchResul
               actionsFor={(item) => (
                 <>
                   <DownloadButton item={item} />
-                  <SaveButton itemId={item.id} size="sm" />
+                  <ItemSaveActions item={item} />
                 </>
               )}
             />

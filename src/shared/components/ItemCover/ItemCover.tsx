@@ -15,7 +15,7 @@ const shapeFor = (seed: string) =>
 
 // An item's cover: its preview image, a font's letters, or generated flat cover art (accent color, bold shape, category icon).
 export const ItemCover = (props: ItemCoverProps) => {
-  const { image, accent, icon, title, showTitle, seed, aspectRatio, label, sample, previewOnHover } = withDefaults(itemCoverDefaults, props);
+  const { image, accent, icon, title, showTitle, seed, aspectRatio, label, sample, previewOnHover, fill } = withDefaults(itemCoverDefaults, props);
   const colors = vars.accentPairs[accent];
 
   const style = {
@@ -39,7 +39,7 @@ export const ItemCover = (props: ItemCoverProps) => {
   };
 
   return (
-    <div className={cx(styles.cover, previewOnHover && styles.preview)} style={style} role={label ? 'img' : undefined} aria-label={label}>
+    <div className={cx(styles.cover, previewOnHover && styles.preview, fill && styles.fill)} style={style} role={label ? 'img' : undefined} aria-label={label}>
       {art()}
       {previewOnHover && <span className={styles.progress} aria-hidden="true" />}
     </div>

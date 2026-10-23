@@ -1,11 +1,9 @@
-import { useEffect, useState } from 'react';
 import { Badge, Button, Card, EmptyState, Icon, Stack, Text, TextLink } from '@/shared/components';
 import { itemPath } from '@/shared/constants';
-import { useLocale, useSession } from '@/shared/hooks';
+import { useLocale, useNow, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { downloadStatus, downloadTextFile, fillText, formatDate, toFileName } from '@/shared/utils';
 
-const tickMs = 1000;
 const dateTimeFormat: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
 
 // "See my download queue in notifications": each download is "Preparing", then "Ready" to download again.
@@ -13,15 +11,8 @@ export const DownloadsQueue = () => {
   const { text, locale } = useLocale();
   const { session } = useSession();
   const downloads = session.status === 'signedIn' ? session.user.downloads : [];
-  const [now, setNow] = useState(() => Date.now());
-  const preparing = downloads.some((download) => downloadStatus(download, now) === 'preparing');
-
-  // While something is preparing, check every second so it turns "Ready" on its own.
-  useEffect(() => {
-    if (!preparing) return;
-    const timer = setInterval(() => setNow(Date.now()), tickMs);
-    return () => clearInterval(timer);
-  }, [preparing]);
+  // While something is preparing, the time is checked every second so it turns "Ready" on its own.
+  const now = useNow((time) => downloads.some((download) => downloadStatus(download, time) === 'preparing'));
 
   if (!downloads.length) return <EmptyState title={text.notifications.tabs.downloads} message={text.notifications.downloadsEmpty} />;
 

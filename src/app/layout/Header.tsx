@@ -1,9 +1,10 @@
 import { Link, NavLink, useLocation } from 'react-router';
-import { Badge, Button, Container, Icon, SearchBar, Stack } from '@/shared/components';
+import { Badge, Button, Container, Icon, Stack } from '@/shared/components';
 import { navItems, navMenus, routes, withReturnTo } from '@/shared/constants';
 import { useLocale, useSearchFilters, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { cx, formatNumber, unreadReleaseNotes } from '@/shared/utils';
+import { cx, formatNumber, unreadCount } from '@/shared/utils';
+import { SearchBox } from '@/features/customer/components';
 import { AccountMenu } from './AccountMenu';
 import { AppearanceMenu } from './AppearanceMenu';
 import { LanguageMenu } from './LanguageMenu';
@@ -16,7 +17,7 @@ export const Header = () => {
   const { query } = useSearchFilters();
   const currentQuery = pathname === routes.search ? query : '';
   const currentPage = `${pathname}${search}`; // signing in from the header comes back to this page
-  const unread = session.status === 'signedIn' ? unreadReleaseNotes(session.user).length : 0;
+  const unread = session.status === 'signedIn' ? unreadCount(session.user) : 0;
 
   return (
     <header className={styles.header}>
@@ -27,7 +28,7 @@ export const Header = () => {
           </Link>
 
           <div className={styles.search}>
-            <SearchBar key={currentQuery} defaultValue={currentQuery} />
+            <SearchBox key={currentQuery} defaultValue={currentQuery} />
           </div>
 
           <nav className={styles.nav} aria-label={text.nav.label}>
@@ -42,36 +43,38 @@ export const Header = () => {
             ))}
           </nav>
 
-          <Stack direction="row" align="center" gap={vars.spacing[2]}>
-            <AppearanceMenu />
-            <LanguageMenu />
+          <div className={styles.actions}>
+            <Stack direction="row" align="center" gap={vars.spacing[2]}>
+              <AppearanceMenu />
+              <LanguageMenu />
 
-            {session.status === 'signedIn' ? (
-              <>
-                {/* data-tour: the first-login tour points at these. */}
-                <span data-tour="notifications">
-                  <Button variant="outline" size="sm" to={routes.notifications} ariaLabel={text.nav.notifications}>
-                    <Icon name="bell" size={vars.sizes.icon.sm} />
-                    {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
+              {session.status === 'signedIn' ? (
+                <>
+                  {/* data-tour: the first-login tour points at these. */}
+                  <span data-tour="notifications">
+                    <Button variant="outline" size="sm" to={routes.notifications} ariaLabel={text.nav.notifications}>
+                      <Icon name="bell" size={vars.sizes.icon.sm} />
+                      {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
+                    </Button>
+                  </span>
+                  <div data-tour="account">
+                    <AccountMenu user={session.user} subscription={session.subscription} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Button variant="secondary" size="sm" to={withReturnTo(routes.signIn, currentPage)}>
+                    {text.common.signIn}
                   </Button>
-                </span>
-                <div data-tour="account">
-                  <AccountMenu user={session.user} subscription={session.subscription} />
-                </div>
-              </>
-            ) : (
-              <>
-                <Button variant="secondary" size="sm" to={withReturnTo(routes.signIn, currentPage)}>
-                  {text.common.signIn}
-                </Button>
-                <span className={styles.wideOnly}>
-                  <Button size="sm" to={withReturnTo(routes.signUp, currentPage)}>
-                    {text.common.signUp}
-                  </Button>
-                </span>
-              </>
-            )}
-          </Stack>
+                  <span className={styles.wideOnly}>
+                    <Button size="sm" to={withReturnTo(routes.signUp, currentPage)}>
+                      {text.common.signUp}
+                    </Button>
+                  </span>
+                </>
+              )}
+            </Stack>
+          </div>
         </div>
       </Container>
     </header>

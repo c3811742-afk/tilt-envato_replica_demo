@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 
+export type ModalPlacement = 'center' | 'side';
+
 export interface ModalProps {
   open?: boolean;
   onClose?: () => void; // called on Esc, the close button, or a click outside the dialog
@@ -7,5 +9,6 @@ export interface ModalProps {
   children?: ReactNode;
   actions?: ReactNode; // buttons at the bottom of the dialog
   width?: string;
+  placement?: ModalPlacement; // 'center': a dialog; 'side': a full-height panel along the end edge
   closeLabel?: string; // accessible name of the close button; defaults to "Close" in the active language
 }

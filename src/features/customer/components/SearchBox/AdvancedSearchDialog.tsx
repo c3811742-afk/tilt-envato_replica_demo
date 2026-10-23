@@ -1,29 +1,30 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { AsyncContent, Button, ChipGroup, IconNote, Modal, Stack, stateMessageHeights, TextField } from '@/shared/components';
-import { useAsync, useLocale, type useSearchFilters } from '@/shared/hooks';
+import { useAsync, useLocale, useSearchFilters } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { api } from '@/shared/utils';
 
 interface AdvancedSearchDialogProps {
   open: boolean;
-  search: ReturnType<typeof useSearchFilters>;
   onClose: () => void;
 }
 
 // Require words, exclude words, and only include or leave out some creators.
-export const AdvancedSearchDialog = ({ open, search, onClose }: AdvancedSearchDialogProps) => {
+export const AdvancedSearchDialog = ({ open, onClose }: AdvancedSearchDialogProps) => {
   const { text } = useLocale();
   return (
     <Modal open={open} onClose={onClose} title={text.advancedSearch.title}>
       {/* Mounted only while open, so the form starts from the current search each time. */}
-      {open && <AdvancedSearchForm search={search} onDone={onClose} />}
+      {open && <AdvancedSearchForm onDone={onClose} />}
     </Modal>
   );
 };
 
-const AdvancedSearchForm = ({ search, onDone }: { search: AdvancedSearchDialogProps['search']; onDone: () => void }) => {
+// Starts from the search in the URL (empty when opened outside the search page).
+const AdvancedSearchForm = ({ onDone }: { onDone: () => void }) => {
   const { text } = useLocale();
+  const search = useSearchFilters();
   const navigate = useNavigate();
   const creators = useAsync(api.getCreators, []);
   const [query, setQuery] = useState(search.query);

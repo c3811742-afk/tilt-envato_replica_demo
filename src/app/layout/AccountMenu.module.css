@@ -1,4 +1,4 @@
-/* Phones show only the icon; the name appears from tablet width up. */
+/* Only the icon until the header has room for the name (wide screens), next to the search tools. */
 .name {
   display: none;
   max-inline-size: var(--sizes-sidebar-width);
@@ -7,7 +7,7 @@
   white-space: nowrap;
 }
 
-@media (--md-up) {
+@media (--xl-up) {
   .name {
     display: inline;
   }

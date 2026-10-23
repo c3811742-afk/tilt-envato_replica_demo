@@ -209,6 +209,7 @@ export type TextAlignment = (typeof textAlignments)[number];
 // Search results list view: music and sound effects are tracks, fonts can be a list of samples.
 export const resultViews = ['grid', 'list'] as const;
 export type ResultView = (typeof resultViews)[number];
+export const resultViewIcons: Record<ResultView, IconName> = { grid: 'grid', list: 'list' };
 
 export const gridSizes = ['small', 'medium', 'large'] as const;
 export type GridSize = (typeof gridSizes)[number];

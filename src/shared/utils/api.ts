@@ -1,5 +1,5 @@
 import { catalog, spotlights, type SortOption } from '@/shared/constants';
-import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockItems, mockPlans } from '@/shared/mocks';
+import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockItems as allItems, mockPasses, mockPlans } from '@/shared/mocks';
 import type {
   CatalogStats,
   Category,
@@ -9,41 +9,48 @@ import type {
   Creator,
   CreatorProfile,
   Item,
-  License,
+  ProjectPass,
   Page,
   Plan,
   SearchQuery,
   SearchReport,
   SearchResults,
   SearchSuggestion,
-  User,
 } from '@/shared/types';
 import { applyFilters, countFacets } from './filters';
 import { lookDistance } from './imageLook';
-import { createLicenseCode } from './license';
-import { originalTitle } from './itemText';
+import { readCatalogEvents } from './accountStore';
 import { respond } from './mockResponse';
 import { byTrending, findDownloadedTogether, findSimilarItems, isEmptyQuery, matchItems, parseQuery, sortItems, sortScored } from './search';
 import { itemSoundProfile, soundDistance } from './soundProfile';
 import { suggestSearches } from './suggestions';
 
+// Items with the demo's catalog events applied: a creator's newly published item is new; removed items are marked.
+const withEvents = (item: Item): Item => {
+  const { publishedAt, removedItemIds } = readCatalogEvents();
+  return { ...item, createdAt: publishedAt[item.id] ?? item.createdAt, removedAt: removedItemIds[item.id] };
+};
+
+// The items people can browse: removed items are left out (licensed users still reach them by link).
+const catalogItems = () => allItems.map(withEvents).filter((item) => !item.removedAt);
+
 const categoriesWithCounts = (): Category[] =>
   mockCategories.map((category) => ({
     ...category,
-    itemCount: mockItems.filter((item) => item.categoryId === category.id).length,
+    itemCount: catalogItems().filter((item) => item.categoryId === category.id).length,
   }));
 
 const creators: Creator[] = Object.values(mockCreators);
 
 const withItems = (collection: Collection): CollectionWithItems => ({
   ...collection,
-  items: collection.itemIds.map((id) => mockItems.find((item) => item.id === id)).filter((item): item is Item => item !== undefined),
+  items: collection.itemIds.map((id) => catalogItems().find((item) => item.id === id)).filter((item): item is Item => item !== undefined),
   creator: creators.find((creator) => creator.id === collection.creatorId),
 });
 
 // Items a search starts from: the category, browse section and advanced-search authors narrow it down.
 const searchBase = ({ categoryId, occasion, business, spotlight, authors, excludeAuthors, uploadedFrom, uploadedTo }: SearchQuery) =>
-  mockItems.filter(
+  catalogItems().filter(
     (item) =>
       (!categoryId || item.categoryId === categoryId) &&
       (!occasion || item.occasions.includes(occasion)) &&
@@ -88,12 +95,6 @@ const rankResults = (query: SearchQuery): Item[] => {
   return sortScored(matched, sort);
 };
 
-export interface CreateLicenseRequest {
-  item: Item;
-  projectName: string;
-  user: User;
-}
-
 export const api = {
   getCategories: (): Promise<Category[]> => respond(categoriesWithCounts()),
 
@@ -115,15 +116,15 @@ export const api = {
     respond(sortItems(searchBase({ categoryId }), sort).slice(0, limit)),
 
   getFeaturedItems: (limit: number = catalog.railSize): Promise<Item[]> =>
-    respond(mockItems.filter((item) => item.featured).slice(0, limit)),
+    respond(catalogItems().filter((item) => item.featured).slice(0, limit)),
 
   // Most downloaded in the last 30 days.
   getTrendingItems: (limit: number = catalog.railSize): Promise<Item[]> =>
-    respond([...mockItems].sort(byTrending).slice(0, limit)),
+    respond([...catalogItems()].sort(byTrending).slice(0, limit)),
 
   // This month's free items: anyone with an account can download them.
   getFreeItems: (limit: number = catalog.railSize): Promise<Item[]> =>
-    respond(mockItems.filter((item) => item.tier === 'free').slice(0, limit)),
+    respond(catalogItems().filter((item) => item.tier === 'free').slice(0, limit)),
 
   // Items from a home page browse section: an occasion, a business type or a local spotlight.
   getBrowseItems: (query: Pick<SearchQuery, 'occasion' | 'business' | 'spotlight'>, limit: number = catalog.railSize) =>
@@ -131,16 +132,19 @@ export const api = {
 
   // Items by id, in the order given (e.g. saved items). Ids that no longer exist are left out.
   getItemsByIds: (ids: readonly string[]): Promise<Item[]> =>
-    respond(ids.map((id) => mockItems.find((item) => item.id === id)).filter((item): item is Item => item !== undefined)),
+    respond(ids.map((id) => catalogItems().find((item) => item.id === id)).filter((item): item is Item => item !== undefined)),
 
   // null when no item has this id (the page shows "Item not found").
-  getItem: (id: string): Promise<Item | null> => respond(mockItems.find((item) => item.id === id) ?? null),
+  getItem: (id: string): Promise<Item | null> => {
+    const item = allItems.find((candidate) => candidate.id === id);
+    return respond(item ? withEvents(item) : null);
+  },
 
   getSimilarItems: (item: Item, limit: number = catalog.similarSize): Promise<Item[]> =>
-    respond(findSimilarItems(mockItems, item, limit)),
+    respond(findSimilarItems(catalogItems(), item, limit)),
 
   getDownloadedTogether: (item: Item, limit: number = catalog.downloadedTogetherSize): Promise<Item[]> =>
-    respond(findDownloadedTogether(mockItems, mockDownloadedTogether, item, limit)),
+    respond(findDownloadedTogether(catalogItems(), mockDownloadedTogether, item, limit)),
 
   // A creator's portfolio, most popular first. `excludeId` leaves out the item being viewed.
   getCreatorItems: (
@@ -148,7 +152,7 @@ export const api = {
     { offset = 0, limit = catalog.creatorProfileSize, excludeId }: { offset?: number; limit?: number; excludeId?: string } = {},
   ): Promise<Page<Item>> => {
     const items = sortItems(
-      mockItems.filter((item) => item.creator.id === creatorId && item.id !== excludeId),
+      catalogItems().filter((item) => item.creator.id === creatorId && item.id !== excludeId),
       'popular',
     );
     return respond({ items: items.slice(offset, offset + limit), total: items.length });
@@ -158,7 +162,7 @@ export const api = {
   getCreator: (id: string): Promise<CreatorProfile | null> => {
     const creator = creators.find((candidate) => candidate.id === id);
     if (!creator) return respond(null);
-    const items = mockItems.filter((item) => item.creator.id === id);
+    const items = catalogItems().filter((item) => item.creator.id === id);
     return respond({
       creator,
       itemCount: items.length,
@@ -177,30 +181,19 @@ export const api = {
   },
 
   getSuggestions: (typed: string): Promise<SearchSuggestion[]> =>
-    respond(suggestSearches(typed, mockItems, categoriesWithCounts(), catalog.suggestionLimit), catalog.suggestLatencyMs),
+    respond(suggestSearches(typed, catalogItems(), categoriesWithCounts(), catalog.suggestionLimit), catalog.suggestLatencyMs),
 
   // "These results don't match my search": the demo keeps nothing on a server.
   reportSearch: (report: SearchReport): Promise<SearchReport> => respond(report),
 
   getPlans: (): Promise<Plan[]> => respond(mockPlans),
 
+  getPasses: (): Promise<ProjectPass[]> => respond(mockPasses),
+
   getStats: (): Promise<CatalogStats> =>
     respond({
-      itemCount: mockItems.length,
+      itemCount: catalogItems().length,
       creatorCount: creators.length,
       categoryCount: mockCategories.length,
-    }),
-
-  // Issues a license for one project. The demo keeps nothing on a server.
-  createLicense: ({ item, projectName, user }: CreateLicenseRequest): Promise<License> =>
-    respond({
-      code: createLicenseCode(),
-      itemId: item.id,
-      itemTitle: originalTitle(item),
-      creatorName: item.creator.name,
-      // Certificates show the name in Arabic too when the user gave one.
-      licenseeName: user.profile?.arabicName ? `${user.name} / ${user.profile.arabicName}` : user.name,
-      projectName: projectName.trim(),
-      issuedAt: new Date().toISOString(),
     }),
 };

@@ -1,0 +1,6 @@
+.image {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}

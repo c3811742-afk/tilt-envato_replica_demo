@@ -10,6 +10,14 @@
   box-shadow: var(--shadows-hard);
 }
 
+/* A panel along the end edge (the right in English, the left in Arabic), full height. */
+.side {
+  max-block-size: var(--sizes-viewport-full-height);
+  block-size: var(--sizes-viewport-full-height);
+  margin-block: 0;
+  margin-inline: auto 0;
+}
+
 .modal::backdrop {
   background: var(--colors-overlay);
 }

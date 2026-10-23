@@ -28,6 +28,7 @@ export { previewSource, previewDuration, previewPeaks, isTemplateCategory, itemF
 export type { PreviewOptions, ItemFile } from './previews';
 export {
   normalizeSearchText,
+  matchesText,
   parseQuery,
   isEmptyQuery,
   matchItems,
@@ -53,18 +54,44 @@ export {
   soundProfileFromParam,
 } from './soundProfile';
 export { originalTitle, isTranslated } from './itemText';
-export { getPlanPrice, getSubscriptionTotal, getInstallment, isPlanDuration } from './pricing';
-export type { PlanPrice } from './pricing';
+export {
+  getPlanPrice,
+  getSubscriptionTotal,
+  getInstallment,
+  isPlanDuration,
+  vatIncluded,
+  periodRemaining,
+  prorate,
+  daysUntil,
+  paymentBreakdown,
+} from './pricing';
+export type { PaymentBreakdown, PlanPrice, PriceOptions, Proration } from './pricing';
 export { downloadTextFile, toFileName } from './download';
 export {
   projectNameMaxLength,
   validateProjectName,
   createLicenseCode,
   buildLicenseCertificate,
+  buildLicensesFile,
+  buildProofLetter,
+  appUrl,
 } from './license';
 export type { ProjectNameError } from './license';
+export { buildInvoiceText, invoiceAddress, invoiceBuyer, invoiceLineLabel } from './invoice';
 export { api } from './api';
-export type { CreateLicenseRequest } from './api';
+export { billingApi } from './billingApi';
+export type { PaymentChoice, SubscribeRequest, PassRequest, PlanChangeRequest, PaymentMethodRequest, SalesRequest } from './billingApi';
+export { accountAllowance, libraryApi } from './libraryApi';
+export type { LicenseRequest } from './libraryApi';
+export { aiApi } from './aiApi';
+export type { GenerationRequest } from './aiApi';
+export { demoApi } from './demoApi';
+export type { SessionAccount, CodePurpose } from './accountStore';
+export { collectionTree, collectionWithDescendants, downloadAllowance, itemIdFromLink, monthStart } from './library';
+export type { DownloadAllowance } from './library';
+export { generationCost, scheduleGenerations, generationStatus, creditAllowance, generatedImage } from './ai';
+export type { GenerationStatus, GenerationTiming, CreditAllowance } from './ai';
+export { fileStore } from './fileStore';
 export { respond, respondError } from './mockResponse';
 export { ApiError, isApiError, apiErrorCodes } from './apiError';
 export type { ApiErrorCode } from './apiError';
@@ -90,6 +117,7 @@ export type { FieldError } from './validation';
 export {
   isSubscriptionActive,
   activeSubscription,
+  activePass,
   onboardingState,
   onboardingRoutes,
   safeReturnTo,
@@ -97,6 +125,6 @@ export {
 } from './session';
 export type { OnboardingState } from './session';
 export { authApi } from './authApi';
-export type { SessionAccount, SignUpRequest, SocialRequest, SubscribeRequest, DownloadRequest, CodePurpose } from './authApi';
+export type { SignUpRequest, SocialRequest } from './authApi';
 export { allOptionalCookies } from './cookies';
-export { unreadReleaseNotes, downloadStatus } from './notifications';
+export { unreadReleaseNotes, unreadCount, downloadStatus } from './notifications';

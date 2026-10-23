@@ -1,3 +1,12 @@
+import type { IconName } from '@/shared/assets';
+
+// An icon button inside the search box, e.g. search by image.
+export interface SearchBarAction {
+  icon: IconName;
+  label: string; // its accessible name and tooltip
+  onClick: () => void;
+}
+
 export interface SearchBarProps {
   defaultValue?: string; // the query shown when the bar first renders (change `key` to reset it)
   size?: 'md' | 'lg';
@@ -6,4 +15,5 @@ export interface SearchBarProps {
   onSearch?: (query: string) => void; // defaults to opening the search page with the query
   autoFocus?: boolean;
   suggest?: boolean; // show suggestions under the box while typing
+  actions?: SearchBarAction[]; // icon buttons next to the search button (advanced search, by image…)
 }

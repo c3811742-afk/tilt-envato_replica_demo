@@ -23,3 +23,6 @@ export { useCopy } from './useCopy';
 export type { CopyStatus } from './useCopy';
 export { useInView } from './useInView';
 export { usePlayback, usePlaybackTime, useStopOnUnmount } from './usePlayback';
+export { useItemActions, ItemActionsContext } from './useItemActions';
+export type { ItemActionsRenderer } from './useItemActions';
+export { useNow } from './useNow';

@@ -124,6 +124,7 @@ export interface Item {
   music?: MusicInfo;
   font?: FontInfo;
   previewSongId?: string; // the music item playing in a video template's preview
+  removedAt?: string; // ISO date the item left the library (licenses for it stay valid)
 }
 
 // Selected values of each filter, e.g. { orientation: ['portrait'], color: ['red', 'blue'] }.

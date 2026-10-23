@@ -1,3 +1,4 @@
+/* The language name shows on wide screens; elsewhere the globe alone, to leave the search box room. */
 .wideOnly {
   display: none;
 }
@@ -28,7 +29,7 @@
   background: var(--colors-surface-muted);
 }
 
-@media (--sm-up) {
+@media (--xl-up) {
   .wideOnly {
     display: inline;
   }

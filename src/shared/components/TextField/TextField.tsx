@@ -25,6 +25,7 @@ export const TextField = (props: TextFieldProps) => {
     endAction,
     direction,
     maxLength,
+    rows,
     min,
     max,
     disabled,
@@ -36,6 +37,21 @@ export const TextField = (props: TextFieldProps) => {
   const inputId = id ?? generatedId;
   const messageId = `${inputId}-message`;
   const message = error ?? hint;
+  // What the one-line input and the multi-line field have in common.
+  const fieldProps = {
+    id: inputId,
+    name,
+    value,
+    placeholder,
+    maxLength,
+    disabled,
+    required,
+    autoFocus,
+    autoComplete,
+    dir: direction,
+    'aria-invalid': error ? true : undefined,
+    'aria-describedby': message ? messageId : undefined,
+  };
 
   return (
     <Stack gap={vars.spacing[2]}>
@@ -50,26 +66,19 @@ export const TextField = (props: TextFieldProps) => {
             {prefix}
           </span>
         )}
-        <input
-          id={inputId}
-          name={name}
-          type={type}
-          inputMode={inputMode}
-          className={styles.input}
-          value={value}
-          onChange={(event) => onChange?.(event.target.value)}
-          placeholder={placeholder}
-          maxLength={maxLength}
-          min={min}
-          max={max}
-          disabled={disabled}
-          required={required}
-          autoFocus={autoFocus}
-          autoComplete={autoComplete}
-          dir={direction}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={message ? messageId : undefined}
-        />
+        {rows > 1 ? (
+          <textarea {...fieldProps} className={cx(styles.input, styles.multiline)} rows={rows} onChange={(event) => onChange?.(event.target.value)} />
+        ) : (
+          <input
+            {...fieldProps}
+            className={styles.input}
+            type={type}
+            inputMode={inputMode}
+            min={min}
+            max={max}
+            onChange={(event) => onChange?.(event.target.value)}
+          />
+        )}
         {endAction}
       </div>
       <FieldMessage id={messageId} message={message} tone={error ? 'error' : 'hint'} />

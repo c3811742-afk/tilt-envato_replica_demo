@@ -14,7 +14,7 @@ export const sizes = {
   },
   sidebar: { width: 'clamp(15rem, 22vw, 18rem)' },
   splitLayout: { columns: '3fr 2fr' }, // main content and side panel on desktop (checkout, item page)
-  modal: { width: 'min(90vw, 32rem)', maxHeight: '85dvh' },
+  modal: { width: 'min(90vw, 32rem)', maxHeight: '85dvh', sideWidth: 'min(100vw, 26rem)', wideWidth: 'min(94vw, 56rem)' }, // side: a panel along the edge
   authForm: { maxWidth: '28rem' }, // sign in, sign up and the other onboarding forms
   dropdown: { width: 'min(90vw, 18rem)' }, // account menu
   header: { height: '4.5rem' }, // 72
@@ -33,11 +33,15 @@ export const sizes = {
   chip: { height: '2.5rem', paddingX: spacing[4], rowWidth: 'auto' }, // 40; in a scrolling row each chip is as wide as its label
   segment: { height: { sm: '2.5rem', md: '2.75rem' }, paddingX: spacing[4] }, // 40 / 44
   tag: { height: '1.375rem', paddingX: spacing[2] }, // 22
+  meter: { height: '0.5rem' }, // 8, the bar of a usage meter (credits, downloads)
+  table: { firstColumn: 'min(14rem, 40%)' }, // the row labels of a comparison table
   card: { padding: spacing[5], minWidth: 'min(17.5rem, 100%)' }, // 280, never wider than its column
   // Grid column width for each grid size the user can pick (search results), and the width in a scrolling row.
+  // A square picture: with the two lines of text under it, it is always over 70% of the card's height.
   itemCard: {
-    minWidth: { small: 'min(11rem, 100%)', medium: 'min(15rem, 100%)', large: 'min(22rem, 100%)' },
-    railWidth: 'min(16rem, 72vw)',
+    minWidth: { small: 'min(10rem, 100%)', medium: 'min(13rem, 100%)', large: 'min(20rem, 100%)' }, // 4, 3 and 2 per row beside the search panel
+    railWidth: 'min(19rem, 80vw)',
+    coverRatio: '1 / 1',
   },
   collectionCard: { minWidth: 'min(20rem, 100%)' },
   // Music and sound effects list: cover thumbnail, waveform height, the columns for duration and BPM.

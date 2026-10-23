@@ -14,7 +14,7 @@ const noSuggestions: SearchSuggestion[] = [];
 
 // The site search box, with suggestions while typing. An empty search opens the full catalog.
 export const SearchBar = (props: SearchBarProps) => {
-  const { defaultValue, size, placeholder, label, onSearch, autoFocus, suggest } = withDefaults(searchBarDefaults, props);
+  const { defaultValue, size, placeholder, label, onSearch, autoFocus, suggest, actions } = withDefaults(searchBarDefaults, props);
   const { text, locale } = useLocale();
   const navigate = useNavigate();
   const [query, setQuery] = useState(defaultValue);
@@ -96,6 +96,11 @@ export const SearchBar = (props: SearchBarProps) => {
         aria-activedescendant={showList && active >= 0 ? `${listId}-${active}` : undefined}
         autoComplete="off"
       />
+      {actions.map((action) => (
+        <button key={action.label} type="button" className={styles.action} aria-label={action.label} title={action.label} onClick={action.onClick}>
+          <Icon name={action.icon} size={vars.sizes.icon.sm} />
+        </button>
+      ))}
       <button type="submit" className={styles.submit} aria-label={text.search.submit}>
         <Icon name="search" />
       </button>

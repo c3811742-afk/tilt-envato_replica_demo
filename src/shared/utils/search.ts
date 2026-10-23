@@ -27,6 +27,12 @@ export const normalizeSearchText = (value: string) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+// A filter box inside a page (downloads, collections): true when any of the values contains the query.
+export const matchesText = (query: string, ...values: (string | undefined)[]) => {
+  const wanted = normalizeSearchText(query);
+  return !wanted || values.some((value) => value !== undefined && normalizeSearchText(value).includes(wanted));
+};
+
 const stopWords = new Set(searchStopWords.map(normalizeSearchText));
 const synonyms = new Map(
   Object.entries(searchSynonyms).map(([word, meanings]) => [normalizeSearchText(word), meanings.map(normalizeSearchText)]),

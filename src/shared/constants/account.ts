@@ -58,11 +58,14 @@ export const releaseNotes = [
 export type ReleaseNoteId = (typeof releaseNotes)[number]['id'];
 
 // The pages of the account settings, in menu order.
-export const accountSections = ['profile', 'security', 'notifications', 'licensing', 'billing', 'deleteAccount'] as const;
+export const accountSections = ['profile', 'security', 'notifications', 'plan', 'billing', 'licensing', 'deleteAccount'] as const;
 export type AccountSection = (typeof accountSections)[number];
 
 // Demo download queue: a download is "Preparing" for this long, then "Ready".
 export const downloadPreparingSeconds = 6;
+
+// How often a page showing progress (downloads preparing, AI images generating) checks the time again.
+export const progressTickMs = 1000;
 
 // The first-login tour walks through the site, in this order. Each step's text is in text.tour.steps.
 export const tourSteps = ['search', 'categories', 'filters', 'preview', 'downloads', 'notifications', 'account'] as const;

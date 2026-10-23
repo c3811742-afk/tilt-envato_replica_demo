@@ -8,6 +8,7 @@ import { BillingSettings } from './sections/BillingSettings';
 import { DeleteAccountSettings } from './sections/DeleteAccountSettings';
 import { LicensingSettings } from './sections/LicensingSettings';
 import { NotificationSettings } from './sections/NotificationSettings';
+import { PlanSettings } from './sections/PlanSettings';
 import { ProfileSettings } from './sections/ProfileSettings';
 import { SecuritySettings } from './sections/SecuritySettings';
 
@@ -18,6 +19,7 @@ const sectionPages: Record<AccountSection, ComponentType> = {
   profile: ProfileSettings,
   security: SecuritySettings,
   notifications: NotificationSettings,
+  plan: PlanSettings,
   licensing: LicensingSettings,
   billing: BillingSettings,
   deleteAccount: DeleteAccountSettings,

@@ -8,7 +8,6 @@ import {
   Grid,
   ReleaseNotesList,
   ScrollRow,
-  SearchBar,
   Section,
   Stack,
   stateMessageHeights,
@@ -26,7 +25,7 @@ import {
 import { useAsync, useCategories, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { api, fillText, unreadReleaseNotes } from '@/shared/utils';
-import { ChipLinks, FaqAccordion, HowItWorksSteps, ItemRowSection } from '@/features/customer/components';
+import { ChipLinks, FaqAccordion, HowItWorksSteps, ItemRowSection, SearchBox } from '@/features/customer/components';
 import styles from './HomePage.module.css';
 
 export const HomePage = () => {
@@ -52,7 +51,7 @@ export const HomePage = () => {
               </Text>
               {/* data-tour: the first-login tour points here. */}
               <div data-tour="search">
-                <SearchBar size="lg" />
+                <SearchBox size="lg" />
               </div>
               <Stack gap={vars.spacing[2]}>
                 <Text as="span" variant="label" color={vars.colors.onPrimary}>
@@ -179,7 +178,8 @@ export const HomePage = () => {
                 {(data) => (
                   <Text variant="h4" color={vars.colors.onHighlight}>
                     {fillText(text.home.plansText, {
-                      price: price(Math.min(...data.map((plan) => plan.monthlyPrice))),
+                      // Enterprise has no listed price, so it isn't the cheapest.
+                      price: price(Math.min(...data.flatMap((plan) => (plan.monthlyPrice === null ? [] : [plan.monthlyPrice])))),
                     })}
                   </Text>
                 )}

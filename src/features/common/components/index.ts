@@ -7,3 +7,4 @@ export { DemoCodeNote } from './DemoCodeNote';
 export { LegalPage } from './LegalPage';
 export { SocialSignIn, SocialAuthDialog } from './SocialSignIn';
 export type { SocialDetails } from './SocialSignIn';
+export { GenerationQueue } from './GenerationQueue';

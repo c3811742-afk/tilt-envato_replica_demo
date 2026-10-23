@@ -18,7 +18,7 @@ import { useCopy, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item } from '@/shared/types';
 import { fillText, formatCountry, formatLanguageName, isTranslated } from '@/shared/utils';
-import { ItemDownload, SaveButton } from '@/features/customer/components';
+import { FavoriteButton, ItemDownload, SaveToCollection } from '@/features/customer/components';
 import { ItemFacts } from './ItemFacts';
 import { ItemPreview } from './ItemPreview';
 import { RelatedItems } from './RelatedItems';
@@ -113,12 +113,13 @@ export const ItemDetails = ({ item }: { item: Item }) => {
                   )}
                 />
                 <Grid as="div" columns={2} gap={vars.spacing[3]}>
-                  <SaveButton itemId={item.id} fullWidth />
-                  <Button variant="outline" fullWidth onClick={() => copy(window.location.href)}>
-                    <Icon name={copyStatus === 'copied' ? 'check' : 'link'} size={vars.sizes.icon.sm} />
-                    {copyStatus === 'copied' ? text.common.linkCopied : text.common.copyLink}
-                  </Button>
+                  <FavoriteButton itemId={item.id} fullWidth />
+                  <SaveToCollection itemId={item.id} fullWidth />
                 </Grid>
+                <Button variant="outline" fullWidth onClick={() => copy(window.location.href)}>
+                  <Icon name={copyStatus === 'copied' ? 'check' : 'link'} size={vars.sizes.icon.sm} />
+                  {copyStatus === 'copied' ? text.common.linkCopied : text.common.copyLink}
+                </Button>
                 {copyStatus === 'failed' && (
                   <Text variant="bodySm" color={vars.colors.danger}>
                     {text.common.copyFailed}

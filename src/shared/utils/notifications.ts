@@ -8,3 +8,6 @@ export const unreadReleaseNotes = (user: User) =>
 // A download is "preparing" for a moment after it's requested, then "ready" (the demo's stand-in for a real queue).
 export const downloadStatus = (download: Download, now: number = Date.now()) =>
   now - new Date(download.requestedAt).getTime() < downloadPreparingSeconds * 1000 ? 'preparing' : 'ready';
+
+// What the bell counts: unread release notes plus unread account notifications.
+export const unreadCount = (user: User) => unreadReleaseNotes(user).length + user.alerts.filter((alert) => !alert.read).length;

@@ -27,6 +27,22 @@
   color: var(--colors-text-muted);
 }
 
+.action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--search-bar-height);
+  border: none;
+  background: transparent;
+  color: var(--colors-text-muted);
+  cursor: pointer;
+}
+
+.action:hover {
+  color: var(--colors-primary);
+}
+
 .submit {
   display: inline-flex;
   flex-shrink: 0;

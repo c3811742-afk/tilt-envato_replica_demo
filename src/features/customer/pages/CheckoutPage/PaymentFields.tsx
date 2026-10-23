@@ -14,7 +14,8 @@ export type CheckoutValues = {
   walletPhone: string;
   instapay: string;
   valuPhone: string;
-  studentId: string;
+  savedMethodId: string; // a saved method to pay with; empty: new payment details
+  saveMethod: boolean; // keep the new details on the account
   autoRenew: boolean;
   governorate: string;
   city: string;
@@ -33,7 +34,7 @@ export const PaymentFields = ({ method, form }: PaymentFieldsProps) => {
   if (cardPaymentMethods.includes(method)) {
     return (
       <Stack gap={vars.spacing[4]}>
-        <IconNote icon="card" text={fillText(text.checkout.cardDemo, { number: card.demoNumber })} />
+        <IconNote icon="card" text={fillText(text.checkout.cardDemo, { number: card.demoNumber, declined: card.declinedNumber })} />
         <TextField
           label={text.checkout.cardNumber}
           inputMode="numeric"

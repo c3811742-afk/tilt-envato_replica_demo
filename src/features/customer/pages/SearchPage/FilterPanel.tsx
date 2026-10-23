@@ -1,10 +1,11 @@
-import { Checkbox, ChipGroup, FieldMessage, Stack, Text } from '@/shared/components';
+import { Checkbox, ChipGroup, FieldMessage, Stack } from '@/shared/components';
 import { filterControls, filterOptions, type FilterKey } from '@/shared/constants';
 import { useCategories, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { CategoryId, Facets, FilterValues } from '@/shared/types';
 import { fillText, formatNumber, isCategoryId } from '@/shared/utils';
 import { DateRangeFilter, type UploadRange } from './DateRangeFilter';
+import { FilterGroup } from './FilterGroup';
 
 interface FilterPanelProps {
   categoryId?: CategoryId;
@@ -26,10 +27,7 @@ export const FilterPanel = ({ categoryId, keys, filters, facets, onCategoryChang
   return (
     <Stack gap={vars.spacing[5]}>
       {/* Category is a group of chips like every other filter. "All categories" clears it. */}
-      <Stack gap={vars.spacing[2]}>
-        <Text as="h2" variant="title">
-          {text.search.category}
-        </Text>
+      <FilterGroup label={text.search.category}>
         <ChipGroup<string>
           value={[categoryId ?? '']}
           onChange={(values) => onCategoryChange(isCategoryId(values[0]) ? values[0] : undefined)}
@@ -42,7 +40,7 @@ export const FilterPanel = ({ categoryId, keys, filters, facets, onCategoryChang
             })),
           ]}
         />
-      </Stack>
+      </FilterGroup>
       {keys.map((key) => {
         const selected = filters[key] ?? [];
         const counts = facets[key] ?? {};
@@ -53,10 +51,7 @@ export const FilterPanel = ({ categoryId, keys, filters, facets, onCategoryChang
         const control = filterControls[key];
 
         return (
-          <Stack key={key} gap={vars.spacing[2]}>
-            <Text as="h2" variant="title">
-              {text.filters[key].label}
-            </Text>
+          <FilterGroup key={key} label={text.filters[key].label}>
             {control === 'toggle' && (
               <Checkbox label={withCount(options[0])} checked={selected.length > 0} onChange={(checked) => set(key, checked ? [options[0]] : [])} />
             )}
@@ -72,7 +67,7 @@ export const FilterPanel = ({ categoryId, keys, filters, facets, onCategoryChang
             {key === 'contentId' && <FieldMessage message={text.filters.contentId.hint} />}
             {/* Restarts when the range is cleared elsewhere (a chip, "Clear all"). */}
             {key === 'date' && <DateRangeFilter key={`${range.from}-${range.to}`} value={range} onChange={onRangeChange} />}
-          </Stack>
+          </FilterGroup>
         );
       })}
     </Stack>

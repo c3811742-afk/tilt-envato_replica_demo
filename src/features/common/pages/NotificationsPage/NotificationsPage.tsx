@@ -3,30 +3,34 @@ import { Page, ReleaseNotesList, SegmentedControl } from '@/shared/components';
 import type { ReleaseNoteId } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { authApi, safeAsync, unreadReleaseNotes } from '@/shared/utils';
+import { authApi, creditAllowance, safeAsync, unreadReleaseNotes } from '@/shared/utils';
+import { GenerationQueue } from '@/features/common/components';
+import { AlertsList } from './AlertsList';
 import { DownloadsQueue } from './DownloadsQueue';
 
-export type NotificationsTab = 'updates' | 'downloads';
-const tabs: NotificationsTab[] = ['updates', 'downloads'];
+export type NotificationsTab = 'alerts' | 'updates' | 'downloads' | 'generations';
+const tabs: NotificationsTab[] = ['alerts', 'updates', 'downloads', 'generations'];
 
-// Notifications: "What's new" (release notes, unread marked "New") and the download queue.
+// Notifications: account notifications, "What's new" (release notes), the download queue and the AI image queue.
+// What was unread on arrival stays marked "New" while the page is open.
 export const NotificationsPage = () => {
   const { text } = useLocale();
   const { session, setAccount } = useSession();
-  const [tab, setTab] = useState<NotificationsTab>('updates');
-  // The notes that were unread on arrival stay marked "New" while the page is open.
-  const [unread] = useState<ReleaseNoteId[]>(() =>
-    session.status === 'signedIn' ? unreadReleaseNotes(session.user).map((note) => note.id) : [],
-  );
+  const user = session.status === 'signedIn' ? session.user : null;
+  const [unreadNotes] = useState<ReleaseNoteId[]>(() => (user ? unreadReleaseNotes(user).map((note) => note.id) : []));
+  const [unreadAlerts] = useState<string[]>(() => (user ? user.alerts.filter((alert) => !alert.read).map((alert) => alert.id) : []));
+  // Opens on the account notifications when there's something new there, otherwise on "What's new".
+  const [tab, setTab] = useState<NotificationsTab>(() => (unreadAlerts.length || !unreadNotes.length ? 'alerts' : 'updates'));
 
-  // Opening "What's new" marks the release notes as read (the badge in the header goes away).
+  // Opening a tab marks what it shows as read (the badge in the header goes down).
   useEffect(() => {
-    if (!unread.length) return;
-    safeAsync(authApi.markReleasesSeen).then((result) => {
+    const markRead = tab === 'updates' && unreadNotes.length ? authApi.markReleasesSeen : tab === 'alerts' && unreadAlerts.length ? authApi.markAlertsRead : null;
+    if (!markRead) return;
+    safeAsync(markRead).then((result) => {
       if (result.ok) setAccount(result.data);
-      // On failure the notes simply stay unread; safeAsync has logged the error.
+      // On failure they simply stay unread; safeAsync has logged the error.
     });
-  }, [unread, setAccount]);
+  }, [tab, unreadNotes, unreadAlerts, setAccount]);
 
   return (
     <Page title={text.notifications.title} gap={vars.spacing[5]} contentMaxWidth={vars.sizes.readable.maxWidth}>
@@ -36,7 +40,12 @@ export const NotificationsPage = () => {
         onChange={setTab}
         options={tabs.map((key) => ({ value: key, label: text.notifications.tabs[key] }))}
       />
-      {tab === 'updates' ? <ReleaseNotesList unread={unread} /> : <DownloadsQueue />}
+      {tab === 'alerts' && <AlertsList alerts={user?.alerts ?? []} unread={unreadAlerts} />}
+      {tab === 'updates' && <ReleaseNotesList unread={unreadNotes} />}
+      {tab === 'downloads' && <DownloadsQueue />}
+      {tab === 'generations' && user && (
+        <GenerationQueue generations={user.generations} concurrent={creditAllowance(user.generations, session.status === 'signedIn' ? session.subscription : null).concurrent} />
+      )}
     </Page>
   );
 };

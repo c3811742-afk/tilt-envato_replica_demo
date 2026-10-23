@@ -10,14 +10,14 @@ interface FilterDialogProps {
   children: ReactNode; // the filter panel
 }
 
-// Phones: the filters open in a dialog. Filters apply as they're picked; the button shows the result count.
+// Phones: sort, view and filters open in a dialog. Filters apply as they're picked; the button shows the result count.
 export const FilterDialog = ({ open, count, onClose, children }: FilterDialogProps) => {
   const { text, locale } = useLocale();
   return (
     <Modal
       open={open}
       onClose={onClose}
-      title={text.filters.title}
+      title={text.filters.dialogTitle}
       actions={<Button onClick={onClose}>{fillText(text.filters.showResults, { count: formatNumber(count, locale) })}</Button>}
     >
       {children}

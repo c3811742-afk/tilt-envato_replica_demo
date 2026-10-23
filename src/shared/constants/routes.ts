@@ -9,7 +9,15 @@ export const routes = {
   creator: '/creator/:id',
   collections: '/collections',
   collection: '/collections/:id',
-  saved: '/saved',
+  favorites: '/favorites',
+  myCollections: '/my-collections',
+  myCollection: '/my-collections/:id',
+  sharedCollection: '/shared/:shareId',
+  downloads: '/downloads',
+  licenseCheck: '/license-check',
+  ai: '/ai',
+  contactSales: '/contact-sales',
+  demo: '/demo',
   howItWorks: '/how-it-works',
   pricing: '/pricing',
   faq: '/faq',
@@ -92,11 +100,17 @@ export const searchPath = ({ filters = {}, page, authors, excludeAuthors, ...sin
 export const checkoutParamKeys = {
   plan: 'plan',
   months: 'months',
+  credits: 'credits',
+  pass: 'pass',
 } as const;
 
 // routes.checkout for a plan and length: checkoutPath('individual', 12) -> '/checkout?plan=individual&months=12'
-export const checkoutPath = (planId: string, months: number) =>
-  `${routes.checkout}?${new URLSearchParams({ [checkoutParamKeys.plan]: planId, [checkoutParamKeys.months]: String(months) })}`;
+export const checkoutPath = (planId: string, months: number, credits?: number) =>
+  `${routes.checkout}?${new URLSearchParams({
+    [checkoutParamKeys.plan]: planId,
+    [checkoutParamKeys.months]: String(months),
+    ...(credits ? { [checkoutParamKeys.credits]: String(credits) } : {}),
+  })}`;
 
 // Adds the page to come back to after signing in: withReturnTo('/sign-in', '/checkout?plan=team') -> '/sign-in?next=...'
 export const withReturnTo = (path: string, returnTo?: string) =>
@@ -110,3 +124,19 @@ export const itemPath = (id: string) => routes.item.replace(':id', encodeURIComp
 export const creatorPath = (id: string) => routes.creator.replace(':id', encodeURIComponent(id));
 
 export const collectionPath = (id: string) => routes.collection.replace(':id', encodeURIComponent(id));
+
+export const myCollectionPath = (id: string) => routes.myCollection.replace(':id', encodeURIComponent(id));
+
+export const sharedCollectionPath = (shareId: string) => routes.sharedCollection.replace(':shareId', encodeURIComponent(shareId));
+
+// Query parameter of the license check page: licenseCheckPath('A7F3-…') opens it with the code filled in.
+export const licenseCheckParam = 'code';
+export const licenseCheckPath = (code?: string) =>
+  code ? `${routes.licenseCheck}?${new URLSearchParams({ [licenseCheckParam]: code })}` : routes.licenseCheck;
+
+// Query parameters of checkout for a project pass, a seat count or an Ultimate credit tier.
+export const checkoutPassPath = (passId: string) => `${routes.checkout}?${new URLSearchParams({ [checkoutParamKeys.pass]: passId })}`;
+
+// The plan settings with the "Change plan" dialog open on a plan: planChangePath('ultimate') -> '/account/plan?change=ultimate'
+export const planChangeParam = 'change';
+export const planChangePath = (planId: string) => `${accountPath('plan')}?${new URLSearchParams({ [planChangeParam]: planId })}`;

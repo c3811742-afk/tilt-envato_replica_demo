@@ -4,7 +4,7 @@ import type { Session } from '@/shared/types';
 import { authApi, safeAsync, type SessionAccount } from '@/shared/utils';
 
 const toSession = (account: SessionAccount | null): Session =>
-  account ? { status: 'signedIn', user: account.user, subscription: account.subscription } : { status: 'guest' };
+  account ? { status: 'signedIn', user: account.user, subscription: account.subscription, pass: account.pass } : { status: 'guest' };
 
 // Holds the signed-in account. It starts from the account saved in the browser, so a reload keeps you signed in.
 export const SessionProvider = ({ children }: { children: ReactNode }) => {

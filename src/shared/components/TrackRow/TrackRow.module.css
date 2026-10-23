@@ -11,7 +11,7 @@
   border-block-end: 0;
 }
 
-/* Phones: play, cover and title on one line, the waveform under them. Wider screens: one line. */
+/* Phones: play, cover and title on one line, the waveform under them, then the buttons. */
 .row {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) auto auto;
@@ -101,7 +101,23 @@
   flex-direction: column;
 }
 
-@media (--lg-up) {
+/* Tablets and narrow desktops (e.g. beside the search panel): the buttons join the first line,
+   the waveform gets the full width under it. */
+@media (--md-up) {
+  .row {
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+    grid-template-areas:
+      'play thumb name meta bpm actions'
+      'wave wave wave wave wave wave';
+  }
+
+  .actions {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Wide screens: everything on one line. */
+@media (--xl-up) {
   .row {
     grid-template-columns: auto auto minmax(0, var(--sizes-track-name)) minmax(0, 1fr) auto auto auto;
     grid-template-areas: 'play thumb name wave meta bpm actions';

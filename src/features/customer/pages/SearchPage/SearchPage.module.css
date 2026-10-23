@@ -37,19 +37,6 @@
   text-decoration: underline;
 }
 
-.reference {
-  display: block;
-  inline-size: 100%;
-  padding: 0;
-  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-  background: transparent;
-  cursor: pointer;
-}
-
-.reference:hover {
-  border-color: var(--colors-primary);
-}
-
 .fontCard {
   composes: lift from '@/shared/styles/interactions.module.css';
   display: flex;

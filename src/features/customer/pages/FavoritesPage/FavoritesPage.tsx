@@ -3,26 +3,26 @@ import { routes } from '@/shared/constants';
 import { useAsync, useLocale, useSession } from '@/shared/hooks';
 import { api } from '@/shared/utils';
 
-// The items the user saved, newest first. Only signed-in users reach this page.
-export const SavedPage = () => {
+// The user's favorite items, newest first. Only signed-in users reach this page.
+export const FavoritesPage = () => {
   const { text } = useLocale();
   const { session } = useSession();
-  const savedIds = session.status === 'signedIn' ? session.user.savedItemIds : [];
-  const items = useAsync(() => api.getItemsByIds(savedIds), [savedIds.join()]);
+  const favoriteIds = session.status === 'signedIn' ? session.user.favoriteIds : [];
+  const items = useAsync(() => api.getItemsByIds(favoriteIds), [favoriteIds.join()]);
 
   return (
-    <Page title={text.saved.title} subtitle={text.saved.subtitle}>
+    <Page title={text.favorites.title} subtitle={text.favorites.subtitle}>
       <AsyncContent
         state={items}
         empty={
           <EmptyState
-            title={text.saved.emptyTitle}
-            message={text.saved.emptyMessage}
+            title={text.favorites.emptyTitle}
+            message={text.favorites.emptyMessage}
             action={<Button to={routes.search}>{text.home.cta}</Button>}
           />
         }
       >
-        {(data) => <ItemGrid items={data} label={text.saved.title} />}
+        {(data) => <ItemGrid items={data} label={text.favorites.title} />}
       </AsyncContent>
     </Page>
   );

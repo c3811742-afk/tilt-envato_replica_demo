@@ -7,13 +7,13 @@ import type { ItemGridProps } from './ItemGrid.types';
 
 // Item cards in a responsive grid (search results).
 export const ItemGrid = (props: ItemGridProps) => {
-  const { items, size, minColumnWidth, gap, label } = withDefaults(itemGridDefaults, props);
+  const { items, size, minColumnWidth, gap, label, actionsFor } = withDefaults(itemGridDefaults, props);
 
   return (
     <Grid minColumnWidth={minColumnWidth ?? vars.sizes.itemCard.minWidth[size]} gap={gap} ariaLabel={label}>
       {items.map((item) => (
         <li key={item.id}>
-          <ItemCard item={item} />
+          <ItemCard item={item} actions={actionsFor?.(item)} />
         </li>
       ))}
     </Grid>

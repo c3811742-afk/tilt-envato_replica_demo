@@ -17,19 +17,12 @@
 .logo {
   display: inline-flex;
   align-items: center;
-  padding-inline: var(--spacing-3);
-  background: var(--colors-highlight);
-  color: var(--colors-on-highlight);
+  color: var(--colors-text);
   font-family: var(--font-family-display);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-black);
   line-height: var(--line-height-body);
   text-decoration: none;
-}
-
-/* The logo is the focus color, so its ring uses the border color instead. */
-.logo:focus-visible {
-  outline-color: var(--colors-border);
 }
 
 /* Phones search from the Search tab; the bar and the links appear from tablet width up. */
@@ -49,6 +42,7 @@
   .search {
     display: block;
     flex: 1;
+    min-inline-size: 0; /* shrinks before the buttons next to it do */
   }
 }
 
@@ -57,6 +51,10 @@
     display: flex;
     gap: var(--spacing-4);
   }
+}
+
+.actions {
+  flex-shrink: 0;
 }
 
 .navLink {

@@ -11,7 +11,6 @@ type ProfileValues = {
   phone: string;
   useCase: UseCase | '';
   interests: CategoryId[];
-  studentId: string;
   channels: NotificationChannel[];
 };
 
@@ -38,7 +37,6 @@ export const ProfileForm = ({ user, submitLabel, showChannels, onSubmit }: Profi
       phone: profile?.phone ?? '',
       useCase: profile?.useCase ?? '',
       interests: profile?.interests ?? [],
-      studentId: profile?.studentId ?? '',
       channels: notificationChannels.filter((channel) => user.notifications.channels[channel]),
     },
     {
@@ -50,7 +48,7 @@ export const ProfileForm = ({ user, submitLabel, showChannels, onSubmit }: Profi
     },
   );
 
-  const submit = form.submit(async ({ fullName, arabicName, phone, useCase, interests, studentId, channels }) => {
+  const submit = form.submit(async ({ fullName, arabicName, phone, useCase, interests, channels }) => {
     if (!useCase) return; // already checked by the form
     await onSubmit(
       {
@@ -59,7 +57,6 @@ export const ProfileForm = ({ user, submitLabel, showChannels, onSubmit }: Profi
         phone: normalizeEgyptianMobile(phone),
         useCase,
         interests,
-        studentId: studentId.trim() || undefined,
       },
       {
         ...user.notifications,
@@ -103,7 +100,6 @@ export const ProfileForm = ({ user, submitLabel, showChannels, onSubmit }: Profi
           error={fieldError(form.errors.channels)}
         />
       )}
-      <TextField label={text.profile.studentId} hint={text.profile.studentIdHint} direction="ltr" {...form.field('studentId')} />
       <FormFooter label={submitLabel} submitting={form.submitting} requestError={form.requestError} />
     </Stack>
   );

@@ -3,7 +3,7 @@ import { useLocale, usePagedAsync } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { CreatorProfile, Item } from '@/shared/types';
 import { api, fillText, formatCompactNumber, formatCountry, formatDate, formatNumber } from '@/shared/utils';
-import { LoadMore } from '@/features/customer/components';
+import { FollowButton, LoadMore } from '@/features/customer/components';
 import styles from './CreatorPage.module.css';
 
 // A creator's public profile: who they are, then their portfolio (loaded as the user scrolls).
@@ -35,6 +35,7 @@ export const CreatorProfileView = ({ profile }: { profile: CreatorProfile }) => 
                 {fillText(text.creatorPage.memberSince, { date: formatDate(creator.joinedAt, locale, { month: 'long', year: 'numeric' }) })}
               </Text>
             </Stack>
+            <FollowButton creator={creator} />
           </Stack>
         </Stack>
         <div className={styles.bio}>

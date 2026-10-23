@@ -5,7 +5,7 @@ import { accountPath, accountSections, routes } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Subscription, User } from '@/shared/types';
-import { fillText, formatDate, formatNumber, isSubscriptionActive, unreadReleaseNotes } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isSubscriptionActive, unreadCount } from '@/shared/utils';
 import styles from './AccountMenu.module.css';
 
 interface AccountMenuProps {
@@ -19,7 +19,7 @@ export const AccountMenu = ({ user, subscription }: AccountMenuProps) => {
   const { signOut } = useSession();
   const navigate = useNavigate();
   const [signOutFailed, setSignOutFailed] = useState(false);
-  const unread = unreadReleaseNotes(user).length;
+  const unread = unreadCount(user);
 
   const planStatus = (() => {
     if (!subscription) return text.auth.noPlan;
@@ -73,13 +73,33 @@ export const AccountMenu = ({ user, subscription }: AccountMenuProps) => {
               </TextLink>
             </li>
             <li>
-              <TextLink to={routes.saved} variant="bodySm" underline={false}>
-                {text.nav.saved}
+              <TextLink to={accountPath('plan')} variant="bodySm" underline={false}>
+                {text.account.sections.plan}
+              </TextLink>
+            </li>
+            <li>
+              <TextLink to={routes.downloads} variant="bodySm" underline={false}>
+                {text.nav.downloads}
+              </TextLink>
+            </li>
+            <li>
+              <TextLink to={routes.favorites} variant="bodySm" underline={false}>
+                {text.nav.favorites}
+              </TextLink>
+            </li>
+            <li>
+              <TextLink to={routes.myCollections} variant="bodySm" underline={false}>
+                {text.nav.myCollections}
+              </TextLink>
+            </li>
+            <li>
+              <TextLink to={routes.ai} variant="bodySm" underline={false}>
+                {text.nav.ai}
               </TextLink>
             </li>
             <li>
               <TextLink to={routes.notifications} variant="bodySm" underline={false}>
-                {text.auth.whatsNew}
+                {text.nav.notifications}
                 {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
               </TextLink>
             </li>

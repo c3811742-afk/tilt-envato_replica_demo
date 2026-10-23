@@ -6,7 +6,7 @@ import { useLocale, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item } from '@/shared/types';
 import { fillText, preferences } from '@/shared/utils';
-import { SaveButton } from '@/features/customer/components';
+import { ItemSaveActions } from '@/features/customer/components';
 import { DownloadButton } from './DownloadButton';
 import styles from './SearchPage.module.css';
 
@@ -43,7 +43,7 @@ export const FontResults = ({ items, label, gridSize }: FontResultsProps) => {
                 </Stack>
                 <Stack direction="row" gap={vars.spacing[2]}>
                   <DownloadButton item={item} />
-                  <SaveButton itemId={item.id} size="sm" />
+                  <ItemSaveActions item={item} />
                 </Stack>
               </Stack>
               <FontSample family={item.font?.family} text={sampleFor(item)} size={`${preview.size}rem`} align={preview.align} />

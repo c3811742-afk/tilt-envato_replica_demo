@@ -2,21 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { AsyncContent, FileInput, Grid, ItemCover, Modal, Stack, stateMessageHeights, Text } from '@/shared/components';
 import { catalog, categoryIcons, searchPath } from '@/shared/constants';
-import { useAsync, useLocale, type useSearchFilters } from '@/shared/hooks';
+import { useAsync, useLocale, useSearchFilters } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { api, fillText, formatFileSize, measureImageLook, safeAsync } from '@/shared/utils';
-import styles from './SearchPage.module.css';
+import styles from './SearchBox.module.css';
 
 interface ImageSearchDialogProps {
   open: boolean;
-  search: ReturnType<typeof useSearchFilters>;
   onClose: () => void;
 }
 
 const imageTypes = 'image/jpeg,image/png,image/webp';
 
 // Search by image: upload one, or pick one of the catalog's images. Results look alike (colors and layout).
-export const ImageSearchDialog = ({ open, search, onClose }: ImageSearchDialogProps) => {
+export const ImageSearchDialog = ({ open, onClose }: ImageSearchDialogProps) => {
+  const search = useSearchFilters();
   const { text, locale } = useLocale();
   const navigate = useNavigate();
   const [reading, setReading] = useState(false);

@@ -4,6 +4,8 @@ export const storageKeys = {
   accentTheme: 'tilt.accentTheme',
   cookieConsent: 'tilt.cookieConsent', // which optional cookies the user allowed
   accounts: 'tilt.accounts', // demo "server": every account created in this browser
+  licenses: 'tilt.licenses', // demo license server: every license issued in this browser
+  catalogEvents: 'tilt.catalogEvents', // demo: items removed from the library, items creators published
   sessionUserId: 'tilt.sessionUserId', // the signed-in account
   localeChosen: 'tilt.localeChosen', // the user picked a language themselves (no more suggestions)
   languageSuggestionDismissed: 'tilt.languageSuggestionDismissed',

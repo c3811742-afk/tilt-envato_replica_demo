@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { withDefaults } from '@/shared/utils';
+import { cx, withDefaults } from '@/shared/utils';
 import { Icon } from '../Icon';
 import { Stack } from '../Stack';
 import { Text } from '../Text';
@@ -11,7 +11,7 @@ import styles from './Modal.module.css';
 
 // A dialog built on the native <dialog>: focus is trapped inside and Esc closes it.
 export const Modal = (props: ModalProps) => {
-  const { open, onClose, title, children, actions, width, closeLabel } = withDefaults(modalDefaults, props);
+  const { open, onClose, title, children, actions, width, placement, closeLabel } = withDefaults(modalDefaults, props);
   const { text } = useLocale();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -23,12 +23,12 @@ export const Modal = (props: ModalProps) => {
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
-  const style = { '--modal-width': width } as CSSProperties;
+  const style = { '--modal-width': placement === 'side' && !props.width ? vars.sizes.modal.sideWidth : width } as CSSProperties;
 
   return (
     <dialog
       ref={dialogRef}
-      className={styles.modal}
+      className={cx(styles.modal, placement === 'side' && styles.side)}
       style={style}
       aria-labelledby={title ? titleId : undefined}
       onClose={onClose}
