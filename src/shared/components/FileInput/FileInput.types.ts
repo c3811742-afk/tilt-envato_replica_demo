@@ -5,6 +5,8 @@ export interface FileInputProps {
   label?: string; // the button text, e.g. "Upload an image"
   accept?: string; // file types, e.g. "image/*"
   onSelect?: (file: File) => void;
+  multiple?: boolean; // pick several files at once (they arrive in onSelectFiles)
+  onSelectFiles?: (files: File[]) => void;
   hint?: string; // shown under the button
   error?: string; // shown in place of the hint
   busy?: string; // while the file is read: shown on the button, which is disabled

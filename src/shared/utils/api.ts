@@ -1,5 +1,6 @@
 import { catalog, spotlights, type SortOption } from '@/shared/constants';
-import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockItems as allItems, mockPasses } from '@/shared/mocks';
+import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockPasses } from '@/shared/mocks';
+import { libraryItems, studioCreators } from './studioApi';
 import { featuredIds, freeItemIdsThisMonth } from './siteHomepage';
 import { byCategoryOrder, categorySettingsStore, editedTags, logEmptySearch, plansOnSale, searchReportStore } from './siteSettings';
 import type {
@@ -34,7 +35,8 @@ const withEvents = (item: Item): Item => {
 };
 
 // The items people can browse: removed items are left out (licensed users still reach them by link).
-const catalogItems = () => allItems.map(withEvents).filter((item) => !item.removedAt);
+// The library and creators' live elements, as customers see them.
+const catalogItems = () => libraryItems().map(withEvents).filter((item) => !item.removedAt);
 
 // The categories shown on the site, in the team's order, without the ones it hid (set in the admin).
 const categoriesWithCounts = (): Category[] => {
@@ -47,12 +49,12 @@ const categoriesWithCounts = (): Category[] => {
     }));
 };
 
-const creators: Creator[] = Object.values(mockCreators);
+const creators = (): Creator[] => [...Object.values(mockCreators), ...studioCreators()];
 
 const withItems = (collection: Collection): CollectionWithItems => ({
   ...collection,
   items: collection.itemIds.map((id) => catalogItems().find((item) => item.id === id)).filter((item): item is Item => item !== undefined),
-  creator: creators.find((creator) => creator.id === collection.creatorId),
+  creator: creators().find((creator) => creator.id === collection.creatorId),
 });
 
 // Items a search starts from: the category, browse section and advanced-search authors narrow it down.
@@ -120,6 +122,10 @@ export const api = {
     });
   },
 
+  // How many results each search would find, without recording anything (for creators' analytics).
+  countResults: (queries: readonly string[]): Promise<{ query: string; total: number }[]> =>
+    respond(queries.map((query) => ({ query, total: rankResults({ query }).length }))),
+
   // The first `limit` items in an order, e.g. the home page rows.
   getItems: (sort: SortOption, limit: number = catalog.railSize, categoryId?: CategoryId): Promise<Item[]> =>
     respond(sortItems(searchBase({ categoryId }), sort).slice(0, limit)),
@@ -154,7 +160,7 @@ export const api = {
 
   // null when no item has this id (the page shows "Item not found").
   getItem: (id: string): Promise<Item | null> => {
-    const item = allItems.find((candidate) => candidate.id === id);
+    const item = libraryItems().find((candidate) => candidate.id === id);
     return respond(item ? withEvents(item) : null);
   },
 
@@ -178,7 +184,7 @@ export const api = {
 
   // null when no creator has this id.
   getCreator: (id: string): Promise<CreatorProfile | null> => {
-    const creator = creators.find((candidate) => candidate.id === id);
+    const creator = creators().find((candidate) => candidate.id === id);
     if (!creator) return respond(null);
     const items = catalogItems().filter((item) => item.creator.id === id);
     return respond({
@@ -188,7 +194,7 @@ export const api = {
     });
   },
 
-  getCreators: (): Promise<Creator[]> => respond([...creators].sort((a, b) => a.name.localeCompare(b.name))),
+  getCreators: (): Promise<Creator[]> => respond([...creators()].sort((a, b) => a.name.localeCompare(b.name))),
 
   // Featured collections (set in the admin) first.
   getCollections: (): Promise<CollectionWithItems[]> => {
@@ -224,7 +230,7 @@ export const api = {
   getStats: (): Promise<CatalogStats> =>
     respond({
       itemCount: catalogItems().length,
-      creatorCount: creators.length,
+      creatorCount: creators().length,
       categoryCount: mockCategories.length,
     }),
 };

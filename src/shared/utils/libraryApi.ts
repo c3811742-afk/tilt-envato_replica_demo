@@ -22,6 +22,7 @@ import { fileStore } from './fileStore';
 import { originalTitle } from './itemText';
 import { createLicenseCode } from './license';
 import { creditAllowance } from './ai';
+import { libraryItems, reportStudioBrokenFile } from './studioApi';
 import { collectionWithDescendants, downloadAllowance, itemIdFromLink } from './library';
 
 // Downloads and licenses, favorites, collections, follows and YouTube channels (the demo keeps them in this browser).
@@ -167,7 +168,7 @@ export const libraryApi = {
       let account = signedInAccount();
       const collection = scopeOf(account, collectionId).collections.find((candidate) => candidate.id === collectionId);
       if (!collection) throw new ApiError('collectionNotFound');
-      const items = collection.itemIds.map((id) => mockItems.find((item) => item.id === id)).filter((item): item is Item => item !== undefined);
+      const items = collection.itemIds.map((id) => libraryItems().find((item) => item.id === id)).filter((item): item is Item => item !== undefined);
       const licenses: LicenseRecord[] = [];
       for (const item of items) {
         const result = issueLicense(account, { item, projectName, use });
@@ -201,13 +202,17 @@ export const libraryApi = {
 
   // A download that didn't work: once reported, it doesn't count against the plan's limit.
   reportBroken: (downloadId: string, reason: BrokenDownloadReason) =>
-    call(() =>
-      updateSignedIn((account) => ({
+    call(() => {
+      const updated = updateSignedIn((account) => ({
         downloads: account.downloads.map((download) =>
           download.id === downloadId ? { ...download, reportedBroken: { reason, at: new Date().toISOString() } } : download,
         ),
-      })),
-    ),
+      }));
+      // A creator's element: the creator is told so they can upload a fix.
+      const itemId = updated.user.downloads.find((download) => download.id === downloadId)?.itemId;
+      if (itemId) reportStudioBrokenFile(itemId);
+      return updated;
+    }),
 
   addYoutubeChannel: (url: string) =>
     call(() => {
@@ -336,7 +341,7 @@ export const libraryApi = {
         const collection = owner.collections.find((candidate) => candidate.shareId === shareId);
         if (collection) {
           const children = owner.collections.filter((candidate) => candidate.parentId === collection.id);
-          const items = collection.itemIds.map((id) => mockItems.find((item) => item.id === id)).filter((item): item is Item => item !== undefined);
+          const items = collection.itemIds.map((id) => libraryItems().find((item) => item.id === id)).filter((item): item is Item => item !== undefined);
           return { collection, children, items, ownerName: owner.name };
         }
       }
@@ -347,7 +352,7 @@ export const libraryApi = {
   importItems: ({ lines, name }: { lines: string[]; name: string }) =>
     call(() => {
       const wanted = lines.map(itemIdFromLink).filter(Boolean);
-      const found = [...new Set(wanted)].filter((id) => mockItems.some((item) => item.id === id));
+      const found = [...new Set(wanted)].filter((id) => libraryItems().some((item) => item.id === id));
       const account = signedInAccount();
       const collection = newCollection(name, null, found);
       return {

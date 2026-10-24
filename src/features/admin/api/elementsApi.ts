@@ -2,8 +2,16 @@ import { decisionAuditAction, decisionStatus } from '@/features/admin/constants'
 import type { Admin, CatalogElement, ElementType, FlagInput, ReviewInput, UnpublishInput } from '@/features/admin/types';
 
 import { mockItems } from '@/shared/mocks';
-import type { CategoryId, Item } from '@/shared/types';
-import { editedTags, originalTitle, readCatalogEvents, removeItemFromLibrary } from '@/shared/utils';
+import type { CategoryId, Item, StudioElement } from '@/shared/types';
+import {
+  applyStudioReview,
+  applyStudioUnpublish,
+  editedTags,
+  originalTitle,
+  readCatalogEvents,
+  readStudioElements,
+  removeItemFromLibrary,
+} from '@/shared/utils';
 import { AdminApiError } from './errors';
 import { authorize, db, logAction, now, respond } from './mockServer';
 
@@ -44,14 +52,43 @@ const fromSite = (item: Item): CatalogElement => ({
   source: 'site',
 });
 
-// Site items still in the library, then every demo element.
+// ---------- Elements creators submitted through the creator studio ----------
+// They live in the creator side's store; the admin reviews and unpublishes them here, and the creator is told.
+
+// A live element shows its accepted version until an update is sent for review.
+const fromStudio = (current: StudioElement): CatalogElement => {
+  const element = current.status === 'live' && current.liveVersion ? current.liveVersion : current;
+  return {
+    id: element.id,
+    title: element.title[element.language],
+    description: element.description[element.language],
+    tags: element.tags[element.language],
+    type: typeOfCategory[element.categoryId],
+    category: element.categoryId,
+    software: element.software,
+    bilingual: element.bilingual,
+    creator: { id: element.creatorId, name: element.creatorName },
+    files: element.files.map((file) => ({ name: file.name, sizeBytes: file.size })),
+    sources: element.sources,
+    submittedAt: element.submittedAt ?? element.createdAt,
+    publishedAt: element.publishedAt,
+    version: element.version,
+    status: element.status === 'disabled' ? 'unpublished' : (element.status as CatalogElement['status']),
+    source: 'creator',
+  };
+};
+
+// Drafts are the creator's own until they submit them.
+const studioElements = () => readStudioElements().filter((element) => element.status !== 'draft').map(fromStudio);
+
+// Site items still in the library, creators' submissions, then every demo element.
 export const allElements = () => {
   const removed = readCatalogEvents().removedItemIds;
-  return [...mockItems.filter((item) => !removed[item.id]).map(fromSite), ...db.elements];
+  return [...mockItems.filter((item) => !removed[item.id]).map(fromSite), ...studioElements(), ...db.elements];
 };
 
 const pendingQueue = () =>
-  db.elements
+  [...studioElements(), ...db.elements]
     .filter((element) => element.status === 'pending')
     .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt));
 
@@ -87,6 +124,8 @@ export const reviewElement = (actorId: string, elementId: string, input: ReviewI
     element.status = decisionStatus[input.decision];
     element.review = { ...input, adminId: actor.id, at };
     if (input.decision === 'accepted') element.publishedAt = at;
+    // A creator's submission: the decision is saved on their element and they are told.
+    if (element.source === 'creator') applyStudioReview(element.id, { decision: input.decision, reasons: input.reasons, comment: input.comment, at });
     logAction(actor, decisionAuditAction[input.decision], elementTarget(element), {
       reasons: input.reasons,
       note: input.comment || undefined,
@@ -113,6 +152,8 @@ export const takeElementDown = (actor: Admin, elementId: string, input: Unpublis
   if (element.status !== 'live') return element;
   // A site item leaves the customer library; everyone who downloaded it is told.
   if (element.source === 'site') removeItemFromLibrary(element.id);
+  // A creator's element leaves the library too, and the creator is told why.
+  if (element.source === 'creator') applyStudioUnpublish(element.id, input.reason, input.note);
   element.status = 'unpublished';
   element.unpublish = { ...input, adminId: actor.id, at: now() };
   logAction(actor, 'elementUnpublished', elementTarget(element), {

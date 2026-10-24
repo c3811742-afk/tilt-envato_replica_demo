@@ -1,17 +1,37 @@
 import { useState } from 'react';
-import { Button, Card, EmailField, FormFooter, Grid, Icon, IconNote, Page, Section, Select, SplitLayout, Stack, Text, TextField } from '@/shared/components';
-import { partnerAudiences, partnerPrograms, routes, type PartnerAudience, type PartnerProgram } from '@/shared/constants';
+import { Button, Card, EmailField, FormFooter, Grid, Icon, IconNote, Page, Section, Select, Stack, Text, TextField, TextLink } from '@/shared/components';
+import { partnerAudiences, partnerPrograms, routes, withReturnTo, type PartnerAudience, type PartnerProgram } from '@/shared/constants';
 import { useForm, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { currentPrograms, fillText, formatDate, formatNumber, resourcesApi, validateEmail, validateRequired } from '@/shared/utils';
 
-// "Become a creator": how to sell on TILT, the way into the creator application, and ways to sign in or get help.
+// "Become a creator": the way in (apply, or sign in), how selling on TILT works, programs, and where to get help.
 export const AuthorsPage = () => {
   const { text, locale } = useLocale();
+  const { session } = useSession();
   const programs = currentPrograms();
 
   return (
-    <Page title={text.authors.title} subtitle={text.authors.subtitle} gap={vars.spacing[7]}>
+    <Page
+      title={text.authors.title}
+      subtitle={text.authors.subtitle}
+      gap={vars.spacing[7]}
+      headerContent={
+        // The way in comes first: start the application, or sign in when already a creator.
+        <Stack gap={vars.spacing[3]} align="flex-start">
+          <Text color={vars.colors.textMuted}>{text.authors.applyText}</Text>
+          <Button to={routes.creatorOnboarding}>{text.authors.startApplication}</Button>
+          {/* Under the main action, the usual "Already a creator? Sign in" line. Creators sign in with the account
+              they applied with and land on their dashboard. */}
+          <Text variant="bodySm" color={vars.colors.textMuted}>
+            {text.authors.signInTitle}{' '}
+            <TextLink to={session.status === 'signedIn' ? routes.creatorDashboard : withReturnTo(routes.signIn, routes.creatorDashboard)} variant="bodySm">
+              {session.status === 'signedIn' ? text.authors.goToDashboard : text.common.signIn}
+            </TextLink>
+          </Text>
+        </Stack>
+      }
+    >
       <Section title={text.authors.stepsTitle}>
         <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} ariaLabel={text.authors.stepsTitle}>
           {text.authors.steps.map((step, index) => (
@@ -55,46 +75,25 @@ export const AuthorsPage = () => {
           </Grid>
         </Section>
       )}
-      <SplitLayout
-        main={
-          <Section title={text.authors.formTitle} variant="h3" gap={vars.spacing[4]}>
-            {/* The full creator application (Laila's onboarding): work, agreement, ID, payout and profile. */}
-            <Text color={vars.colors.textMuted}>{text.authors.applyText}</Text>
-            <div>
-              <Button to={routes.creatorOnboarding}>{text.authors.startApplication}</Button>
-            </div>
-          </Section>
-        }
-        aside={
-          <Stack gap={vars.spacing[4]}>
-            <Card gap={vars.spacing[3]}>
-              <Text as="h2" variant="h4">
-                {text.authors.signInTitle}
-              </Text>
-              <Text color={vars.colors.textMuted}>{text.authors.signInText}</Text>
-              <div>
-                <Button variant="outline" to={routes.signIn}>
-                  {text.common.signIn}
-                </Button>
-              </div>
-            </Card>
-            <Card gap={vars.spacing[3]}>
-              <Text as="h2" variant="h4">
-                {text.authors.helpTitle}
-              </Text>
-              <Text color={vars.colors.textMuted}>{text.authors.helpText}</Text>
-              <Stack direction="row" wrap gap={vars.spacing[2]}>
-                <Button variant="outline" to={routes.help}>
-                  {text.nav.help}
-                </Button>
-                <Button variant="outline" to={routes.support}>
-                  {text.nav.support}
-                </Button>
-              </Stack>
-            </Card>
+      {/* Help closes the page, across its full width. */}
+      <Card gap={vars.spacing[3]}>
+        <Stack direction="row" wrap align="center" justify="space-between" gap={vars.spacing[4]}>
+          <Stack gap={vars.spacing[1]}>
+            <Text as="h2" variant="h4">
+              {text.authors.helpTitle}
+            </Text>
+            <Text color={vars.colors.textMuted}>{text.authors.helpText}</Text>
           </Stack>
-        }
-      />
+          <Stack direction="row" wrap gap={vars.spacing[2]}>
+            <Button variant="outline" to={routes.help}>
+              {text.nav.help}
+            </Button>
+            <Button variant="outline" to={routes.support}>
+              {text.nav.support}
+            </Button>
+          </Stack>
+        </Stack>
+      </Card>
     </Page>
   );
 };

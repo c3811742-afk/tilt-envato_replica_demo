@@ -3,9 +3,24 @@ import { Button, Card, EmptyState, FieldMessage, IconNote, Page, Stack, TextLink
 import { routes, withReturnTo } from '@/shared/constants';
 import { useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { demoApi, safeAsync, type SessionAccount } from '@/shared/utils';
+import { demoApi, safeAsync, studioDemo, type SessionAccount } from '@/shared/utils';
 
-type DemoAction = 'renewalSoon' | 'paymentFailed' | 'removeItem' | 'revokeLicense' | 'creatorPublishes' | 'teammateJoins' | 'suspend' | 'liftSuspension' | 'resetCatalog';
+const backdateDays = 120;
+
+type DemoAction =
+  | 'renewalSoon'
+  | 'paymentFailed'
+  | 'removeItem'
+  | 'revokeLicense'
+  | 'creatorPublishes'
+  | 'teammateJoins'
+  | 'suspend'
+  | 'liftSuspension'
+  | 'approveCreator'
+  | 'backdateElements'
+  | 'payPayouts'
+  | 'policyUpdate'
+  | 'resetCatalog';
 
 // "Demo controls": events that would happen over time (a renewal coming up, a failed payment, an item
 // removed, a license revoked, a followed creator publishing), triggered on demand to see their notifications.
@@ -36,6 +51,11 @@ export const DemoPage = () => {
     { key: 'creatorPublishes', missing: followed ? undefined : text.demo.needsFollow, run: () => demoApi.creatorPublishes(followed) },
     { key: 'teammateJoins', missing: team?.invites.length ? undefined : text.demo.needsInvite, run: demoApi.teammateJoins },
     user.suspension ? { key: 'liftSuspension', run: demoApi.liftSuspension } : { key: 'suspend', run: () => demoApi.suspend('licenseMisuse') },
+    // Creators: approve the application, give live elements some history, pay payouts, publish a policy change.
+    { key: 'approveCreator', run: studioDemo.approveMyApplication },
+    { key: 'backdateElements', run: () => studioDemo.backdate(backdateDays) },
+    { key: 'payPayouts', run: studioDemo.payRequested },
+    { key: 'policyUpdate', run: studioDemo.policyUpdate },
     { key: 'resetCatalog', run: demoApi.resetCatalog },
   ];
 

@@ -39,6 +39,16 @@ export const AlertsList = ({ alerts, unread }: { alerts: Alert[]; unread: string
       }
       case 'creatorRejected':
         return fillText(text.alerts.creatorRejected, { reason: applicationReason(params.reason) });
+      case 'elementUnpublished': {
+        const reasons: Record<string, string> = text.admin.unpublishReasons;
+        return fillText(text.alerts.elementUnpublished, { title: params.title, reason: reasons[params.reason] ?? params.reason });
+      }
+      case 'occasionReminder': {
+        const occasions: Record<string, string> = text.studio.occasions;
+        return fillText(text.alerts.occasionReminder, { occasion: occasions[params.occasion] ?? '', date: formatDate(params.date, locale) });
+      }
+      case 'payoutPaid':
+        return fillText(text.alerts.payoutPaid, { amount: price(Number(params.amount)) });
       default:
         return fillText(text.alerts[kind], params);
     }

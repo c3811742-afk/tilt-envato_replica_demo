@@ -94,7 +94,7 @@ export interface CatalogElement {
   deprecation?: ElementDeprecation; // old element taken out of search; existing licenses stay valid
   downloads?: number; // all time, live elements only
   lastDownloadedAt?: string;
-  source?: 'demo' | 'site'; // site: an item in the customer library (taking it down removes it from the site)
+  source?: 'demo' | 'site' | 'creator'; // site: an item in the customer library (taking it down removes it from the site); creator: submitted through the creator studio
 }
 
 export interface ReviewInput {

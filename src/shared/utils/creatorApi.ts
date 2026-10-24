@@ -48,3 +48,17 @@ export const subscribeToApplications = (onChange: () => void) => {
 
 // The raw list, as a stable value for useSyncExternalStore (a string changes only when the list does).
 export const applicationsSnapshot = () => storage.get(storageKeys.applications) ?? '';
+
+// The signed-in user's latest creator application, as a receipt (null when they haven't applied).
+export const latestCreatorApplication = (accountId: string): CreatorApplicationReceipt | null => {
+  const mine = readApplications()
+    .filter((application) => application.kind === 'author' && application.accountId === accountId)
+    .sort((a, b) => b.at.localeCompare(a.at))[0];
+  return mine ? { id: mine.reference, submittedAt: mine.at } : null;
+};
+
+// What the applicant told us about their work, shown on their creator dashboard.
+export const creatorApplicationDetails = (reference: string) => {
+  const saved = readApplications().find((application) => application.reference === reference);
+  return saved?.kind === 'author' ? { name: saved.name, portfolio: saved.portfolio, categories: saved.categories, about: saved.about } : null;
+};

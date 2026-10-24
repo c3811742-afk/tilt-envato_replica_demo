@@ -302,8 +302,8 @@ export const decideCreatorApplication = (actorId: string, id: string, input: Dec
       if (applicant) {
         saveAccount(
           input.approve
-            ? withAlert(applicant, 'creatorApproved', {}, routes.creatorOnboarding)
-            : withAlert(applicant, 'creatorRejected', { reason: saved.decision?.reason ?? 'other' }, routes.creatorOnboarding),
+            ? withAlert(applicant, 'creatorApproved', {}, routes.creatorDashboard)
+            : withAlert(applicant, 'creatorRejected', { reason: saved.decision?.reason ?? 'other' }, routes.creatorDashboard),
         );
       }
     } else {

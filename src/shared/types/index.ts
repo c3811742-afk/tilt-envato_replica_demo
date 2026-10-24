@@ -80,3 +80,4 @@ export type { AiContentRules, AiCostKey, AiSettings, AiToolSetting, BlockedGener
 export type { EmptySearch, SentSearchReport } from './catalog';
 export type { Program, ProgramInput, ProgramKind, ProgramStatus } from './programs';
 export type { IdType, PayoutMethod, TaxStatus, FileInfo, CreatorApplication, CreatorApplicationReceipt } from './creator';
+export type { StudioFile, StudioSource, StudioReview, StudioElement, StudioPayout, StudioClaim, StudioElementStats } from './studio';

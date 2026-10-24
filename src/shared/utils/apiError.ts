@@ -42,6 +42,11 @@ export const apiErrorCodes = [
   'inviteNotFound',
   'seatsInUse',
   'accountSuspended',
+  'notCreator',
+  'elementNotFound',
+  'elementLocked',
+  'elementIncomplete',
+  'payoutBelowMinimum',
 ] as const;
 export type ApiErrorCode = (typeof apiErrorCodes)[number];
 

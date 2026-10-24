@@ -103,8 +103,8 @@ export const AccountMenu = ({ user, subscription }: AccountMenuProps) => {
               </TextLink>
             </li>
             <li>
-              <TextLink to={routes.creatorOnboarding} variant="bodySm" underline={false}>
-                {text.creatorOnboarding.title}
+              <TextLink to={routes.creatorDashboard} variant="bodySm" underline={false}>
+                {text.nav.creatorDashboard}
               </TextLink>
             </li>
             <li>

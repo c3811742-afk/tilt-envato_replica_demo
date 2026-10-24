@@ -47,6 +47,13 @@ import { AuthorsPage, PartnersPage } from '@/features/common/pages/ProgramsPage'
 import { FairUsePage, LicenseTermsPage } from '@/features/common/pages/LegalPages';
 import { UnsubscribePage } from '@/features/common/pages/UnsubscribePage';
 import { CreatorOnboardingPage } from '@/features/creator/pages/CreatorOnboardingPage';
+import { CreatorDashboardPage } from '@/features/creator/pages/CreatorDashboardPage';
+import { CreatorElementsPage } from '@/features/creator/pages/CreatorElementsPage';
+import { CreatorUploadPage } from '@/features/creator/pages/CreatorUploadPage';
+import { CreatorElementPage } from '@/features/creator/pages/CreatorElementPage';
+import { CreatorEarningsPage } from '@/features/creator/pages/CreatorEarningsPage';
+import { CreatorAnalyticsPage } from '@/features/creator/pages/CreatorAnalyticsPage';
+import { CreatorClaimsPage } from '@/features/creator/pages/CreatorClaimsPage';
 import {
   AdminHomePage,
   AdminLayout,
@@ -191,6 +198,13 @@ export const App = () => (
                   <Route element={<OnboardingGate allow="ready" />}>
                     {/* Applying to sell on TILT needs an account: the admin team's decision is sent to it. */}
                     <Route path={routes.creatorOnboarding} element={<CreatorOnboardingPage />} />
+                    <Route path={routes.creatorDashboard} element={<CreatorDashboardPage />} />
+                    <Route path={routes.creatorElements} element={<CreatorElementsPage />} />
+                    <Route path={routes.creatorElement} element={<CreatorElementPage />} />
+                    <Route path={routes.creatorUpload} element={<CreatorUploadPage />} />
+                    <Route path={routes.creatorEarnings} element={<CreatorEarningsPage />} />
+                    <Route path={routes.creatorAnalytics} element={<CreatorAnalyticsPage />} />
+                    <Route path={routes.creatorClaims} element={<CreatorClaimsPage />} />
                     <Route path={routes.checkout} element={<CheckoutPage />} />
                     <Route path={routes.account} element={<AccountPage />} />
                     <Route path={routes.notifications} element={<NotificationsPage />} />

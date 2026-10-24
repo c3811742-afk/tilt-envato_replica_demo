@@ -57,6 +57,13 @@ export const routes = {
   account: '/account/:section',
   notifications: '/notifications',
   creatorOnboarding: '/creator/onboarding',
+  creatorDashboard: '/creator/dashboard',
+  creatorElements: '/creator/elements',
+  creatorElement: '/creator/elements/:id',
+  creatorUpload: '/creator/upload',
+  creatorEarnings: '/creator/earnings',
+  creatorAnalytics: '/creator/analytics',
+  creatorClaims: '/creator/claims',
   admin: '/admin',
   adminDashboard: '/admin/dashboard',
   adminReview: '/admin/review',
@@ -218,3 +225,5 @@ export const blogPath = (topic?: string) => (topic ? `${routes.blog}?${new URLSe
 // The unsubscribe page linked from newsletter emails: unsubscribePath('a@b.com') -> '/newsletter/unsubscribe?email=a%40b.com'
 export const unsubscribeParam = 'email';
 export const unsubscribePath = (email: string) => `${routes.unsubscribe}?${new URLSearchParams({ [unsubscribeParam]: email })}`;
+
+export const creatorElementPath = (id: string) => routes.creatorElement.replace(':id', encodeURIComponent(id));

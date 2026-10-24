@@ -25,6 +25,7 @@ export {
   aiToolPath,
   helpArticlePath,
   learnGuidePath,
+  creatorElementPath,
   blogPostPath,
   coursePath,
   blogTopicParam,
@@ -202,3 +203,4 @@ export * from './support';
 export * from './resources';
 export { creatorApplicationStages, egyptianBanks, creatorApplication } from './creator';
 export type { CreatorApplicationStage, EgyptianBank } from './creator';
+export * from './creatorStudio';

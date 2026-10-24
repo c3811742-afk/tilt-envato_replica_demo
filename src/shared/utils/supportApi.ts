@@ -1,6 +1,7 @@
 import { referencePrefixes, type CopyrightRole, type SupportTopic } from '@/shared/constants';
 import { call, randomDigits, updateSignedIn } from './accountStore';
 import { ApiError } from './apiError';
+import { recordStudioClaim } from './studioApi';
 
 const referenceLength = 6;
 const reference = (prefix: string) => `${prefix}-${randomDigits(referenceLength)}`;
@@ -27,14 +28,17 @@ export const supportApi = {
     ),
 
   reportCopyright: (report: { itemId: string; itemTitle: string; name: string; email: string; role: CopyrightRole; details: string }) =>
-    call(() =>
-      updateSignedIn((account) => ({
+    call(() => {
+      const updated = updateSignedIn((account) => ({
         copyrightReports: [
           { ...report, id: crypto.randomUUID(), reference: reference(referencePrefixes.copyright), details: report.details.trim(), createdAt: new Date().toISOString() },
           ...account.copyrightReports,
         ],
-      })),
-    ),
+      }));
+      // On a creator's element, the creator gets a claim they can answer.
+      recordStudioClaim(report.itemId, report.name.trim(), report.details.trim());
+      return updated;
+    }),
 
   // Asks the team to look at a suspension again.
   appeal: (message: string) =>

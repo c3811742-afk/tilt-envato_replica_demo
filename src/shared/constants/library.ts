@@ -27,6 +27,17 @@ export const alertKinds = [
   'creatorApproved',
   'creatorRejected',
   'reportAnswered',
+  // Creators
+  'elementAccepted',
+  'elementRejected',
+  'elementUnpublished',
+  'brokenFileReported',
+  'copyrightClaim',
+  'payoutPaid',
+  'policyUpdate',
+  'occasionReminder',
+  // Customers who licensed an element whose files were replaced
+  'elementUpdated',
 ] as const;
 export type AlertKind = (typeof alertKinds)[number];
 

@@ -33,5 +33,8 @@ export const storageKeys = {
   fontView: 'tilt.fontView', // fonts as a grid or a list of samples
   volume: 'tilt.volume', // one volume for every preview
   creatorOnboarding: 'tilt.creatorOnboarding', // the creator application in progress
+  studioElements: 'tilt.studioElements', // demo: creators' elements, from draft to live
+  studioPayouts: 'tilt.studioPayouts', // demo: payouts creators asked for
+  studioClaims: 'tilt.studioClaims', // demo: copyright claims against creators' elements
   adminSession: 'tilt.admin.session', // demo only: the admin picked in the "Signed in as" switch
 } as const;
