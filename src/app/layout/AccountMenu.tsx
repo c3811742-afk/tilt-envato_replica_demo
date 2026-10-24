@@ -103,6 +103,11 @@ export const AccountMenu = ({ user, subscription }: AccountMenuProps) => {
               </TextLink>
             </li>
             <li>
+              <TextLink to={routes.creatorOnboarding} variant="bodySm" underline={false}>
+                {text.creatorOnboarding.title}
+              </TextLink>
+            </li>
+            <li>
               <TextLink to={routes.notifications} variant="bodySm" underline={false}>
                 {text.nav.notifications}
                 {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}

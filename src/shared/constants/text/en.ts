@@ -2215,6 +2215,8 @@ export const en = {
     stepsTitle: 'How it works',
     steps: ['Apply with a link to your portfolio.', 'Our team reviews your work within a week.', 'Upload your items and get paid for every download.'],
     formTitle: 'Apply',
+    applyText: 'Tell us about your work, accept the creator agreement, verify your ID and choose how you get paid. Your progress is saved, so you can finish later.',
+    startApplication: 'Start your application',
     name: 'Full name',
     email: 'Email address',
     portfolio: 'Portfolio link',

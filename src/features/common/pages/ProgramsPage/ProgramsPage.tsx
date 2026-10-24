@@ -1,24 +1,13 @@
 import { useState } from 'react';
-import { Button, Card, ChipGroup, EmailField, FormFooter, Grid, Icon, IconNote, Page, Section, Select, SplitLayout, Stack, Text, TextField } from '@/shared/components';
-import { categoryIds } from '@/shared/types';
+import { Button, Card, EmailField, FormFooter, Grid, Icon, IconNote, Page, Section, Select, SplitLayout, Stack, Text, TextField } from '@/shared/components';
 import { partnerAudiences, partnerPrograms, routes, type PartnerAudience, type PartnerProgram } from '@/shared/constants';
-import { useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useForm, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { currentPrograms, fillText, formatDate, formatNumber, resourcesApi, validateEmail, validateRequired } from '@/shared/utils';
 
-// "Author portal": how to become an author, the application, and ways to sign in or get help. Open to everyone.
+// "Author portal": how to become an author, the way into the creator application, and ways to sign in or get help.
 export const AuthorsPage = () => {
   const { text, locale } = useLocale();
-  const { session } = useSession();
-  const { fieldError } = useMessages();
-  const user = session.status === 'signedIn' ? session.user : null;
-  const [reference, setReference] = useState<string>();
-  const form = useForm(
-    { name: user?.profile?.fullName ?? user?.name ?? '', email: user?.email ?? '', portfolio: '', categories: [] as string[] },
-    { name: validateRequired, email: validateEmail, portfolio: validateRequired, categories: (value) => (value.length ? null : 'chooseAtLeastOne') },
-  );
-
-  const submit = form.submit(async (values) => setReference(await resourcesApi.apply({ kind: 'author', ...values })));
   const programs = currentPrograms();
 
   return (
@@ -69,24 +58,11 @@ export const AuthorsPage = () => {
       <SplitLayout
         main={
           <Section title={text.authors.formTitle} variant="h3" gap={vars.spacing[4]}>
-            {reference ? (
-              <IconNote icon="check" text={fillText(text.authors.sent, { reference })} />
-            ) : (
-              <Stack as="form" gap={vars.spacing[4]} onSubmit={submit} noValidate>
-                <TextField label={text.authors.name} autoComplete="name" {...form.field('name')} />
-                <EmailField label={text.authors.email} autoComplete="email" {...form.field('email')} />
-                <TextField label={text.authors.portfolio} placeholder={text.authors.portfolioPlaceholder} direction="ltr" {...form.field('portfolio')} />
-                <ChipGroup
-                  label={text.authors.categories}
-                  multiple
-                  value={form.values.categories}
-                  onChange={(value) => form.setValue('categories', value)}
-                  options={categoryIds.map((id) => ({ value: id, label: text.categories[id].name }))}
-                  error={fieldError(form.errors.categories)}
-                />
-                <FormFooter label={text.authors.submit} submitting={form.submitting} requestError={form.requestError} />
-              </Stack>
-            )}
+            {/* The full creator application (Laila's onboarding): work, agreement, ID, payout and profile. */}
+            <Text color={vars.colors.textMuted}>{text.authors.applyText}</Text>
+            <div>
+              <Button to={routes.creatorOnboarding}>{text.authors.startApplication}</Button>
+            </div>
           </Section>
         }
         aside={
