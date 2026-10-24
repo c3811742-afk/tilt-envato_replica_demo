@@ -56,6 +56,7 @@ export const routes = {
   checkout: '/checkout',
   account: '/account/:section',
   notifications: '/notifications',
+  creatorOnboarding: '/creator/onboarding',
   notFound: '*', // any path that matches no other route
 } as const;
 

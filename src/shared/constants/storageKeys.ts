@@ -18,4 +18,5 @@ export const storageKeys = {
   filtersCollapsed: 'tilt.filtersCollapsed', // the search filters panel is folded (desktop)
   fontView: 'tilt.fontView', // fonts as a grid or a list of samples
   volume: 'tilt.volume', // one volume for every preview
+  creatorOnboarding: 'tilt.creatorOnboarding', // the creator application in progress
 } as const;

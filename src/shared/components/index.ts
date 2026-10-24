@@ -72,3 +72,4 @@ export * from './ErrorBoundary';
 export * from './Table';
 export * from './Meter';
 export * from './FaqAccordion';
+export * from './Stepper';

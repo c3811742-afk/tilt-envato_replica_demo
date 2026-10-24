@@ -67,3 +67,4 @@ export type {
   LicenseRecord,
 } from './account';
 export type { LocalizedList, HelpArticle, LearnGuide, BlogPost, CourseLesson, Course, Job, NewsPost } from './content';
+export type { IdType, PayoutMethod, TaxStatus, FileInfo, CreatorApplication, CreatorApplicationReceipt } from './creator';

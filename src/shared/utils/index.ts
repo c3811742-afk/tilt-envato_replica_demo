@@ -138,3 +138,4 @@ export type { VideoRequest } from './aiMedia';
 export { contentApi } from './contentApi';
 export { resourcesApi } from './resourcesApi';
 export type { AuthorApplication, PartnerApplication } from './resourcesApi';
+export { creatorApi, creatorApplicationProgress } from './creatorApi';
