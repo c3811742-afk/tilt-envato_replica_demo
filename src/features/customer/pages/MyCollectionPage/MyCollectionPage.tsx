@@ -1,20 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import {
-  AsyncContent,
-  Button,
-  EmptyState,
-  FieldMessage,
-  FileInput,
-  Grid,
-  Icon,
-  ItemCard,
-  Page,
-  Select,
-  Stack,
-  Text,
-  SearchBar,
-} from '@/shared/components';
+import { AsyncContent, Button, EmptyState, FieldMessage, FileInput, FilterBar, Grid, Icon, ItemCard, Page, SearchBar, Select, Stack, Text } from '@/shared/components';
 import {
   collectionDownloadStates,
   collectionMaxDepth,
@@ -24,10 +10,10 @@ import {
   routes,
   uploadKinds,
 } from '@/shared/constants';
-import { useAsync, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useAsync, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item, UserCollection } from '@/shared/types';
-import { api, libraryApi, matchesText, safeAsync } from '@/shared/utils';
+import { api, libraryApi, matchesText } from '@/shared/utils';
 import {
   CollectionActions,
   CollectionNameDialog,
@@ -38,7 +24,6 @@ import {
   UserCollectionCard,
 } from '@/features/customer/components';
 import { DownloadAllDialog } from './DownloadAllDialog';
-import styles from './MyCollectionPage.module.css';
 
 type Dialog = 'newInside' | 'rename' | 'move' | 'share' | 'delete' | 'downloadAll' | null;
 const allOptions = ''; // the first option of each filter dropdown: no filter
@@ -72,8 +57,7 @@ export const MyCollectionPage = () => {
 
 const CollectionView = ({ collection, collections, scope }: { collection: UserCollection; collections: UserCollection[]; scope: 'own' | 'team' }) => {
   const { text, locale } = useLocale();
-  const { session, setAccount } = useSession();
-  const { requestError } = useMessages();
+  const { session } = useSession();
   const navigate = useNavigate();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [query, setQuery] = useState('');
@@ -81,7 +65,6 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
   const [source, setSource] = useState(allOptions);
   const [downloadState, setDownloadState] = useState(allOptions);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string>();
   const items = useAsync(() => api.getItemsByIds(collection.itemIds), [collection.itemIds.join()], () => false);
   const loadedItems = items.status === 'success' ? items.data : []; // for the type filter's options
   const parent = collections.find((candidate) => candidate.id === collection.parentId);
@@ -91,11 +74,7 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
   })(collection);
   const downloadedIds = new Set(session.status === 'signedIn' ? session.user.downloads.map((download) => download.itemId) : []);
 
-  const run = async (request: () => Promise<Parameters<typeof setAccount>[0]>) => {
-    const result = await safeAsync(request);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (result.ok) setAccount(result.data);
-  };
+  const { run, error } = useAccountAction();
 
   const upload = async (file: File) => {
     setUploading(true);
@@ -157,9 +136,9 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
       </Stack>
       <FieldMessage tone="error" message={error} />
 
-      {/* One row: the site's search bar (without the catalog's extra tools), then three dropdowns whose
-          first option ("All types"…) says what each one filters. */}
-      <div className={styles.filters} role="group" aria-label={text.filters.title}>
+      {/* The site's search bar (without the catalog's extra tools) and three dropdowns whose first option
+          ("All types"…) says what each one filters; they share the row and wrap on narrow screens. */}
+      <FilterBar wideFirst label={text.filters.title}>
         <SearchBar
           suggest={false}
           label={text.myCollections.searchInside}
@@ -199,7 +178,7 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
             ...collectionDownloadStates.map((value) => ({ value, label: text.myCollections.downloadStates[value] })),
           ]}
         />
-      </div>
+      </FilterBar>
 
       <AsyncContent state={items}>
         {(data) => {

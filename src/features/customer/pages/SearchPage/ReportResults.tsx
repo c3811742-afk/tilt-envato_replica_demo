@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { useLocation } from 'react-router';
-import { Button, ChipGroup, FieldMessage, Modal, Stack, Text, TextField, TextLink } from '@/shared/components';
+import { Button, ChipGroup, FieldMessage, Modal, ModalActions, Stack, Text, TextField, TextLink } from '@/shared/components';
 import { routes, searchReportReasons, withReturnTo, type SearchReportReason } from '@/shared/constants';
-import { useLocale, useSession } from '@/shared/hooks';
+import { useAction, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { CategoryId } from '@/shared/types';
-import { api, safeAsync } from '@/shared/utils';
+import { api } from '@/shared/utils';
 
 interface ReportResultsProps {
   query: string;
@@ -47,19 +47,17 @@ const ReportForm = ({ query, categoryId, onDone }: ReportResultsProps & { onDone
   const [reason, setReason] = useState<SearchReportReason | null>(null);
   const [comment, setComment] = useState('');
   const [reasonError, setReasonError] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'sent' | 'failed'>('idle');
+  const { run, busy: sending, error } = useAction();
+  const [sent, setSent] = useState(false);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!reason) return setReasonError(true);
-    setSending(true);
-    const result = await safeAsync(() => api.reportSearch({ query, searchUrl: `${pathname}${search}`, categoryId, reason, comment: comment.trim() }));
-    setSending(false);
-    setStatus(result.ok ? 'sent' : 'failed');
+    const result = await run(() => api.reportSearch({ query, searchUrl: `${pathname}${search}`, categoryId, reason, comment: comment.trim() }));
+    setSent(result.ok);
   };
 
-  if (status === 'sent') {
+  if (sent) {
     return (
       <Stack gap={vars.spacing[4]}>
         <Text>{text.searchReport.sent}</Text>
@@ -84,15 +82,8 @@ const ReportForm = ({ query, categoryId, onDone }: ReportResultsProps & { onDone
         error={reasonError ? text.searchReport.reasonRequired : undefined}
       />
       <TextField label={text.searchReport.commentLabel} placeholder={text.searchReport.commentPlaceholder} value={comment} onChange={setComment} />
-      <FieldMessage tone="error" message={status === 'failed' ? text.searchReport.failed : undefined} />
-      <Stack direction="row" justify="flex-end" gap={vars.spacing[3]}>
-        <Button variant="outline" onClick={onDone}>
-          {text.common.cancel}
-        </Button>
-        <Button type="submit" disabled={sending}>
-          {sending ? text.common.processing : text.searchReport.submit}
-        </Button>
-      </Stack>
+      <FieldMessage tone="error" message={error && text.searchReport.failed} />
+      <ModalActions confirmLabel={text.searchReport.submit} submit busy={sending} onCancel={onDone} />
     </Stack>
   );
 };

@@ -1,17 +1,16 @@
 import { useState, type FormEvent } from 'react';
 import { Button, EmailField, IconNote, Stack, Text } from '@/shared/components';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAction, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { resourcesApi, safeAsync, validateEmail } from '@/shared/utils';
+import { resourcesApi, validateEmail } from '@/shared/utils';
 
 // "Sign up for the newsletter" in the footer. A signed-in user's email is filled in.
 export const NewsletterForm = () => {
   const { text } = useLocale();
   const { session } = useSession();
-  const { fieldError, requestError } = useMessages();
+  const { fieldError } = useMessages();
   const [email, setEmail] = useState(session.status === 'signedIn' ? session.user.email : '');
-  const [error, setError] = useState<string>();
-  const [busy, setBusy] = useState(false);
+  const { run, busy, error, setError } = useAction();
   const [done, setDone] = useState(false);
 
   const submit = async (event: FormEvent) => {
@@ -21,10 +20,7 @@ export const NewsletterForm = () => {
       setError(fieldError(invalid));
       return;
     }
-    setBusy(true);
-    const result = await safeAsync(() => resourcesApi.subscribe(email));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
+    const result = await run(() => resourcesApi.subscribe(email));
     setDone(result.ok);
   };
 

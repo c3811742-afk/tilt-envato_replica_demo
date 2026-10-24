@@ -1,29 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { fetchTranslations } from '@/features/admin/api';
-import { FilterBar, Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { translationsPageSize } from '@/features/admin/constants';
 import type { TranslationEntry, Translations } from '@/features/admin/types';
-import { fillText, isBlank, isolate, matchesQuery } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  Checkbox,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-  TextField,
-  TextLink,
-} from '@/shared/components';
+import { isBlank } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, Checkbox, EmptyState, FilterBar, Icon, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextField, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, isolate, matchesText } from '@/shared/utils';
 import { EditTranslationModal } from './EditTranslationModal';
 
 interface TranslationsViewProps {
@@ -44,7 +30,7 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
   const missing = entries.filter((entry) => isBlank(entry.value)).length;
   const visible = entries.filter(
     (entry) =>
-      (!missingOnly || isBlank(entry.value)) && matchesQuery(query, [entry.key, entry.source, entry.value]),
+      (!missingOnly || isBlank(entry.value)) && matchesText(query, ...[entry.key, entry.source, entry.value]),
   );
 
   const resetPaging = () => setShown(translationsPageSize);
@@ -95,8 +81,8 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
       label: text.admin.columns.actions,
       align: 'end',
       render: (entry) => (
-        <Button size="sm" variant="muted" onClick={() => setEditing(entry)}>
-          {text.admin.common.edit}
+        <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} tooltipAlign="end" onClick={() => setEditing(entry)}>
+          <Icon name="pencil" size={vars.sizes.icon.sm} />
         </Button>
       ),
     },
@@ -112,7 +98,6 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
           missing: formatNumber(missing, locale),
         })}
       />
-      <Notice tone="info">{t.demoNote}</Notice>
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
           {notice}

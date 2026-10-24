@@ -1,26 +1,50 @@
-import { creatorApplication, creatorApplicationStages } from '@/shared/constants';
+import { storageKeys } from '@/shared/constants';
 import type { CreatorApplication, CreatorApplicationReceipt } from '@/shared/types';
-import { respond, respondError } from './mockResponse';
+import { call, signedInAccount } from './accountStore';
+import { respondError } from './mockResponse';
+import { readApplications, resourcesApi } from './resourcesApi';
+import { storage } from './storage';
 
-const secondMs = 1000;
-
-// Demo stand-in for the creator application server.
+// Demo stand-in for the creator application server. A submitted application goes into the same list the
+// admin team reviews (Admin › Creators › Applications), tied to the applicant's account.
 export const creatorApi = {
-  submitApplication: (application: CreatorApplication) =>
-    application.acceptAgreement
-      ? respond<CreatorApplicationReceipt>({
-          id: `APP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
-          submittedAt: new Date().toISOString(),
-        })
-      : respondError(new Error('The creator agreement was not accepted')),
+  submitApplication: async (application: CreatorApplication): Promise<CreatorApplicationReceipt> => {
+    if (!application.acceptAgreement) return respondError(new Error('The creator agreement was not accepted'));
+    const account = await call(() => signedInAccount());
+    const id = await resourcesApi.apply({
+      kind: 'author',
+      name: application.displayName.trim() || application.legalName.trim(),
+      email: account.email,
+      portfolio: application.portfolioUrl,
+      categories: application.specialties,
+      about: application.about,
+      accountId: account.id,
+    });
+    return { id, submittedAt: new Date().toISOString() };
+  },
 };
 
-// Where an application is now, and when it reached each stage (demo: one stage every few seconds).
-export const creatorApplicationProgress = (receipt: CreatorApplicationReceipt, now: number) => {
-  const submittedAt = new Date(receipt.submittedAt).getTime();
-  const stageMs = creatorApplication.demoSecondsPerStage * secondMs;
-  const last = creatorApplicationStages.length - 1;
-  const current = Math.min(Math.max(Math.floor((now - submittedAt) / stageMs), 0), last);
-  const reachedAt = creatorApplicationStages.map((_, index) => new Date(submittedAt + index * stageMs).toISOString());
-  return { current, stage: creatorApplicationStages[current], reachedAt, isFinal: current === last };
+// The admin team's decision on an application: still waiting, approved, or rejected with a reason.
+export interface CreatorApplicationStatus {
+  status: 'pending' | 'approved' | 'rejected';
+  reason?: string; // one of text.admin.creators.applicationReasons when rejected
+  decidedAt?: string;
+}
+
+export const creatorApplicationStatus = (reference: string): CreatorApplicationStatus => {
+  const saved = readApplications().find((application) => application.reference === reference);
+  if (!saved?.status || saved.status === 'pending') return { status: 'pending' };
+  return { status: saved.status, reason: saved.decision?.reason, decidedAt: saved.decision?.at };
 };
+
+// For live status pages: runs `onChange` when the applications change in another tab (e.g. an admin decides).
+export const subscribeToApplications = (onChange: () => void) => {
+  const listener = (event: StorageEvent) => {
+    if (event.key === storageKeys.applications) onChange();
+  };
+  window.addEventListener('storage', listener);
+  return () => window.removeEventListener('storage', listener);
+};
+
+// The raw list, as a stable value for useSyncExternalStore (a string changes only when the list does).
+export const applicationsSnapshot = () => storage.get(storageKeys.applications) ?? '';

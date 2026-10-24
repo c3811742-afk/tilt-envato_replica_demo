@@ -1,9 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { generatePath, useNavigate } from 'react-router';
 import { flagElement, reviewElement } from '@/features/admin/api';
-import { MediaPreview, Notice } from '@/features/admin/components';
 import { guidelineChecks, statusTone } from '@/features/admin/constants';
-import { flashState, useAdminSession } from '@/features/admin/hooks';
+import { flashState, useAdminSession, useAdminAction } from '@/features/admin/hooks';
 import type {
   CatalogElement,
   FlagInput,
@@ -12,37 +11,16 @@ import type {
   RejectReason,
   ReviewDecision,
 } from '@/features/admin/types';
-import {
-  errorMessage,
-  fillText,
-  formatList,
-  isolate,
-  previewKind,
-  toggleItem,
-  totalFileSize,
-} from '@/features/admin/utils';
-import { Badge, Button, Card, Checkbox, SectionHeader, Stack, Text } from '@/shared/components';
+import { previewKind, toggleItem, totalFileSize } from '@/features/admin/utils';
+import { Badge, Button, Card, Checkbox, DetailList, MediaPreview, Notice, SectionHeader, SplitLayout, Stack, Text } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatFileSize, formatNumber, safeAsync } from '@/shared/utils';
+import { fillText, formatDate, formatFileSize, formatList, formatNumber, isolate } from '@/shared/utils';
 import { FlagModal } from './FlagModal';
 import { RejectModal } from './RejectModal';
-import styles from './ReviewElementPage.module.css';
 
 type Dialog = RejectDecision | 'flag' | null;
-
-// One labelled value in the details list.
-const Detail = ({ label, children }: { label: string; children: ReactNode }) => (
-  <div className={styles.detail}>
-    <dt>
-      <Text as="span" variant="label" color={vars.colors.textMuted}>
-        {label}
-      </Text>
-    </dt>
-    <dd className={styles.value}>{children}</dd>
-  </div>
-);
 
 export const ReviewElementView = ({ element: loaded }: { element: CatalogElement }) => {
   const { text, locale } = useLocale();
@@ -53,29 +31,20 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
   const [element, setElement] = useState(loaded);
   const [checks, setChecks] = useState<GuidelineCheck[]>([]);
   const [dialog, setDialog] = useState<Dialog>(null);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const [flagged, setFlagged] = useState(false);
 
   const isPending = element.status === 'pending';
   const allChecked = guidelineChecks.every((check) => checks.includes(check));
 
   const openDialog = (next: Dialog) => {
-    setError(null);
+    clearError();
     setDialog(next);
   };
 
   const submitReview = async (decision: ReviewDecision, reasons: RejectReason[] = [], comment = '') => {
-    setPending(true);
-    setError(null);
-    const result = await safeAsync(() =>
-      reviewElement(currentAdmin.id, element.id, { decision, reasons, comment }),
-    );
-    setPending(false);
-    if (!result.ok) {
-      setError(errorMessage(result.error, text));
-      return;
-    }
+    const result = await run(() => reviewElement(currentAdmin.id, element.id, { decision, reasons, comment }));
+    if (!result.ok) return;
     // Go straight to the next element waiting, or back to the queue when it's empty.
     const { nextId } = result.data;
     const next = nextId ? generatePath(routes.adminReviewElement, { elementId: nextId }) : routes.adminReview;
@@ -83,14 +52,8 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
   };
 
   const submitFlag = async (input: FlagInput) => {
-    setPending(true);
-    setError(null);
-    const result = await safeAsync(() => flagElement(currentAdmin.id, element.id, input));
-    setPending(false);
-    if (!result.ok) {
-      setError(errorMessage(result.error, text));
-      return;
-    }
+    const result = await run(() => flagElement(currentAdmin.id, element.id, input));
+    if (!result.ok) return;
     setElement(result.data);
     setDialog(null);
     setFlagged(true);
@@ -119,47 +82,52 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
       )}
       {error && !dialog && <Notice tone="danger">{error}</Notice>}
 
-      <div className={styles.layout}>
+      <SplitLayout
+        stickyAside={false}
+        main={
         <Stack>
           <MediaPreview kind={previewKind(element.type)} src={element.previewUrl} alt={element.title} />
 
           <Card title={t.details}>
-            <dl className={styles.details}>
-              <Detail label={t.description}>
-                <Text autoDirection>{element.description}</Text>
-              </Detail>
-              <Detail label={text.admin.columns.category}>{text.categories[element.category].name}</Detail>
-              <Detail label={t.software}>
-                {element.software.length ? formatList(element.software, locale) : t.noSoftware}
-              </Detail>
-              <Detail label={t.bilingual}>{element.bilingual ? t.yes : t.no}</Detail>
-              <Detail label={t.tags}>
-                <span className={styles.tags}>
-                  {element.tags.map((tag) => (
-                    <Badge key={tag}>
-                      <bdi>{tag}</bdi>
-                    </Badge>
-                  ))}
-                </span>
-              </Detail>
-              <Detail label={text.admin.columns.submitted}>{formatDate(element.submittedAt, locale)}</Detail>
-              <Detail label={t.version}>{formatNumber(element.version, locale)}</Detail>
-            </dl>
+            <DetailList
+              rows={[
+                { label: t.description, value: element.description, autoDirection: true },
+                { label: text.admin.columns.category, value: text.categories[element.category].name },
+                { label: t.software, value: element.software.length ? formatList(element.software, locale) : t.noSoftware },
+                { label: t.bilingual, value: element.bilingual ? t.yes : t.no },
+                {
+                  label: t.tags,
+                  value: (
+                    <Stack as="ul" direction="row" wrap gap={vars.spacing[2]}>
+                      {element.tags.map((tag) => (
+                        <li key={tag}>
+                          <Badge>
+                            <bdi>{tag}</bdi>
+                          </Badge>
+                        </li>
+                      ))}
+                    </Stack>
+                  ),
+                },
+                { label: text.admin.columns.submitted, value: formatDate(element.submittedAt, locale) },
+                { label: t.version, value: formatNumber(element.version, locale) },
+              ]}
+            />
           </Card>
 
           <Card title={t.files}>
-            <ul className={styles.list}>
+            <Stack as="ul" gap={vars.spacing[2]}>
               {element.files.map((file) => (
-                <li key={file.name} className={styles.fileRow}>
+                <Stack key={file.name} as="li" direction="row" wrap justify="space-between" gap={vars.spacing[3]}>
                   <Text as="span">
                     <bdi>{file.name}</bdi>
                   </Text>
                   <Text as="span" color={vars.colors.textMuted}>
                     {formatFileSize(file.sizeBytes, locale)}
                   </Text>
-                </li>
+                </Stack>
               ))}
-            </ul>
+            </Stack>
             <Text variant="bodySm" color={vars.colors.textMuted}>
               {fillText(t.totalSize, { size: formatFileSize(totalFileSize(element), locale) })}
             </Text>
@@ -167,7 +135,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
 
           <Card title={t.sources}>
             {element.sources.length ? (
-              <ul className={styles.list}>
+              <Stack as="ul" gap={vars.spacing[2]}>
                 {element.sources.map((source) => (
                   <li key={`${source.kind}-${source.name}`}>
                     <Text>
@@ -179,18 +147,23 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
                     </Text>
                   </li>
                 ))}
-              </ul>
+              </Stack>
             ) : (
               <Text color={vars.colors.textMuted}>{t.noSources}</Text>
             )}
           </Card>
         </Stack>
-
+        }
+        aside={
         <Stack>
           {element.flag && (
             <Notice tone="warning">
               {fillText(t.flaggedAs, { kind: text.admin.flagKinds[element.flag.kind] })}
-              {element.flag.note && <bdi className={styles.block}>{element.flag.note}</bdi>}
+              {element.flag.note && (
+                <Text as="span" autoDirection>
+                  {element.flag.note}
+                </Text>
+              )}
             </Notice>
           )}
 
@@ -220,7 +193,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
               </Card>
 
               <Card title={t.decisionTitle}>
-                <div className={styles.actions}>
+                <Stack direction="row" wrap gap={vars.spacing[3]}>
                   <Button disabled={!allChecked || pending} onClick={() => submitReview('accepted')}>
                     {t.accept}
                   </Button>
@@ -235,7 +208,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
                       {t.flag}
                     </Button>
                   )}
-                </div>
+                </Stack>
               </Card>
             </>
           ) : (
@@ -264,7 +237,8 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
             )
           )}
         </Stack>
-      </div>
+        }
+      />
 
       {(dialog === 'softRejected' || dialog === 'hardRejected') && (
         <RejectModal

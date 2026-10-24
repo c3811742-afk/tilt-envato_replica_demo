@@ -6,8 +6,26 @@ import type { ButtonProps } from './Button.types';
 import styles from './Button.module.css';
 
 export const Button = (props: ButtonProps) => {
-  const { children, variant, size, background, color, radius, fullWidth, iconOnly, disabled, type, to, href, ariaLabel, tooltip, tooltipAlign, pressed, onClick } =
-    withDefaults(buttonDefaults, props);
+  const {
+    children,
+    variant,
+    size,
+    background,
+    color,
+    radius,
+    fullWidth,
+    iconOnly,
+    disabled,
+    type,
+    to,
+    href,
+    ariaLabel,
+    tooltip,
+    tooltipAlign,
+    pressed,
+    expanded,
+    onClick,
+  } = withDefaults(buttonDefaults, props);
 
   // Resolved values are handed to the CSS module as custom properties.
   const style = {
@@ -44,7 +62,7 @@ export const Button = (props: ButtonProps) => {
   }
 
   return (
-    <button type={type} className={className} style={style} disabled={disabled} aria-label={label} data-tooltip={tooltip} aria-pressed={pressed} onClick={onClick}>
+    <button type={type} className={className} style={style} disabled={disabled} aria-label={label} data-tooltip={tooltip} aria-pressed={pressed} aria-expanded={expanded} onClick={onClick}>
       {children}
     </button>
   );

@@ -1,24 +1,18 @@
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { flashNotices, type FlashNotice } from '@/features/admin/constants';
-import { isOneOf } from '@/features/admin/utils';
-
-const readNotice = (state: unknown): FlashNotice | null => {
-  if (typeof state !== 'object' || state === null || !('notice' in state)) return null;
-  return typeof state.notice === 'string' && isOneOf(flashNotices, state.notice) ? state.notice : null;
-};
+import { useRouteState } from '@/shared/hooks';
+import { isOneOf } from '@/shared/utils';
 
 // A success message passed to the next page: navigate(path, { state: flashState('accepted') }).
 export const flashState = (notice: FlashNotice) => ({ notice });
 
-// Reads the message passed by the previous page, and clears it when dismissed.
+// Reads the message passed by the previous page (with the shared useRouteState), and clears it when dismissed.
 export const useFlashNotice = () => {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
-  const notice = readNotice(location.state);
-  const dismiss = useCallback(
-    () => navigate(location.pathname, { replace: true, state: null }),
-    [navigate, location.pathname],
-  );
+  const { notice: passed } = useRouteState<{ notice: string }>();
+  const notice = isOneOf(passed, flashNotices) ? passed : null;
+  const dismiss = useCallback(() => navigate(pathname, { replace: true, state: null }), [navigate, pathname]);
   return { notice, dismiss };
 };

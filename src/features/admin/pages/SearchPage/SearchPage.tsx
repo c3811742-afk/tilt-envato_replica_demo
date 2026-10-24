@@ -3,12 +3,12 @@ import { searchEverything } from '@/features/admin/api';
 import { adminNav } from '@/features/admin/constants';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { AdminSearchResult } from '@/features/admin/types';
-import { fillText, localized, matchesQuery } from '@/features/admin/utils';
+import { localized } from '@/features/admin/utils';
 import { AsyncContent, Card, EmptyState, SearchBar, SectionHeader, Stack, Text } from '@/shared/components';
 import { routes, texts } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, matchesText } from '@/shared/utils';
 import styles from './SearchPage.module.css';
 
 // One found thing: its name (in the page's language when it has two) and a second line, linking to where it's handled.
@@ -42,7 +42,7 @@ export const SearchPage = () => {
   const pages: AdminSearchResult[] = query
     ? adminNav
         .filter((item) => can(item.permission))
-        .filter((item) => matchesQuery(query, [texts.en.admin.nav[item.key], texts.ar.admin.nav[item.key]]))
+        .filter((item) => matchesText(query, ...[texts.en.admin.nav[item.key], texts.ar.admin.nav[item.key]]))
         .map((item) => ({ group: 'pages', id: item.key, title: text.admin.nav[item.key], to: item.to }))
     : [];
 

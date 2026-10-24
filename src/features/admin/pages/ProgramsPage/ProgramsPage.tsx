@@ -1,24 +1,13 @@
 import { useState } from 'react';
 import { fetchPrograms } from '@/features/admin/api';
-import { Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { programStatusTone } from '@/features/admin/constants';
 import type { Program } from '@/features/admin/types';
-import { fillText, fromDateKey, isolate, programStatus, toDateKey, upsertById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { fromDateKey, programStatus, toDateKey, upsertById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, Icon, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isolate } from '@/shared/utils';
 import { ProgramModal } from './ProgramModal';
 
 const Programs = () => {
@@ -86,8 +75,8 @@ const Programs = () => {
       label: text.admin.columns.actions,
       align: 'end',
       render: (program) => (
-        <Button size="sm" variant="muted" onClick={() => setEditing(program)}>
-          {text.admin.common.edit}
+        <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} tooltipAlign="end" onClick={() => setEditing(program)}>
+          <Icon name="pencil" size={vars.sizes.icon.sm} />
         </Button>
       ),
     },

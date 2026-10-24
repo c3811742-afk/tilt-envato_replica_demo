@@ -1,25 +1,13 @@
 import { useState } from 'react';
 import { closeSearchReport, fetchSearchReports } from '@/features/admin/api';
-import { FilterBar, Notice } from '@/features/admin/components';
 import { reportStatuses, reportStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { ReportResolution, ReportStatus, SearchReport } from '@/features/admin/types';
-import { fillText, isOneOf, isolate, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Select,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, Select, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate, isOneOf } from '@/shared/utils';
 
 const allStatuses = 'all';
 
@@ -89,10 +77,10 @@ export const ReportsTab = () => {
       render: (report) =>
         report.status === 'open' && (
           <Stack direction="row" wrap gap={vars.spacing[2]}>
-            <Button size="sm" disabled={action.pending} onClick={() => close(list, report, 'resolved')}>
+            <Button size="sm" disabled={action.busy} onClick={() => close(list, report, 'resolved')}>
               {t.resolve}
             </Button>
-            <Button size="sm" variant="muted" disabled={action.pending} onClick={() => close(list, report, 'dismissed')}>
+            <Button size="sm" variant="muted" disabled={action.busy} onClick={() => close(list, report, 'dismissed')}>
               {t.dismiss}
             </Button>
           </Stack>
@@ -126,7 +114,7 @@ export const ReportsTab = () => {
                     ...reportStatuses.map((value) => ({ value, label: t.statuses[value] })),
                   ]}
                   value={status}
-                  onChange={(value) => setStatus(isOneOf(reportStatuses, value) ? value : allStatuses)}
+                  onChange={(value) => setStatus(isOneOf(value, reportStatuses) ? value : allStatuses)}
                 />
               </FilterBar>
               {visible.length > 0 ? (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Card, EmptyState, FormFooter, IconNote, Page, Section, Select, SplitLayout, Stack, Text, TextField, TextLink } from '@/shared/components';
+import { Badge, Button, Card, EmptyState, FormFooter, IconNote, MessageThread, Page, Section, Select, SplitLayout, Stack, Text, TextField, TextLink } from '@/shared/components';
 import { routes, supportLimits, supportTopics, withReturnTo, type SupportTopic } from '@/shared/constants';
 import { useForm, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -78,16 +78,17 @@ export const SupportPage = () => {
                       <Text variant="bodySm" color={vars.colors.textMuted}>
                         <bdi>{request.reference}</bdi> · {text.support.topics[request.topic]} · {formatDate(request.createdAt, locale)}
                       </Text>
-                      {request.replies?.map((reply) => (
-                        <Stack key={reply.at} gap={vars.spacing[1]}>
-                          <Text variant="label" color={vars.colors.textMuted}>
-                            {fillText(text.support.replyFrom, { name: reply.by, date: formatDate(reply.at, locale) })}
-                          </Text>
-                          <Text variant="bodySm" autoDirection>
-                            {reply.message}
-                          </Text>
-                        </Stack>
-                      ))}
+                      {request.replies && (
+                        <MessageThread
+                          framed={false}
+                          messages={request.replies.map((reply) => ({
+                            id: reply.at,
+                            fromTeam: true,
+                            body: reply.message,
+                            heading: fillText(text.support.replyFrom, { name: reply.by, date: formatDate(reply.at, locale) }),
+                          }))}
+                        />
+                      )}
                     </Card>
                   ))}
                 </Stack>

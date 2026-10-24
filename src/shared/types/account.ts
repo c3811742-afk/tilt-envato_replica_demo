@@ -159,7 +159,8 @@ export interface Download {
   use: LicenseUse;
   licenseCode: string;
   requestedAt: string; // ISO date
-  reportedBroken?: { reason: BrokenDownloadReason; at: string }; // doesn't count against the plan's limit
+  // Doesn't count against the plan's limit. `answer` is the support team's (Admin › Support › Item reports).
+  reportedBroken?: { reason: BrokenDownloadReason; at: string; answer?: 'fixed' | 'removed' | 'dismissed' };
 }
 
 export interface YoutubeChannel {
@@ -295,6 +296,8 @@ export interface CopyrightReport {
   role: CopyrightRole;
   details: string;
   createdAt: string; // ISO date
+  // The licensing team's decision (Admin › Licenses › Copyright claims).
+  decision?: { status: 'investigating' | 'takenDown' | 'rejected'; note?: string };
 }
 
 export interface Suspension {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, EmptyState, Icon, Page, SidebarLayout, Stack, Text } from '@/shared/components';
+import { Button, EmptyState, Page, SidebarLayout, Stack, Text } from '@/shared/components';
 import { catalog, categoryFilters, searchPath } from '@/shared/constants';
 import { useLocale, usePagedAsync, useSearchFilters, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -8,7 +8,6 @@ import type { Facets, Item, SearchResults } from '@/shared/types';
 import { api, countSelectedFilters, fillText, formatNumber, preferences } from '@/shared/utils';
 import { ChipLinks, SearchBox } from '@/features/customer/components';
 import { ActiveFilters } from './ActiveFilters';
-import { FilterDialog } from './FilterDialog';
 import { FilterPanel } from './FilterPanel';
 import { ReportResults } from './ReportResults';
 import { ResultOptions } from './ResultOptions';
@@ -22,7 +21,6 @@ export const SearchPage = () => {
   const search = useSearchFilters();
   const [pagingMode] = useStoredValue(preferences.pagingMode);
   const [filtersCollapsed, setFiltersCollapsed] = useStoredValue(preferences.filtersCollapsed);
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const title = useSearchTitle(search);
 
   // Pages: load the page in the URL. Infinite scroll: start at the top and add pages as the user scrolls.
@@ -43,7 +41,8 @@ export const SearchPage = () => {
   const total = results.state.status === 'success' ? results.state.data.total : 0;
   const filterKeys = categoryFilters[search.categoryId ?? 'all'];
   const selectedFilters = countSelectedFilters(search.filters);
-  // Sort, view and filters: a panel docked to the side of the screen on desktop, a dialog on phones and tablets.
+  // Sort, view and filters: a panel docked to the side of the screen on desktop; on phones and tablets it opens under
+  // a "Filters" button above the results.
   const optionsPanel = (
     <Stack gap={vars.spacing[6]}>
       <ResultOptions search={search} />
@@ -81,6 +80,9 @@ export const SearchPage = () => {
   return (
     <SidebarLayout
       label={text.filters.title}
+      phoneToggleLabel={selectedFilters ? fillText(text.filters.titleWithCount, { count: formatNumber(selectedFilters, locale) }) : text.filters.title}
+      phoneToggleIcon="filter"
+      phoneToggleTour="filtersButton"
       collapsed={filtersCollapsed}
       onCollapsedChange={setFiltersCollapsed}
       collapseLabel={text.filters.hide}
@@ -110,15 +112,6 @@ export const SearchPage = () => {
             autoFocus={search.isEmpty}
             onSearch={(value) => navigate(search.pathWith({ query: value }))}
           />
-        </div>
-
-        <div className={styles.phoneFilters} data-tour="filtersButton">
-          <Button variant="outline" onClick={() => setFiltersOpen(true)}>
-            <Icon name="filter" size={vars.sizes.icon.sm} />
-            {selectedFilters
-              ? fillText(text.filters.titleWithCount, { count: formatNumber(selectedFilters, locale) })
-              : text.filters.title}
-          </Button>
         </div>
 
         {search.categoryId && !search.query && (
@@ -165,9 +158,6 @@ export const SearchPage = () => {
           <ReportResults query={search.query} categoryId={search.categoryId} />
         </Stack>
 
-        <FilterDialog open={filtersOpen} count={total} onClose={() => setFiltersOpen(false)}>
-          {optionsPanel}
-        </FilterDialog>
       </Page>
     </SidebarLayout>
   );

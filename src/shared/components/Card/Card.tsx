@@ -8,7 +8,7 @@ import styles from './Card.module.css';
 
 // A bordered, flat box for grouped content: a plan, a category, a step.
 export const Card = (props: CardProps) => {
-  const { children, title, as: Element, to, padding, gap, background, color, borderColor, radius, interactive } = withDefaults(
+  const { children, title, as: Element, to, padding, gap, background, color, borderColor, radius, minHeight, interactive } = withDefaults(
     cardDefaults,
     props,
   );
@@ -20,6 +20,7 @@ export const Card = (props: CardProps) => {
     '--card-color': color,
     '--card-border-color': borderColor,
     '--card-radius': radius,
+    '--card-min-height': minHeight,
   } as CSSProperties;
   const className = cx(styles.card, (interactive ?? Boolean(to)) && styles.interactive);
 

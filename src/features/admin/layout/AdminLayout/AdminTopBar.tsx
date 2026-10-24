@@ -1,9 +1,10 @@
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import type { AdminAlerts } from '@/features/admin/types';
 import { AppearanceMenu, LanguageMenu } from '@/app/layout';
-import { SearchBar } from '@/shared/components';
+import { Badge, SearchBar, TopBar } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
+import { vars } from '@/shared/theme';
 import { AdminAccountMenu } from './AdminAccountMenu';
 import { AlertsMenu } from './AlertsMenu';
 import styles from './AdminTopBar.module.css';
@@ -22,24 +23,29 @@ export const AdminTopBar = ({ alerts }: AdminTopBarProps) => {
     navigate({ pathname: routes.adminSearch, search: query ? `?${new URLSearchParams({ q: query })}` : '' });
 
   return (
-    <header className={styles.topBar}>
-      <div className={styles.content}>
-        <Link to={routes.admin} className={styles.brand} aria-label={t.homeLabel}>
-          <span className={styles.logo}>{text.brand.name}</span>
-          <span className={styles.tag}>{text.admin.layout.title}</span>
-        </Link>
-
-        <div className={styles.search}>
-          <SearchBar suggest={false} placeholder={t.searchPlaceholder} label={t.searchLabel} onSearch={searchAdmin} />
-        </div>
-
-        <div className={styles.actions}>
+    // The site's top bar, with the admin's lime line under it and its own home, search and menus.
+    <TopBar
+      homeTo={routes.admin}
+      homeLabel={t.homeLabel}
+      contained={false}
+      accentColor={vars.colors.navAccent}
+      accentWidth={vars.borders.width.thick}
+      tag={
+        <span className={styles.tag}>
+          <Badge background={vars.colors.nav} color={vars.colors.navAccent}>
+            {text.admin.layout.title}
+          </Badge>
+        </span>
+      }
+      search={<SearchBar suggest={false} placeholder={t.searchPlaceholder} label={t.searchLabel} onSearch={searchAdmin} />}
+      actions={
+        <>
           <AlertsMenu alerts={alerts} />
           <AppearanceMenu />
           <LanguageMenu />
           <AdminAccountMenu />
-        </div>
-      </div>
-    </header>
+        </>
+      }
+    />
   );
 };

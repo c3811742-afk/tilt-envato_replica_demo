@@ -1,25 +1,14 @@
 import { useState } from 'react';
 import { deprecateElement, fetchUnusedElements } from '@/features/admin/api';
-import { ElementSummary, FilterBar, Notice, ReasonModal, RequirePermission } from '@/features/admin/components';
+import { ElementSummary, ReasonModal, RequirePermission } from '@/features/admin/components';
 import { deprecateReasons, unusedPeriods, type UnusedPeriod } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CatalogElement, DeprecateInput } from '@/features/admin/types';
-import { fillText, isolate, removeById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Select,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { removeById } from '@/features/admin/utils';
+import { AsyncContent, Button, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, SectionHeader, Select, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isolate } from '@/shared/utils';
 
 const defaultPeriod: UnusedPeriod = 12;
 
@@ -133,7 +122,7 @@ const UnusedElements = () => {
                 reasons={deprecateReasons}
                 reasonLabels={text.admin.deprecateReasons}
                 noteLabel={t.noteLabel}
-                pending={action.pending}
+                pending={action.busy}
                 error={action.error}
                 onClose={() => setTarget(null)}
                 onSubmit={(input) => deprecate(list, input)}

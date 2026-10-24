@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { sendNewsletter } from '@/features/admin/api';
-import { ConfirmModal } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Newsletter } from '@/features/admin/types';
-import { fillText, hasErrors, isBlank } from '@/features/admin/utils';
-import { Button, Modal, TextField } from '@/shared/components';
+import { hasErrors, isBlank } from '@/features/admin/utils';
+import { ConfirmModal, Modal, ModalActions, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber } from '@/shared/utils';
 
 interface NewsletterModalProps {
   subscribers: number;
@@ -18,7 +17,7 @@ interface NewsletterModalProps {
 export const NewsletterModal = ({ subscribers, onClose, onSent }: NewsletterModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.messages.newsletters;
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
@@ -61,12 +60,7 @@ export const NewsletterModal = ({ subscribers, onClose, onSent }: NewsletterModa
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit">{text.common.continue}</Button>
-        </>
+        <ModalActions confirmLabel={text.common.continue} onCancel={onClose} submit />
       }
     >
       <TextField

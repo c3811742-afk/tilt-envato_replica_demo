@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { adminErrorCode, renameTag } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Tag } from '@/features/admin/types';
 import { isBlank } from '@/features/admin/utils';
-import { Button, Modal, TextField } from '@/shared/components';
+import { Modal, ModalActions, Notice, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface RenameTagModalProps {
@@ -17,7 +16,7 @@ interface RenameTagModalProps {
 export const RenameTagModal = ({ tag, onClose, onSaved }: RenameTagModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error, clearError } = useAdminAction();
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const t = text.admin.tags;
   const [name, setName] = useState(tag.name);
   const [fieldError, setFieldError] = useState<string>();
@@ -52,14 +51,7 @@ export const RenameTagModal = ({ tag, onClose, onSaved }: RenameTagModalProps) =
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {t.rename}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.rename} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}

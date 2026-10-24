@@ -1,13 +1,6 @@
-/* Phones search from the page (the header has no search bar). Phones and tablets open the filters in a dialog;
-   from desktop width they're in the panel docked to the side of the screen. */
+/* Phones search from the page: the top bar shows its search from tablet width up. */
 @media (--md-up) {
   .phoneOnly {
-    display: none;
-  }
-}
-
-@media (--lg-up) {
-  .phoneFilters {
     display: none;
   }
 }

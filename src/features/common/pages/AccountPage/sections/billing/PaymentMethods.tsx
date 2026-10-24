@@ -1,43 +1,19 @@
 import { useState } from 'react';
-import { Badge, Button, Card, Checkbox, FieldMessage, Icon, Modal, PhoneField, Section, Select, Stack, Text, TextField } from '@/shared/components';
+import { Badge, Button, Card, Checkbox, FieldMessage, Icon, Modal, ModalActions, PhoneField, Section, Select, Stack, Text, TextField } from '@/shared/components';
 import { card, paymentMethodIcons, savedPaymentKinds, type SavedPaymentKind } from '@/shared/constants';
-import { useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { SavedPaymentMethod } from '@/shared/types';
-import {
-  billingApi,
-  fillText,
-  formatCardNumber,
-  formatExpiry,
-  safeAsync,
-  validateCardNumber,
-  validateEgyptianMobile,
-  validateExpiry,
-  validateInstapay,
-  validateRequired,
-  type SessionAccount,
-} from '@/shared/utils';
+import { billingApi, fillText, formatCardNumber, formatExpiry, validateCardNumber, validateEgyptianMobile, validateExpiry, validateInstapay, validateRequired } from '@/shared/utils';
 
 const isCard = (kind: SavedPaymentKind) => kind === 'card' || kind === 'meeza';
 
 // Saved payment methods: renewals and plan changes are charged to the default one.
 export const PaymentMethods = ({ methods }: { methods: SavedPaymentMethod[] }) => {
   const { text } = useLocale();
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
   const [editing, setEditing] = useState<SavedPaymentMethod | 'new' | null>(null);
   const [removing, setRemoving] = useState<SavedPaymentMethod | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
-
-  const run = async (action: () => Promise<SessionAccount>) => {
-    setBusy(true);
-    const result = await safeAsync(action);
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (result.ok) setAccount(result.data);
-    return result.ok;
-  };
+  const { run, busy, error } = useAccountAction();
 
   return (
     <Section title={text.billingPage.methodsTitle} variant="h3" gap={vars.spacing[3]}>
@@ -97,18 +73,13 @@ export const PaymentMethods = ({ methods }: { methods: SavedPaymentMethod[] }) =
           onClose={() => setRemoving(null)}
           title={text.billingPage.removeTitle}
           actions={
-            <>
-              <Button variant="outline" onClick={() => setRemoving(null)}>
-                {text.common.cancel}
-              </Button>
-              <Button
-                variant="danger"
-                disabled={busy}
-                onClick={() => void run(() => billingApi.removePaymentMethod(removing.id)).then((ok) => ok && setRemoving(null))}
-              >
-                {text.billingPage.remove}
-              </Button>
-            </>
+            <ModalActions
+              confirmLabel={text.billingPage.remove}
+              tone="danger"
+              busy={busy}
+              onCancel={() => setRemoving(null)}
+              onConfirm={() => void run(() => billingApi.removePaymentMethod(removing.id)).then((ok) => ok && setRemoving(null))}
+            />
           }
         >
           <Text>
@@ -226,14 +197,7 @@ const FormFooterRow = ({ submitting, requestError, onCancel }: { submitting: boo
   return (
     <Stack gap={vars.spacing[3]}>
       <FieldMessage tone="error" message={requestError ? explain(requestError) : undefined} />
-      <Stack direction="row" wrap justify="flex-end" gap={vars.spacing[3]}>
-        <Button variant="outline" onClick={onCancel}>
-          {text.common.cancel}
-        </Button>
-        <Button type="submit" disabled={submitting}>
-          {submitting ? text.common.processing : text.common.saveChanges}
-        </Button>
-      </Stack>
+      <ModalActions confirmLabel={text.common.saveChanges} submit busy={submitting} onCancel={onCancel} />
     </Stack>
   );
 };

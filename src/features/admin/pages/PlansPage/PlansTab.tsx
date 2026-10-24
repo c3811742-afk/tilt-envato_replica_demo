@@ -1,22 +1,11 @@
 import { useState } from 'react';
 import { fetchPlans } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import type { Plan } from '@/features/admin/types';
-import { fillText, isolate, localized, upsertById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { localized, upsertById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, Icon, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber, formatPrice } from '@/shared/utils';
+import { fillText, formatNumber, formatPrice, isolate } from '@/shared/utils';
 import { PlanModal } from './PlanModal';
 
 export const PlansTab = () => {
@@ -93,8 +82,8 @@ export const PlansTab = () => {
       label: text.admin.columns.actions,
       align: 'end',
       render: (plan) => (
-        <Button size="sm" variant="muted" onClick={() => setEditing(plan)}>
-          {text.admin.common.edit}
+        <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} tooltipAlign="end" onClick={() => setEditing(plan)}>
+          <Icon name="pencil" size={vars.sizes.icon.sm} />
         </Button>
       ),
     },

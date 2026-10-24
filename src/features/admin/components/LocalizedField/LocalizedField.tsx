@@ -1,12 +1,11 @@
 import { useLocale } from '@/shared/hooks';
 import { locales, type Locale } from '@/shared/theme';
 import { withDefaults } from '@/shared/utils';
-import { Field } from '../Field';
 
 import { localizedFieldDefaults } from './LocalizedField.defaults';
 import type { LocalizedFieldProps } from './LocalizedField.types';
 import styles from './LocalizedField.module.css';
-import { TextField } from '@/shared/components';
+import { FieldGroup, TextField } from '@/shared/components';
 
 const languages: Locale[] = ['en', 'ar'];
 
@@ -16,7 +15,7 @@ export const LocalizedField = (props: LocalizedFieldProps) => {
   const { text } = useLocale();
 
   return (
-    <Field group label={label} hint={hint}>
+    <FieldGroup label={label} hint={hint}>
       <div className={styles.languages}>
         {languages.map((language) => (
           <TextField
@@ -32,6 +31,6 @@ export const LocalizedField = (props: LocalizedFieldProps) => {
           />
         ))}
       </div>
-    </Field>
+    </FieldGroup>
   );
 };

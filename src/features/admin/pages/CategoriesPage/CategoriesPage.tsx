@@ -1,27 +1,15 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchCategories, moveCategory, setCategoryHidden } from '@/features/admin/api';
-import { Notice, ReorderButtons, RequirePermission } from '@/features/admin/components';
+import { ReorderButtons, RequirePermission } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Category, MoveDirection } from '@/features/admin/types';
-import { categoryTree, fillText, isolate, localized, replaceById, upsertById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { categoryTree, localized, replaceById, upsertById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, Icon, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, isolate } from '@/shared/utils';
 import { CategoryModal, type CategoryModalMode } from './CategoryModal';
 
 const Categories = () => {
@@ -102,7 +90,7 @@ const Categories = () => {
               label={fillText(text.admin.common.moveLabel, { name: nameOf(category) })}
               canMoveUp={index > 0}
               canMoveDown={index < group.length - 1}
-              disabled={action.pending}
+              disabled={action.busy}
               onMove={(direction) => move(category, direction)}
             />
           );
@@ -112,16 +100,24 @@ const Categories = () => {
         key: 'actions',
         label: text.admin.columns.actions,
         render: (category) => (
-          <Stack direction="row" wrap gap={vars.spacing[2]}>
-            <Button size="sm" variant="muted" onClick={() => setModal({ kind: 'edit', category })}>
-              {text.admin.common.edit}
+          <Stack direction="row" gap={vars.spacing[2]}>
+            <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setModal({ kind: 'edit', category })}>
+              <Icon name="pencil" size={vars.sizes.icon.sm} />
             </Button>
-            <Button size="sm" variant="muted" disabled={action.pending} onClick={() => toggleHidden(list, category)}>
-              {category.hidden ? text.admin.common.show : text.admin.common.hide}
+            <Button
+              size="sm"
+              variant="outline"
+              iconOnly
+              tooltip={category.hidden ? text.admin.common.show : text.admin.common.hide}
+              tooltipAlign={category.parentId ? 'end' : 'center'}
+              disabled={action.busy}
+              onClick={() => toggleHidden(list, category)}
+            >
+              <Icon name={category.hidden ? 'eye' : 'eyeOff'} size={vars.sizes.icon.sm} />
             </Button>
             {!category.parentId && (
-              <Button size="sm" variant="muted" onClick={() => setModal({ kind: 'new', parentId: category.id })}>
-                {t.addSub}
+              <Button size="sm" variant="outline" iconOnly tooltip={t.addSub} tooltipAlign="end" onClick={() => setModal({ kind: 'new', parentId: category.id })}>
+                <Icon name="plus" size={vars.sizes.icon.sm} />
               </Button>
             )}
           </Stack>

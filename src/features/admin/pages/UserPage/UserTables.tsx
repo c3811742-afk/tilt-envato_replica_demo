@@ -1,11 +1,11 @@
 
 import { licenseStatusTone, subscriptionStatusTone } from '@/features/admin/constants';
-import type { Subscription, UserDownload, UserLicense } from '@/features/admin/types';
-import { fillText } from '@/features/admin/utils';
+import type { Subscription, UserDetails, UserDownload, UserLicense } from '@/features/admin/types';
+import type { Generation } from '@/shared/types';
 import { Badge, EmptyState, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, operationName } from '@/shared/utils';
 
 const dateTime: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
 const downloadsShown = 50; // the newest ones; heavy accounts have hundreds
@@ -103,4 +103,38 @@ export const LicensesTable = ({ licenses }: { licenses: UserLicense[] }) => {
   ];
 
   return <Table label={t.detailTabs.licenses} columns={columns} rows={recordRows(licenses, (license) => license.code, columns)} stackOnMobile />;
+};
+
+// What the user made in the AI Studio, with this month's credit use.
+export const GenerationsTable = ({ generations, credits }: { generations: Generation[]; credits: UserDetails['credits'] }) => {
+  const { text, locale } = useLocale();
+  const t = text.admin.users;
+
+  if (generations.length === 0) return <EmptyState title={t.noGenerationsTitle} message={t.noGenerationsMessage} />;
+
+  const columns: RecordColumn<Generation>[] = [
+    { key: 'tool', label: t.tool, render: (generation) => operationName(text, generation.tool) },
+    {
+      key: 'prompt',
+      label: t.prompt,
+      render: (generation) => (
+        <Text as="span" autoDirection maxLines={2}>
+          {generation.prompt || generation.sourceName || ''}
+        </Text>
+      ),
+    },
+    { key: 'credits', label: t.credits, render: (generation) => formatNumber(generation.credits, locale) },
+    { key: 'date', label: text.admin.columns.date, render: (generation) => formatDate(generation.createdAt, locale, dateTime) },
+  ];
+
+  return (
+    <Stack>
+      {credits && (
+        <Text color={vars.colors.textMuted}>
+          {fillText(t.creditsUsed, { used: formatNumber(credits.used, locale), total: formatNumber(credits.total, locale) })}
+        </Text>
+      )}
+      <Table label={t.detailTabs.ai} columns={columns} rows={recordRows(generations, (generation) => generation.id, columns)} stackOnMobile />
+    </Stack>
+  );
 };

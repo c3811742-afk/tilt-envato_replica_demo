@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { saveAttribute } from '@/features/admin/api';
-import { LocalizedField, Notice } from '@/features/admin/components';
+import { LocalizedField } from '@/features/admin/components';
 import { attributeTypes, typesWithOptions } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { AttributeType, Category, CategoryAttribute } from '@/features/admin/types';
-import { emptyLocalized, hasErrors, isOneOf, localizedErrors, parseOptions } from '@/features/admin/utils';
-import { Button, Checkbox, Modal, Select, TextField } from '@/shared/components';
+import { emptyLocalized, hasErrors, localizedErrors, parseOptions } from '@/features/admin/utils';
+import { Checkbox, Modal, ModalActions, Notice, Select, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
+import { isOneOf } from '@/shared/utils';
 
 // Options make sense only when there are at least two to choose from.
 const minOptions = 2;
@@ -21,7 +22,7 @@ interface AttributeModalProps {
 export const AttributeModal = ({ categoryId, attribute, onClose, onSaved }: AttributeModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.categoryDetails;
   const [name, setName] = useState(attribute?.name ?? emptyLocalized());
   const [type, setType] = useState<AttributeType>(attribute?.type ?? 'single');
@@ -50,14 +51,7 @@ export const AttributeModal = ({ categoryId, attribute, onClose, onSaved }: Attr
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {attribute ? text.common.saveChanges : t.addAttribute}
-          </Button>
-        </>
+        <ModalActions confirmLabel={attribute ? text.common.saveChanges : t.addAttribute} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
@@ -72,7 +66,7 @@ export const AttributeModal = ({ categoryId, attribute, onClose, onSaved }: Attr
         label={t.typeLabel}
         options={attributeTypes.map((value) => ({ value, label: text.admin.attributeTypes[value] }))}
         value={type}
-        onChange={(value) => isOneOf(attributeTypes, value) && setType(value)}
+        onChange={(value) => isOneOf(value, attributeTypes) && setType(value)}
       />
       {needsOptions && (
         <TextField

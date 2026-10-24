@@ -1,5 +1,5 @@
-import { Link, NavLink, useLocation } from 'react-router';
-import { Badge, Button, Container, Icon, Stack } from '@/shared/components';
+import { NavLink, useLocation } from 'react-router';
+import { Badge, Button, Icon, TopBar } from '@/shared/components';
 import { navItems, navMenus, routes, withReturnTo } from '@/shared/constants';
 import { useLocale, useSearchFilters, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -21,73 +21,59 @@ export const Header = () => {
   const unread = session.status === 'signedIn' ? unreadCount(session.user) : 0;
 
   return (
-    <header className={styles.header}>
-      <Container>
-        <div className={styles.content}>
-          <Link to={routes.home} className={styles.logo} aria-label={text.brand.homeLabel}>
-            {text.brand.name}
-          </Link>
+    <TopBar
+      search={<SearchBox key={currentQuery} defaultValue={currentQuery} />}
+      actions={
+        <>
+          <AppearanceMenu />
+          <LanguageMenu />
 
-          <div className={styles.search}>
-            <SearchBox key={currentQuery} defaultValue={currentQuery} />
-          </div>
-
-          <div className={styles.actions}>
-            <Stack direction="row" align="center" gap={vars.spacing[2]}>
-              <AppearanceMenu />
-              <LanguageMenu />
-
-              {session.status === 'signedIn' ? (
-                <>
-                  {/* data-tour: the first-login tour points at these. */}
-                  <span data-tour="notifications">
-                    <Button variant="outline" size="sm" iconOnly to={routes.notifications} ariaLabel={text.nav.notifications}>
-                      <Icon name="bell" size={vars.sizes.icon.sm} />
-                      {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
-                    </Button>
-                  </span>
-                  <div data-tour="account">
-                    <AccountMenu user={session.user} subscription={session.subscription} />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Button variant="secondary" size="sm" to={withReturnTo(routes.signIn, currentPage)}>
-                    {text.common.signIn}
-                  </Button>
-                  <span className={styles.wideOnly}>
-                    <Button size="sm" to={withReturnTo(routes.signUp, currentPage)}>
-                      {text.common.signUp}
-                    </Button>
-                  </span>
-                </>
-              )}
-            </Stack>
-          </div>
-        </div>
-      </Container>
-
-      {/* A second row for the links, so the search box gets the full width of the first. */}
-      <div className={styles.navRow}>
-        <Container>
-          <nav className={styles.nav} aria-label={text.nav.label}>
-            {navMenus.header.map((key) => {
-              const hasMenu = key === 'categories';
-              const link = (
-                <NavLink
-                  key={key}
-                  to={navItems[key].to}
-                  className={({ isActive }) => cx(styles.navLink, isActive && styles.active)}
-                >
-                  {text.nav[key]}
-                  {hasMenu && <Icon name="chevronDown" size={vars.sizes.icon.sm} />}
-                </NavLink>
-              );
-              return hasMenu ? <CategoriesMenu key={key} trigger={link} /> : link;
-            })}
-          </nav>
-        </Container>
-      </div>
-    </header>
+          {session.status === 'signedIn' ? (
+            <>
+              {/* data-tour: the first-login tour points at these. */}
+              <span data-tour="notifications">
+                <Button variant="outline" size="sm" iconOnly to={routes.notifications} ariaLabel={text.nav.notifications}>
+                  <Icon name="bell" size={vars.sizes.icon.sm} />
+                  {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
+                </Button>
+              </span>
+              <div data-tour="account">
+                <AccountMenu user={session.user} subscription={session.subscription} />
+              </div>
+            </>
+          ) : (
+            <>
+              <Button variant="secondary" size="sm" to={withReturnTo(routes.signIn, currentPage)}>
+                {text.common.signIn}
+              </Button>
+              <span className={styles.wideOnly}>
+                <Button size="sm" to={withReturnTo(routes.signUp, currentPage)}>
+                  {text.common.signUp}
+                </Button>
+              </span>
+            </>
+          )}
+        </>
+      }
+      // A second row for the links, so the search box gets the full width of the first.
+      below={
+        <nav className={styles.nav} aria-label={text.nav.label}>
+          {navMenus.header.map((key) => {
+            const hasMenu = key === 'categories';
+            const link = (
+              <NavLink
+                key={key}
+                to={navItems[key].to}
+                className={({ isActive }) => cx(styles.navLink, isActive && styles.active)}
+              >
+                {text.nav[key]}
+                {hasMenu && <Icon name="chevronDown" size={vars.sizes.icon.sm} />}
+              </NavLink>
+            );
+            return hasMenu ? <CategoriesMenu key={key} trigger={link} /> : link;
+          })}
+        </nav>
+      }
+    />
   );
 };

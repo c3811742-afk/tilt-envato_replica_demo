@@ -1,28 +1,13 @@
 import { useState } from 'react';
 import { fetchContentRules, saveContentRules } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { contentRuleKeys } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { BlockedGeneration, ContentRules } from '@/features/admin/types';
 import { isBlank, sameText } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-  TextField,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, Card, Checkbox, Chip, EmptyState, Icon, Notice, type RecordColumn, recordRows, Stack, Table, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
-import styles from './AiPage.module.css';
 
 const dateTime: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
 
@@ -34,7 +19,7 @@ interface RulesFormProps {
 const RulesForm = ({ initialRules }: RulesFormProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.ai;
   const [rules, setRules] = useState(initialRules);
   const [phrase, setPhrase] = useState('');
@@ -87,15 +72,12 @@ const RulesForm = ({ initialRules }: RulesFormProps) => {
       <Card title={t.phrasesTitle}>
         <Text color={vars.colors.textMuted}>{t.phrasesDescription}</Text>
         {rules.blockedPhrases.length > 0 ? (
-          <ul className={styles.phrases}>
+          // Removable, like the search page's active filters: the whole chip removes the phrase.
+          <Stack as="ul" direction="row" wrap gap={vars.spacing[2]}>
             {rules.blockedPhrases.map((blocked) => (
-              <li key={blocked} className={styles.phrase}>
-                <Text as="span" autoDirection>
-                  {blocked}
-                </Text>
-                <Button
-                  size="sm"
-                  variant="muted"
+              <li key={blocked}>
+                <Chip
+                  selected
                   onClick={() =>
                     setRules((current) => ({
                       ...current,
@@ -103,11 +85,12 @@ const RulesForm = ({ initialRules }: RulesFormProps) => {
                     }))
                   }
                 >
-                  {text.admin.common.remove}
-                </Button>
+                  <span dir="auto">{blocked}</span>
+                  <Icon name="close" size={vars.sizes.icon.sm} label={`${text.admin.common.remove} ${blocked}`} />
+                </Chip>
               </li>
             ))}
-          </ul>
+          </Stack>
         ) : (
           <Text color={vars.colors.textMuted}>{t.noPhrases}</Text>
         )}

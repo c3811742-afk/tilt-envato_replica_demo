@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
-import { Button, FieldMessage, IconNote, Modal, Select, Stack, Text, TextField } from '@/shared/components';
+import { Button, FieldMessage, IconNote, Modal, ModalActions, Select, Stack, Text, TextField } from '@/shared/components';
 import { licenseUses, type LicenseUse } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAction, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { UserCollection } from '@/shared/types';
 import {
@@ -12,7 +12,6 @@ import {
   libraryApi,
   originalTitle,
   projectNameMaxLength,
-  safeAsync,
   toFileName,
   validateProjectName,
 } from '@/shared/utils';
@@ -26,8 +25,7 @@ export const DownloadAllDialog = ({ collection, onClose }: { collection: UserCol
   const [projectName, setProjectName] = useState(session.status === 'signedIn' ? (session.user.licensing.lastProjectName ?? '') : '');
   const [use, setUse] = useState<LicenseUse>(licenseUses[0]);
   const [nameError, setNameError] = useState<string>();
-  const [error, setError] = useState<string>();
-  const [busy, setBusy] = useState(false);
+  const { run, busy, error } = useAction((failure) => requestError(failure, text.license.failed));
   const [done, setDone] = useState<number | null>(null);
 
   const submit = async (event: FormEvent) => {
@@ -35,13 +33,8 @@ export const DownloadAllDialog = ({ collection, onClose }: { collection: UserCol
     const invalid = validateProjectName(projectName);
     setNameError(invalid ? fillText(text.license.errors[invalid], { max: projectNameMaxLength }) : undefined);
     if (invalid) return;
-    setBusy(true);
-    const result = await safeAsync(() => libraryApi.licenseCollection({ collectionId: collection.id, projectName, use }));
-    setBusy(false);
-    if (!result.ok) {
-      setError(requestError(result.error, text.license.failed));
-      return;
-    }
+    const result = await run(() => libraryApi.licenseCollection({ collectionId: collection.id, projectName, use }));
+    if (!result.ok) return;
     setAccount(result.data.account);
     const files = result.data.items.map((item) => fillText(text.license.demoFile, { title: originalTitle(item) }));
     downloadTextFile(`${toFileName(collection.name)}.txt`, [...files, '', buildLicensesFile(result.data.licenses, text, locale)].join('\n'));
@@ -76,14 +69,7 @@ export const DownloadAllDialog = ({ collection, onClose }: { collection: UserCol
           maxLength={projectNameMaxLength + 1}
         />
         <FieldMessage tone="error" message={error} />
-        <Stack direction="row" wrap justify="flex-end" gap={vars.spacing[3]}>
-          <Button variant="outline" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={busy}>
-            {busy ? text.license.submitting : text.myCollections.downloadAll}
-          </Button>
-        </Stack>
+        <ModalActions confirmLabel={text.myCollections.downloadAll} submit busy={busy} busyLabel={text.license.submitting} onCancel={onClose} />
       </Stack>
     </Modal>
   );

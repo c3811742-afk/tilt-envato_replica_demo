@@ -41,7 +41,14 @@
   font-size: var(--text-styles-body-sm-font-size);
   font-weight: var(--font-weight-bold);
   text-align: start;
+  text-decoration: none;
   cursor: pointer;
+}
+
+/* The name takes the room; a count sits at the end. */
+.label {
+  flex: 1;
+  min-inline-size: 0;
 }
 
 .item:disabled {

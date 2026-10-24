@@ -2,13 +2,11 @@ import { useState } from 'react';
 import { exportReport } from '@/features/admin/api';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Report, ReportKind } from '@/features/admin/types';
-import { downloadFile, fillText, fromDateKey, isOneOf, toCsv, toMonthKey } from '@/features/admin/utils';
-import { Button, Select, Stack, TextField } from '@/shared/components';
+import { fromDateKey, toCsv, toMonthKey } from '@/features/admin/utils';
+import { Button, FilterBar, Notice, Select, Stack, TextField } from '@/shared/components';
 import type { Text } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
-import { formatDate, withDefaults } from '@/shared/utils';
-import { FilterBar } from '../FilterBar';
-import { Notice } from '../Notice';
+import { downloadTextFile, fillText, formatDate, isOneOf, withDefaults } from '@/shared/utils';
 
 import { reportExportDefaults } from './ReportExport.defaults';
 import type { ReportExportProps } from './ReportExport.types';
@@ -36,7 +34,7 @@ export const ReportExport = (props: ReportExportProps) => {
   const { kinds } = withDefaults(reportExportDefaults, props);
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const [kind, setKind] = useState<ReportKind>(kinds[0]);
   const [month, setMonth] = useState(toMonthKey());
   const [notice, setNotice] = useState<string | null>(null);
@@ -51,7 +49,7 @@ export const ReportExport = (props: ReportExportProps) => {
       setNotice(fillText(t.noData, values));
       return;
     }
-    downloadFile(`tilt-${kind}-${month}.csv`, toFile(result.data, text));
+    downloadTextFile(`tilt-${kind}-${month}.csv`, toFile(result.data, text), 'text/csv;charset=utf-8');
     setNotice(fillText(t.downloaded, values));
   };
 
@@ -68,7 +66,7 @@ export const ReportExport = (props: ReportExportProps) => {
           label={t.kindLabel}
           options={kinds.map((value) => ({ value, label: text.admin.reportKinds[value] }))}
           value={kind}
-          onChange={(value) => isOneOf(kinds, value) && setKind(value)}
+          onChange={(value) => isOneOf(value, kinds) && setKind(value)}
         />
         <TextField type="month" label={t.monthLabel} value={month} onChange={(value) => value && setMonth(value)} />
       </FilterBar>

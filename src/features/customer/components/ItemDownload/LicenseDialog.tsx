@@ -1,22 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import {
-  Button,
-  Card,
-  CodeBadge,
-  DetailList,
-  FieldMessage,
-  Icon,
-  IconNote,
-  LoadingState,
-  Modal,
-  Select,
-  Stack,
-  Text,
-  TextField,
-  TextLink,
-} from '@/shared/components';
+import { Button, Card, CodeBadge, DetailList, FieldMessage, Icon, IconNote, LoadingState, Modal, ModalActions, Select, Stack, Text, TextField, TextLink } from '@/shared/components';
 import { accountPath, licenseUses, routes, type LicenseUse } from '@/shared/constants';
-import { useCopy, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAction, useCopy, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item, License, Session } from '@/shared/types';
 import {
@@ -31,7 +16,6 @@ import {
   libraryApi,
   originalTitle,
   projectNameMaxLength,
-  safeAsync,
   toFileName,
   validateProjectName,
   type ProjectNameError,
@@ -60,8 +44,7 @@ export const LicenseDialog = ({ item, session, open, onClose }: LicenseDialogPro
   const [projectName, setProjectName] = useState(automaticProject ?? (preference === 'rememberLast' ? (lastProjectName ?? '') : ''));
   const [use, setUse] = useState<LicenseUse>(isMusic(item) ? 'youtube' : licenseUses[0]);
   const [fieldError, setFieldError] = useState<ProjectNameError | null>(null);
-  const [submitting, setSubmitting] = useState(Boolean(automaticProject));
-  const [error, setError] = useState<string>();
+  const { run, busy: submitting, error } = useAction((failure) => requestError(failure, text.license.failed));
   const [license, setLicense] = useState<License | null>(null);
   const { status: copyStatus, copy } = useCopy();
   const started = useRef(false); // the automatic license is only requested once
@@ -71,14 +54,8 @@ export const LicenseDialog = ({ item, session, open, onClose }: LicenseDialogPro
 
   // Issues the license, records the download, and starts the (demo) file download.
   const issue = async (name: string) => {
-    setSubmitting(true);
-    setError(undefined);
-    const result = await safeAsync(() => libraryApi.license({ item, projectName: name, use }));
-    setSubmitting(false);
-    if (!result.ok) {
-      setError(requestError(result.error, text.license.failed));
-      return;
-    }
+    const result = await run(() => libraryApi.license({ item, projectName: name, use }));
+    if (!result.ok) return;
     setAccount(result.data.account);
     setLicense(result.data.license);
     downloadTextFile(`${toFileName(originalTitle(item))}.txt`, fillText(text.license.demoFile, { title: originalTitle(item) }));
@@ -164,7 +141,8 @@ export const LicenseDialog = ({ item, session, open, onClose }: LicenseDialogPro
     );
   }
 
-  if (automaticProject && submitting && !error) {
+  // "Never ask" waits on the automatic license (from the first render, before it starts) unless it failed.
+  if (automaticProject && !limitReached && !error) {
     return (
       <Modal open={open} onClose={onClose} title={text.license.title}>
         <LoadingState minHeight={vars.sizes.stateMessage.compactMinHeight} label={text.license.submitting} />
@@ -194,12 +172,7 @@ export const LicenseDialog = ({ item, session, open, onClose }: LicenseDialogPro
         <LicenseSummary />
 
         {limitReached ? (
-          <Stack direction="row" wrap justify="flex-end" gap={vars.spacing[3]}>
-            <Button variant="outline" onClick={onClose}>
-              {text.common.cancel}
-            </Button>
-            <Button to={routes.pricing}>{text.common.viewPlans}</Button>
-          </Stack>
+          <ModalActions confirmLabel={text.common.viewPlans} confirmTo={routes.pricing} onCancel={onClose} />
         ) : (
           <>
             <Select
@@ -232,15 +205,7 @@ export const LicenseDialog = ({ item, session, open, onClose }: LicenseDialogPro
               </Text>
             )}
             <FieldMessage tone="error" message={error} />
-            <Stack direction="row" wrap justify="flex-end" gap={vars.spacing[3]}>
-              <Button variant="outline" onClick={onClose}>
-                {text.common.cancel}
-              </Button>
-              <Button type="submit" disabled={submitting}>
-                <Icon name="download" size={vars.sizes.icon.sm} />
-                {submitting ? text.license.submitting : text.license.submit}
-              </Button>
-            </Stack>
+            <ModalActions confirmLabel={text.license.submit} confirmIcon="download" submit busy={submitting} busyLabel={text.license.submitting} onCancel={onClose} />
           </>
         )}
       </Stack>

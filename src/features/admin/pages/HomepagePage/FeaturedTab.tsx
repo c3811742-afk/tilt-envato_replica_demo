@@ -1,23 +1,12 @@
 import { useState } from 'react';
 import { fetchFeatured, moveFeatured, removeFeatured } from '@/features/admin/api';
-import { Notice, ReorderButtons } from '@/features/admin/components';
+import { ReorderButtons } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { FeaturedSlot, MoveDirection } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, Icon, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, isolate } from '@/shared/utils';
 import { AddFeaturedModal } from './AddFeaturedModal';
 
 // The "Featured" row of the homepage: elements and collections, in the order shown.
@@ -73,7 +62,7 @@ export const FeaturedTab = () => {
             label={fillText(text.admin.common.moveLabel, { name: isolate(slot.title) })}
             canMoveUp={index > 0}
             canMoveDown={index < current.length - 1}
-            disabled={action.pending}
+            disabled={action.busy}
             onMove={(direction) => move(slot, direction)}
           />
         );
@@ -84,8 +73,8 @@ export const FeaturedTab = () => {
       label: text.admin.columns.actions,
       align: 'end',
       render: (slot) => (
-        <Button size="sm" variant="muted" disabled={action.pending} onClick={() => remove(slot)}>
-          {text.admin.common.remove}
+        <Button size="sm" variant="danger" iconOnly tooltip={text.admin.common.remove} tooltipAlign="end" disabled={action.busy} onClick={() => remove(slot)}>
+          <Icon name="trash" size={vars.sizes.icon.sm} />
         </Button>
       ),
     },

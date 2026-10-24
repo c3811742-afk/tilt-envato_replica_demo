@@ -1,6 +1,6 @@
-import type { MediaKind } from '@/features/admin/components/MediaPreview';
+import type { MediaKind } from '@/shared/components';
 import type { CatalogElement, ElementType } from '@/features/admin/types';
-import { matchesQuery } from './lists';
+import { matchesText } from '@/shared/utils';
 
 const previewKinds: Record<ElementType, MediaKind> = {
   photo: 'image',
@@ -17,7 +17,7 @@ const previewKinds: Record<ElementType, MediaKind> = {
 export const previewKind = (type: ElementType) => previewKinds[type];
 
 export const elementMatchesQuery = (element: CatalogElement, query: string) =>
-  matchesQuery(query, [element.title, element.creator.name]);
+  matchesText(query, ...[element.title, element.creator.name]);
 
 export interface QueueFilters {
   query: string;

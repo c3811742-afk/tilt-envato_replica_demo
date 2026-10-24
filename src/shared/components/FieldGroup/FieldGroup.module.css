@@ -1,0 +1,14 @@
+/* A fieldset without the browser's frame; the legend sits in the flow like a TextField's label. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-group-gap);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  padding: 0;
+}

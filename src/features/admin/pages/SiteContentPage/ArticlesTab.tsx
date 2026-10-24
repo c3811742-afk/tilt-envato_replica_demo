@@ -1,24 +1,13 @@
 import { useState } from 'react';
 import { deleteArticle, fetchArticles } from '@/features/admin/api';
-import { ConfirmModal, Notice } from '@/features/admin/components';
 import { articleStatusTone, articleTabKind } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Article } from '@/features/admin/types';
-import { fillText, isolate, localized, removeById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { localized, removeById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, ConfirmModal, EmptyState, Icon, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 import { ArticleModal } from './ArticleModal';
 
 interface ArticlesTabProps {
@@ -73,19 +62,22 @@ export const ArticlesTab = ({ tab }: ArticlesTabProps) => {
       key: 'actions',
       label: text.admin.columns.actions,
       render: (article) => (
-        <Stack direction="row" wrap gap={vars.spacing[2]}>
-          <Button size="sm" variant="muted" onClick={() => setEditing(article)}>
-            {text.admin.common.edit}
+        <Stack direction="row" gap={vars.spacing[2]}>
+          <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setEditing(article)}>
+            <Icon name="pencil" size={vars.sizes.icon.sm} />
           </Button>
           <Button
             size="sm"
             variant="danger"
+            iconOnly
+            tooltip={text.admin.common.delete}
+            tooltipAlign="end"
             onClick={() => {
               action.clearError();
               setDeleting(article);
             }}
           >
-            {text.admin.common.delete}
+            <Icon name="trash" size={vars.sizes.icon.sm} />
           </Button>
         </Stack>
       ),
@@ -133,7 +125,7 @@ export const ArticlesTab = ({ tab }: ArticlesTabProps) => {
           confirmLabel={text.admin.common.delete}
           tone="danger"
           message={t.deleteMessage}
-          pending={action.pending}
+          pending={action.busy}
           error={action.error}
           onConfirm={remove}
           onClose={() => setDeleting(null)}

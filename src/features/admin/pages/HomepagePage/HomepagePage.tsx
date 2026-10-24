@@ -1,7 +1,6 @@
 import { RequirePermission } from '@/features/admin/components';
 import { homepageTabs } from '@/features/admin/constants';
-import { useTabParam } from '@/features/admin/hooks';
-import { useLocale } from '@/shared/hooks';
+import { useLocale, useTabParam } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { BannersTab } from './BannersTab';
 import { FeaturedTab } from './FeaturedTab';

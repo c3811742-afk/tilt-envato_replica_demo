@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Badge, Button, Card, FieldMessage, Grid, Icon, IconNote, Menu, Modal, Select, Stack, Text } from '@/shared/components';
 import { aiShortcuts, aiToolPath, type AiOperation } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Generation, GenerationOutput, UserCollection } from '@/shared/types';
 import {
@@ -19,9 +19,10 @@ import {
   speak,
   stopSpeaking,
   toFileName,
+  operationName,
   type GenerationStatus,
 } from '@/shared/utils';
-import { operationName, outputBlob, outputFileName, outputRef, useOutputUrl } from './outputs';
+import { outputBlob, outputFileName, outputRef, useOutputUrl } from './outputs';
 import styles from './AiStudio.module.css';
 
 const dateTimeFormat: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
@@ -186,26 +187,20 @@ const NextSteps = ({ generation, index }: { generation: Generation; index: numbe
 // "Save to collection": the result is added to one of the user's (or their team's) collections as an upload.
 const SaveDialog = ({ generation, index, onClose }: { generation: Generation; index: number; onClose: () => void }) => {
   const { text } = useLocale();
-  const { session, setAccount } = useSession();
-  const { requestError } = useMessages();
+  const { session } = useSession();
+  const { run, busy, error } = useAccountAction();
   const own = session.status === 'signedIn' ? session.user.collections : [];
   const team = session.status === 'signedIn' ? (session.team?.collections ?? []) : [];
   const options = [...collectionTree(own), ...collectionTree(team)];
   const [collectionId, setCollectionId] = useState(options[0]?.collection.id ?? '');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
   const [savedTo, setSavedTo] = useState<UserCollection | null>(null);
 
   const save = async () => {
-    setBusy(true);
-    const result = await safeAsync(async () => {
+    const account = await run(async () => {
       const blob = await outputBlob(generation, index);
       return libraryApi.uploadToCollection(collectionId, new File([blob], outputFileName(generation, index, blob), { type: blob.type }));
     });
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (!result.ok) return;
-    setAccount(result.data);
+    if (!account) return;
     setSavedTo(options.find((option) => option.collection.id === collectionId)?.collection ?? null);
   };
 

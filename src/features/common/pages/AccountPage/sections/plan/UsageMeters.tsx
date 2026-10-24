@@ -3,8 +3,7 @@ import { Button, Card, DetailList, Meter, Modal, Stack, Table, Text } from '@/sh
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Session } from '@/shared/types';
-import { operationName } from '@/features/common/components';
-import { accountAllowance, accountCredits, fillText, formatDate, formatNumber, planUsage } from '@/shared/utils';
+import { accountAllowance, accountCredits, fillText, formatDate, formatNumber, planUsage, operationName } from '@/shared/utils';
 
 type SignedIn = Extract<Session, { status: 'signedIn' }>;
 

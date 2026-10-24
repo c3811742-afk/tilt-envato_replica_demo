@@ -1,22 +1,17 @@
 import { useState } from 'react';
 import { Checkbox, FieldMessage, Section } from '@/shared/components';
-import { useLocale, useMessages } from '@/shared/hooks';
+import { useAction, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { resourcesApi, safeAsync } from '@/shared/utils';
+import { resourcesApi } from '@/shared/utils';
 
 // "Unsubscribe from the newsletter" (or sign up) for the account's email address.
 export const NewsletterSetting = ({ email }: { email: string }) => {
   const { text } = useLocale();
-  const { requestError } = useMessages();
   const [subscribed, setSubscribed] = useState(() => resourcesApi.isSubscribed(email));
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
+  const { run, busy, error } = useAction();
 
   const change = async (on: boolean) => {
-    setBusy(true);
-    const result = await safeAsync(() => (on ? resourcesApi.subscribe(email) : resourcesApi.unsubscribe(email)));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
+    const result = await run(() => (on ? resourcesApi.subscribe(email) : resourcesApi.unsubscribe(email)));
     if (result.ok) setSubscribed(on);
   };
 

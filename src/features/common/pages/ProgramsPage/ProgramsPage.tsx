@@ -5,7 +5,7 @@ import { useForm, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { currentPrograms, fillText, formatDate, formatNumber, resourcesApi, validateEmail, validateRequired } from '@/shared/utils';
 
-// "Author portal": how to become an author, the way into the creator application, and ways to sign in or get help.
+// "Become a creator": how to sell on TILT, the way into the creator application, and ways to sign in or get help.
 export const AuthorsPage = () => {
   const { text, locale } = useLocale();
   const programs = currentPrograms();

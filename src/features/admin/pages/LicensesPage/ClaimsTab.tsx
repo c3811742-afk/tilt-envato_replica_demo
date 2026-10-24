@@ -1,23 +1,12 @@
 import { useState } from 'react';
 import { fetchClaims } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { claimStatusTone } from '@/features/admin/constants';
 import type { CopyrightClaim } from '@/features/admin/types';
-import { fillText, isolate, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 import { ClaimModal } from './ClaimModal';
 
 // Copyright (DMCA) claims about live elements. New ones first.

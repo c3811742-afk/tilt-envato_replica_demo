@@ -1,7 +1,4 @@
-export { fillText, formatList, isolate } from './text';
 export {
-  isOneOf,
-  matchesQuery,
   moveItem,
   removeById,
   replaceById,
@@ -38,7 +35,7 @@ export {
   scheduleStatus,
 } from './catalog';
 export type { CategoryBranch } from './catalog';
-export { downloadFile, isValidTaxId, metricChange, promoState, refundable, toCsv } from './business';
+export { isValidTaxId, metricChange, promoState, refundable, toCsv } from './business';
 export type { PromoState } from './business';
 export { hasPermission } from './permissions';
 export { describeAuditDetails, errorMessage } from './messages';

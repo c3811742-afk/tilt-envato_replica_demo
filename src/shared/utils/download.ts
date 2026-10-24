@@ -9,7 +9,8 @@ export const downloadFile = (fileName: string, blob: Blob) => {
 };
 
 // Saves text as a file on the user's device (used for demo downloads and license certificates).
-export const downloadTextFile = (fileName: string, content: string) => downloadFile(fileName, new Blob([content], { type: 'text/plain;charset=utf-8' }));
+// Text you build in the browser (a license certificate, a CSV report). `type` is its media type.
+export const downloadTextFile = (fileName: string, content: string, type = 'text/plain;charset=utf-8') => downloadFile(fileName, new Blob([content], { type }));
 
 // "Ramadan Kareem Intro" -> "ramadan-kareem-intro". Keeps Arabic letters.
 export const toFileName = (value: string) =>

@@ -17,16 +17,18 @@ import type {
   UserDownload,
   UserLicense,
 } from '@/features/admin/types';
-import { storageKeys, texts } from '@/shared/constants';
+import { routes, texts } from '@/shared/constants';
 import type { Suspension } from '@/shared/types';
 import {
+  creditAllowance,
+  findAccountById,
   readAccounts,
+  readApplications,
   readLicenses,
-  readList,
   saveAccount,
-  storage,
-  type AuthorApplication,
-  type PartnerApplication,
+  saveApplications,
+  withAlert,
+  type SavedApplication,
   type StoredAccount,
 } from '@/shared/utils';
 import { AdminApiError } from './errors';
@@ -148,6 +150,12 @@ export const fetchUser = (id: string) =>
         : db.subscriptions.filter((current) => current.customer.email === account.email),
       downloads: byNewest(downloadsOf(account), (download) => download.at),
       licenses: byNewest(licenses, (license) => license.issuedAt),
+      // What they made in the AI Studio, and the credits used this month (the same count their credits meter shows).
+      generations: site ? byNewest(site.generations, (generation) => generation.createdAt) : [],
+      credits: (() => {
+        const allowance = site ? creditAllowance(site.generations, site.subscription) : null;
+        return allowance && allowance.total > 0 ? { used: allowance.used, total: allowance.total } : null;
+      })(),
     };
   });
 
@@ -243,31 +251,22 @@ export const dismissDownloadAlert = (actorId: string, id: string) =>
 // ---------- Creator applications ----------
 // From the admin demo data, and from the "Become an author" form on the site (kept in the site's storage).
 
-type SiteApplication = (AuthorApplication | PartnerApplication) & {
-  reference: string;
-  at: string;
-  status?: CreatorApplication['status'];
-  decision?: CreatorApplication['decision'];
-};
-
-const readSiteApplications = () => readList<SiteApplication>(storageKeys.applications);
-
-const fromSiteApplication = (application: SiteApplication): CreatorApplication => ({
+const fromSiteApplication = (application: SavedApplication): CreatorApplication => ({
   id: application.reference,
   program: application.kind,
   name: application.name,
   email: application.email,
   portfolio: application.kind === 'author' ? application.portfolio : application.website,
-  message: application.kind === 'author' ? undefined : application.message,
+  message: application.kind === 'author' ? application.about : application.message,
   categories: application.kind === 'author' ? application.categories : [],
   at: application.at,
   source: 'site',
   status: application.status ?? 'pending',
-  decision: application.decision,
+  decision: application.decision as CreatorApplication['decision'],
 });
 
 export const allApplications = () => [
-  ...readSiteApplications().map(fromSiteApplication),
+  ...readApplications().map(fromSiteApplication),
   ...db.creatorApplications,
 ];
 
@@ -295,10 +294,18 @@ export const decideCreatorApplication = (actorId: string, id: string, input: Dec
       decision: decisionOf(actor, input),
     };
     if (application.source === 'site') {
-      const list = readSiteApplications().map((current) =>
-        current.reference === id ? { ...current, status: saved.status, decision: saved.decision } : current,
-      );
-      storage.set(storageKeys.applications, JSON.stringify(list));
+      const list = readApplications();
+      saveApplications(list.map((current) => (current.reference === id ? { ...current, status: saved.status, decision: saved.decision } : current)));
+      // The applicant hears about it in their notifications, with a link back to their application.
+      const applied = list.find((current) => current.reference === id);
+      const applicant = applied?.kind === 'author' && applied.accountId ? findAccountById(applied.accountId) : undefined;
+      if (applicant) {
+        saveAccount(
+          input.approve
+            ? withAlert(applicant, 'creatorApproved', {}, routes.creatorOnboarding)
+            : withAlert(applicant, 'creatorRejected', { reason: saved.decision?.reason ?? 'other' }, routes.creatorOnboarding),
+        );
+      }
     } else {
       db.creatorApplications = db.creatorApplications.map((current) => (current.id === id ? saved : current));
     }

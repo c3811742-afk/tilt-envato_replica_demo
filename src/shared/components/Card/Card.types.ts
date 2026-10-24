@@ -11,5 +11,6 @@ export interface CardProps {
   color?: string;
   borderColor?: string;
   radius?: string;
+  minHeight?: string; // e.g. so a row of cards with different content lines up
   interactive?: boolean; // lifts and casts the hard shadow on hover (on by default for links)
 }

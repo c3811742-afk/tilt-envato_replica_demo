@@ -1,11 +1,11 @@
 import { changeUserStatus } from '@/features/admin/api';
-import { ConfirmModal, ReasonModal } from '@/features/admin/components';
+import { ReasonModal } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { StatusAction, UserAccount } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import { Text } from '@/shared/components';
+import { ConfirmModal, Text } from '@/shared/components';
 import { suspensionReasons } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
+import { fillText, isolate } from '@/shared/utils';
 
 interface StatusModalProps {
   user: Pick<UserAccount, 'id' | 'name' | 'email'>;
@@ -18,7 +18,7 @@ interface StatusModalProps {
 export const StatusModal = ({ user, action, onClose, onSaved }: StatusModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.users;
   const name = isolate(user.name);
 

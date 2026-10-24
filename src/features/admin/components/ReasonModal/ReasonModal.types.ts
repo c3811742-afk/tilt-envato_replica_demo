@@ -21,5 +21,5 @@ export interface ReasonModalProps<R extends string> {
   noteHint?: string;
   tone?: 'primary' | 'danger';
   pending?: boolean;
-  error?: string | null;
+  error?: string;
 }

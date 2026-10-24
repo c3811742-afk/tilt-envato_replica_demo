@@ -1,26 +1,14 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchLanguages } from '@/features/admin/api';
-import { Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber, formatPercent } from '@/shared/utils';
+import { fillText, formatNumber, formatPercent, isolate } from '@/shared/utils';
 import { AddLanguageModal } from './AddLanguageModal';
 
 const Languages = () => {

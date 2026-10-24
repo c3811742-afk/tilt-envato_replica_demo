@@ -1,25 +1,13 @@
 import { useState } from 'react';
 import { decideCreatorApplication, fetchCreatorApplications } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { applicationRejectReasons, applicationStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CreatorApplication } from '@/features/admin/types';
-import { fillText, formatList, isolate, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text, TextLink } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, isCategoryId } from '@/shared/utils';
+import { fillText, formatDate, formatList, isCategoryId, isolate } from '@/shared/utils';
 import { DecisionModal } from './DecisionModal';
 
 // People asking to sell on TILT, from the "Become an author" form. Waiting ones first.
@@ -27,7 +15,7 @@ export const ApplicationsTab = () => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
   const applications = useAsync(fetchCreatorApplications, []);
-  const { run, pending, error, clearError } = useAdminAction();
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const [opened, setOpened] = useState<CreatorApplication | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.creators;

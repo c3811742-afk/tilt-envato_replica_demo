@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import { adminErrorCode, createPromoCode } from '@/features/admin/api';
-import { Field, FilterBar, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Plan, PromoCode } from '@/features/admin/types';
 import {
@@ -11,7 +10,7 @@ import {
   toggleItem,
   toNumber,
 } from '@/features/admin/utils';
-import { Button, Checkbox, Modal, Stack, TextField } from '@/shared/components';
+import { Checkbox, FieldGroup, FilterBar, Modal, ModalActions, Notice, Stack, TextField } from '@/shared/components';
 import type { PlanId } from '@/shared/types';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -28,7 +27,7 @@ interface PromoCodeModalProps {
 export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error, clearError } = useAdminAction();
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const t = text.admin.promoCodes;
   const [code, setCode] = useState('');
   const [value, setValue] = useState('');
@@ -80,14 +79,7 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {t.add}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.add} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
@@ -114,7 +106,7 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
         max="100"
         required
       />
-      <Field group label={t.plansLabel} error={shown(errors.plans)}>
+      <FieldGroup label={t.plansLabel} error={shown(errors.plans)}>
         <Stack gap={vars.spacing[3]}>
           <Checkbox label={t.allPlans} checked={allPlans} onChange={setAllPlans} />
           {!allPlans &&
@@ -127,7 +119,7 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
               />
             ))}
         </Stack>
-      </Field>
+      </FieldGroup>
       <FilterBar>
         <TextField
           type="date"

@@ -38,9 +38,9 @@ export const parseOptions = (value: string) =>
     .filter(Boolean);
 
 // The messages to show under a start and end date field, or none when the range is fine.
-export const dateRangeErrors = ({ start, end }: { start: string; end: string }, text: Text) => ({
-  start: start ? undefined : text.admin.common.dateRequired,
-  end: !end ? text.admin.common.dateRequired : start && end < start ? text.admin.common.datesOrder : undefined,
+export const dateRangeErrors = ({ from = '', to = '' }: { from?: string; to?: string }, text: Text) => ({
+  from: from ? undefined : text.admin.common.dateRequired,
+  to: !to ? text.admin.common.dateRequired : from && to < from ? text.admin.common.datesOrder : undefined,
 });
 
 // "Enter the English text." / "Enter the Arabic text." under whichever half of a two-language field is empty.

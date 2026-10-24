@@ -20,5 +20,6 @@ export interface ButtonProps {
   tooltip?: string; // an icon button's label, shown under it on hover and keyboard focus (also its accessible name)
   tooltipAlign?: 'center' | 'end'; // 'end' for a button at the end of a row, so the label stays on screen
   pressed?: boolean; // a toggle button that is on (e.g. Saved)
+  expanded?: boolean; // a button that opens and closes a panel: whether it's open
   onClick?: MouseEventHandler<HTMLElement>;
 }

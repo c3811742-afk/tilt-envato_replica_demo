@@ -1,5 +1,6 @@
 import { vatRate } from '@/shared/constants';
 import type { Invoice, InvoiceInput } from '@/features/admin/types';
+import { allTransactions } from './billingApi';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, newId, now, respond } from './mockServer';
 
@@ -23,10 +24,10 @@ const nextNumber = (prefix: string) => {
 // Newest first.
 export const fetchInvoices = () => respond(() => [...db.invoices].sort((a, b) => b.issuedAt.localeCompare(a.issuedAt)));
 
-// Paid payments that don't have an accepted e-invoice or e-receipt yet.
+// Paid payments, including the ones customers made on the site, that don't have an accepted e-invoice or e-receipt yet.
 export const fetchUninvoicedTransactions = () =>
   respond(() =>
-    db.transactions.filter(
+    allTransactions().filter(
       (transaction) =>
         transaction.status !== 'refunded' &&
         !db.invoices.some((invoice) => invoice.transactionId === transaction.id && invoice.status === 'accepted'),
@@ -38,7 +39,7 @@ export const fetchUninvoicedTransactions = () =>
 export const issueInvoice = (actorId: string, input: InvoiceInput) =>
   respond((): Invoice => {
     const actor = authorize(actorId, 'issueInvoices');
-    const transaction = findById(db.transactions, input.transactionId);
+    const transaction = findById(allTransactions(), input.transactionId);
     const issued = db.invoices.some((invoice) => invoice.transactionId === transaction.id && invoice.status === 'accepted');
     if (issued) throw new AdminApiError('invoiceExists');
 

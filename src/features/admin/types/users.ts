@@ -1,3 +1,4 @@
+import type { Generation } from '@/shared/types';
 import type { PartnerProgram, SuspensionReason } from '@/shared/constants';
 import type { Subscription } from './billing';
 import type { LicenseStatus } from './licensing';
@@ -50,6 +51,8 @@ export interface UserDetails {
   subscriptions: Subscription[];
   downloads: UserDownload[]; // newest first
   licenses: UserLicense[]; // newest first
+  generations: Generation[]; // AI Studio, newest first (site accounts)
+  credits: { used: number; total: number } | null; // this month's AI credits, when the plan includes them
 }
 
 export type StatusAction = 'suspend' | 'ban' | 'reactivate';

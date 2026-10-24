@@ -1,8 +1,7 @@
 import { useSearchParams } from 'react-router';
 import { RequirePermission } from '@/features/admin/components';
 import { userTabs } from '@/features/admin/constants';
-import { useTabParam } from '@/features/admin/hooks';
-import { useLocale } from '@/shared/hooks';
+import { useLocale, useTabParam } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { AccountsTab } from './AccountsTab';
 import { AppealsTab } from './AppealsTab';

@@ -1,28 +1,13 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchUsers } from '@/features/admin/api';
-import { FilterBar } from '@/features/admin/components';
 import { accountStatuses, accountStatusTone, userKinds } from '@/features/admin/constants';
 import type { AccountStatus, UserAccount, UserKind } from '@/features/admin/types';
-import { isOneOf, matchesQuery } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Select,
-  Stack,
-  Table,
-  Text,
-  TextField,
-  TextLink,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, type RecordColumn, recordRows, Select, Stack, Table, Text, TextField, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, isOneOf, matchesText } from '@/shared/utils';
 
 const all = 'all';
 
@@ -84,7 +69,7 @@ export const AccountsTab = ({ initialQuery = '' }: AccountsTabProps) => {
       {(list) => {
         const visible = list.filter(
           (user) =>
-            matchesQuery(query, [user.name, user.email]) &&
+            matchesText(query, ...[user.name, user.email]) &&
             (kind === all || user.kind === kind) &&
             (status === all || user.status === status),
         );
@@ -102,7 +87,7 @@ export const AccountsTab = ({ initialQuery = '' }: AccountsTabProps) => {
                 label={text.admin.columns.type}
                 options={[{ value: all, label: t.allKinds }, ...userKinds.map((value) => ({ value, label: t.kinds[value] }))]}
                 value={kind}
-                onChange={(value) => setKind(isOneOf(userKinds, value) ? value : all)}
+                onChange={(value) => setKind(isOneOf(value, userKinds) ? value : all)}
               />
               <Select
                 label={text.admin.columns.status}
@@ -111,7 +96,7 @@ export const AccountsTab = ({ initialQuery = '' }: AccountsTabProps) => {
                   ...accountStatuses.map((value) => ({ value, label: t.statuses[value] })),
                 ]}
                 value={status}
-                onChange={(value) => setStatus(isOneOf(accountStatuses, value) ? value : all)}
+                onChange={(value) => setStatus(isOneOf(value, accountStatuses) ? value : all)}
               />
             </FilterBar>
             {visible.length > 0 ? (

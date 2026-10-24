@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { fetchAiTools, saveAiTools } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { AiTool, AiToolKey, LocalizedText } from '@/features/admin/types';
-import { fillText, localized, toggleItem } from '@/features/admin/utils';
-import { AsyncContent, Button, Checkbox, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
+import { localized, toggleItem } from '@/features/admin/utils';
+import { AsyncContent, Button, Checkbox, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { PlanId } from '@/shared/types';
+import { fillText } from '@/shared/utils';
 
 interface ToolsFormProps {
   initialTools: AiTool[];
@@ -18,7 +18,7 @@ interface ToolsFormProps {
 const ToolsForm = ({ initialTools, plans }: ToolsFormProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const [tools, setTools] = useState(initialTools);
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.ai;

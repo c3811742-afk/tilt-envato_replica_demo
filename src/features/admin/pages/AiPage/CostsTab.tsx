@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { fetchGenerationCosts, saveGenerationCosts } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { GenerationCost, GenerationType } from '@/features/admin/types';
 import { isWholeNumber, toNumber } from '@/features/admin/utils';
-import { AsyncContent, Button, Card, Stack, Text, TextField } from '@/shared/components';
+import { AsyncContent, Button, Card, Notice, Stack, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import styles from './AiPage.module.css';
@@ -16,7 +15,7 @@ interface CostsFormProps {
 const CostsForm = ({ initialCosts }: CostsFormProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.ai;
   const [values, setValues] = useState<Record<GenerationType, string>>(
     () => Object.fromEntries(initialCosts.map((cost) => [cost.type, String(cost.credits)])) as Record<GenerationType, string>,

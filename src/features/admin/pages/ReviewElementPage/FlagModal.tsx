@@ -1,15 +1,15 @@
 import { useState, type FormEvent } from 'react';
-import { Notice } from '@/features/admin/components';
 import { flagKinds } from '@/features/admin/constants';
 import type { FlagInput, FlagKind } from '@/features/admin/types';
-import { isOneOf, isValidLink } from '@/features/admin/utils';
-import { Button, Modal, Select, Text, TextField } from '@/shared/components';
+import { isValidLink } from '@/features/admin/utils';
+import { Modal, ModalActions, Notice, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import { isOneOf } from '@/shared/utils';
 
 interface FlagModalProps {
   pending: boolean;
-  error: string | null;
+  error?: string;
   onClose: () => void;
   onSubmit: (input: FlagInput) => void;
 }
@@ -40,14 +40,7 @@ export const FlagModal = ({ pending, error, onClose, onSubmit }: FlagModalProps)
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" variant="danger" disabled={pending}>
-            {t.flag}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.flag} onCancel={onClose} submit tone="danger" busy={pending} />
       }
     >
       <Text color={vars.colors.textMuted}>{t.flagMessage}</Text>
@@ -56,7 +49,7 @@ export const FlagModal = ({ pending, error, onClose, onSubmit }: FlagModalProps)
         label={t.flagKindLabel}
         options={flagKinds.map((value) => ({ value, label: text.admin.flagKinds[value] }))}
         value={kind}
-        onChange={(value) => isOneOf(flagKinds, value) && setKind(value)}
+        onChange={(value) => isOneOf(value, flagKinds) && setKind(value)}
       />
       <TextField
         type="url"

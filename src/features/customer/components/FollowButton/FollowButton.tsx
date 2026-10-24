@@ -1,20 +1,17 @@
-import { useState } from 'react';
 import { useLocation } from 'react-router';
 import { Button, FieldMessage, Icon, Stack, Text } from '@/shared/components';
 import { routes, withReturnTo } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Creator } from '@/shared/types';
-import { fillText, libraryApi, safeAsync } from '@/shared/utils';
+import { fillText, libraryApi } from '@/shared/utils';
 
 // "Follow a creator": followers are told when the creator publishes. Guests are sent to sign in first.
 export const FollowButton = ({ creator }: { creator: Creator }) => {
   const { text } = useLocale();
-  const { session, setAccount } = useSession();
-  const { requestError } = useMessages();
+  const { session } = useSession();
   const { pathname } = useLocation();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
+  const { run, busy, error } = useAccountAction();
 
   if (session.status !== 'signedIn') {
     return (
@@ -26,13 +23,7 @@ export const FollowButton = ({ creator }: { creator: Creator }) => {
   }
 
   const following = session.user.following.includes(creator.id);
-  const toggle = async () => {
-    setBusy(true);
-    const result = await safeAsync(() => libraryApi.toggleFollow(creator.id));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (result.ok) setAccount(result.data);
-  };
+  const toggle = () => run(() => libraryApi.toggleFollow(creator.id));
 
   return (
     <Stack gap={vars.spacing[2]} align="flex-start">

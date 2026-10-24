@@ -1,21 +1,10 @@
 import { useState } from 'react';
 import { fetchNewsletters } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import type { Newsletter } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { AsyncContent, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isolate } from '@/shared/utils';
 import { NewsletterModal } from './NewsletterModal';
 
 // The newsletter goes to everyone who subscribed to it. The list shows what was sent before.

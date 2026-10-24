@@ -1,24 +1,12 @@
 import { useState } from 'react';
 import { fetchPayouts } from '@/features/admin/api';
-import { FilterBar, Notice } from '@/features/admin/components';
 import { payoutStatuses, payoutStatusTone } from '@/features/admin/constants';
 import type { Payout, PayoutDecision, PayoutStatus } from '@/features/admin/types';
-import { fillText, isOneOf, isolate, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Select,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, Select, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatPrice } from '@/shared/utils';
+import { fillText, formatDate, formatPrice, isolate, isOneOf } from '@/shared/utils';
 import { PayoutDecisionModal } from './PayoutDecisionModal';
 
 const allStatuses = 'all';
@@ -116,7 +104,7 @@ export const RequestsTab = () => {
                     ...payoutStatuses.map((value) => ({ value, label: text.admin.payoutStatuses[value] })),
                   ]}
                   value={status}
-                  onChange={(value) => setStatus(isOneOf(payoutStatuses, value) ? value : allStatuses)}
+                  onChange={(value) => setStatus(isOneOf(value, payoutStatuses) ? value : allStatuses)}
                 />
               </FilterBar>
               {visible.length > 0 ? (

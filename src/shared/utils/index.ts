@@ -1,5 +1,5 @@
 export { withDefaults } from './withDefaults';
-export { fillText } from './fillText';
+export { fillText, isolate, formatList } from './fillText';
 export { cx } from './cx';
 export { storage } from './storage';
 export { safeAsync, isEmptyData } from './safeAsync';
@@ -122,7 +122,7 @@ export {
 } from './accountStore';
 export { collectionTree, collectionWithDescendants, downloadAllowance, itemIdFromLink, monthStart } from './library';
 export type { DownloadAllowance } from './library';
-export { generationCost, scheduleGenerations, generationStatus, creditAllowance, generatedImage, generatedGraphic, imageOutputCount, newSeed, seededRandom } from './ai';
+export { operationName, generationCost, scheduleGenerations, generationStatus, creditAllowance, generatedImage, generatedGraphic, imageOutputCount, newSeed, seededRandom } from './ai';
 export type { GenerationStatus, GenerationTiming, CreditAllowance } from './ai';
 export { fileStore } from './fileStore';
 export { teamApi, seatsInUse } from './teamApi';
@@ -167,6 +167,7 @@ export { unreadReleaseNotes, unreadCount, downloadStatus } from './notifications
 export { averageColor, canvasBlob, editImage, fitImage, eraseArea, imageCanvas, loadImage, makeMockup, makeMusic, makeSoundEffect, makeVideo, relightImage, removeBackground, speak, stopSpeaking, swapBackground, upscaleImage, voiceFor } from './aiMedia';
 export type { VideoRequest } from './aiMedia';
 export { contentApi } from './contentApi';
-export { resourcesApi, readList } from './resourcesApi';
-export type { AuthorApplication, PartnerApplication } from './resourcesApi';
-export { creatorApi, creatorApplicationProgress } from './creatorApi';
+export { resourcesApi, readList, readApplications, saveApplications } from './resourcesApi';
+export type { AuthorApplication, PartnerApplication, SavedApplication } from './resourcesApi';
+export { creatorApi, creatorApplicationStatus, subscribeToApplications, applicationsSnapshot } from './creatorApi';
+export type { CreatorApplicationStatus } from './creatorApi';

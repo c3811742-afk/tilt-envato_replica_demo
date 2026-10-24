@@ -1,15 +1,15 @@
 import { fetchDashboard } from '@/features/admin/api';
-import { ReportExport, RequirePermission, StatCard } from '@/features/admin/components';
+import { ReportExport, RequirePermission } from '@/features/admin/components';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { DashboardStats, Metric } from '@/features/admin/types';
-import { fillText, metricChange } from '@/features/admin/utils';
-import { AsyncContent, Card, ErrorBoundary, SectionHeader, Stack } from '@/shared/components';
+import { metricChange } from '@/features/admin/utils';
+import { AsyncContent, Card, ErrorBoundary, SectionHeader, Stack, StatCard } from '@/shared/components';
 import type { Text } from '@/shared/constants';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import type { Locale } from '@/shared/theme';
 import { vars } from '@/shared/theme';
-import { formatNumber, formatPercent, formatPrice } from '@/shared/utils';
+import { fillText, formatNumber, formatPercent, formatPrice } from '@/shared/utils';
 import styles from './DashboardPage.module.css';
 
 // "Up 4.8% from last month" / "Down 1.2% from last month" / "Same as last month", in words so it never relies on color.

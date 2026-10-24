@@ -7,7 +7,7 @@ import { useLocale } from '@/shared/hooks';
 interface UnpublishModalProps {
   element: CatalogElement;
   pending: boolean;
-  error: string | null;
+  error?: string;
   onClose: () => void;
   onSubmit: (input: UnpublishInput) => void;
 }

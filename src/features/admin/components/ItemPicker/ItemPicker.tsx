@@ -1,11 +1,9 @@
 import { useState, type CSSProperties } from 'react';
-import { Checkbox, Text, TextField } from '@/shared/components';
+import { Checkbox, FieldGroup, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { withDefaults } from '@/shared/utils';
-import { matchesQuery } from '@/features/admin/utils/lists';
+import { matchesText, withDefaults } from '@/shared/utils';
 
-import { Field } from '../Field';
 
 import { itemPickerDefaults } from './ItemPicker.defaults';
 import type { ItemPickerProps } from './ItemPicker.types';
@@ -16,12 +14,12 @@ export const ItemPicker = (props: ItemPickerProps) => {
   const { label, items, selectedIds, onToggle, max, hint, error, maxHeight } = withDefaults(itemPickerDefaults, props);
   const { text } = useLocale();
   const [query, setQuery] = useState('');
-  const visible = items.filter((item) => matchesQuery(query, [item.title, item.description ?? '']));
+  const visible = items.filter((item) => matchesText(query, ...[item.title, item.description ?? '']));
   const full = max !== undefined && selectedIds.length >= max;
   const style = { '--item-picker-max-height': maxHeight } as CSSProperties;
 
   return (
-    <Field group label={label} hint={hint} error={error}>
+    <FieldGroup label={label} hint={hint} error={error}>
       <TextField type="search" label={text.admin.common.search} value={query} onChange={setQuery} />
       {visible.length > 0 ? (
         <ul className={styles.list} style={style}>
@@ -43,6 +41,6 @@ export const ItemPicker = (props: ItemPickerProps) => {
       ) : (
         <Text color={vars.colors.textMuted}>{text.admin.common.noMatchesShort}</Text>
       )}
-    </Field>
+    </FieldGroup>
   );
 };

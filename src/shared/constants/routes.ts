@@ -36,7 +36,7 @@ export const routes = {
   products: '/products',
   careers: '/careers',
   news: '/news',
-  authors: '/authors',
+  authors: '/become-a-creator', // the creator program page (the full application is creatorOnboarding)
   partners: '/partners',
   licenseTerms: '/license-terms',
   fairUse: '/fair-use',

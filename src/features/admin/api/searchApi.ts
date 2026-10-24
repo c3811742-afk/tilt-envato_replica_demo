@@ -1,7 +1,6 @@
 import type { NoClickSearch, ReportResolution, SearchReport } from '@/features/admin/types';
-import { isOneOf } from '@/features/admin/utils/lists';
 import { searchReportReasons } from '@/shared/constants';
-import { emptySearchStore, searchReportStore } from '@/shared/utils';
+import { emptySearchStore, isOneOf, searchReportStore } from '@/shared/utils';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, respond } from './mockServer';
 
@@ -26,16 +25,16 @@ const siteEmptySearches = (): NoClickSearch[] => {
 export const fetchNoClickSearches = () =>
   respond(() => [...siteEmptySearches(), ...db.noClickSearches].sort((a, b) => b.searches - a.searches));
 
-// "Report these results" from the site's search page. The team's answer is kept here.
+// "Report these results" from the site's search page. The team's answer is kept on the report.
 const siteReports = (): SearchReport[] =>
   searchReportStore.get().map((report) => ({
     id: report.id,
     term: report.query,
-    reason: isOneOf(searchReportReasons, report.reason) ? report.reason : undefined,
+    reason: isOneOf(report.reason, searchReportReasons) ? report.reason : undefined,
     note: report.comment,
     reportedBy: report.reportedBy,
     reportedAt: report.at,
-    status: db.siteSearchReportStatus[report.id] ?? 'open',
+    status: report.answer ?? 'open',
     source: 'site',
   }));
 
@@ -57,7 +56,7 @@ export const closeSearchReport = (actorId: string, id: string, resolution: Repor
     if (found.status !== 'open') throw new AdminApiError('alreadyClosed');
 
     const report: SearchReport = { ...found, status: resolution };
-    if (report.source === 'site') db.siteSearchReportStatus[id] = resolution;
+    if (report.source === 'site') searchReportStore.set(searchReportStore.get().map((saved) => (saved.id === id ? { ...saved, answer: resolution } : saved)));
     else db.searchReports = db.searchReports.map((current) => (current.id === id ? report : current));
     logAction(
       actor,

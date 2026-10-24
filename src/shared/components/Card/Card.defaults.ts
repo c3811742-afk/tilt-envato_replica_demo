@@ -2,7 +2,7 @@ import { vars } from '@/shared/theme';
 import type { CardProps } from './Card.types';
 
 export const cardDefaults: Required<
-  Pick<CardProps, 'as' | 'padding' | 'gap' | 'background' | 'color' | 'borderColor' | 'radius'>
+  Pick<CardProps, 'as' | 'padding' | 'gap' | 'background' | 'color' | 'borderColor' | 'radius' | 'minHeight'>
 > = {
   as: 'div',
   padding: vars.sizes.card.padding,
@@ -11,4 +11,5 @@ export const cardDefaults: Required<
   color: vars.colors.text,
   borderColor: vars.colors.border,
   radius: vars.radii.none,
+  minHeight: 'auto',
 };

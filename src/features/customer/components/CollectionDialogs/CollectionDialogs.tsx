@@ -1,43 +1,12 @@
 import { useState, type FormEvent } from 'react';
-import { Button, Checkbox, FieldMessage, FileInput, Icon, Modal, Select, Stack, Text, TextField } from '@/shared/components';
+import { Button, Checkbox, FieldMessage, FileInput, Icon, Modal, ModalActions, Select, Stack, Text, TextField } from '@/shared/components';
 import { collectionMaxDepth, collectionNameMaxLength, importFileTypes, sharedCollectionPath } from '@/shared/constants';
-import { useCopy, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useCopy, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { UserCollection } from '@/shared/types';
 import { appUrl, collectionTree, collectionWithDescendants, fillText, formatNumber, libraryApi, safeAsync } from '@/shared/utils';
 
 // Runs a collection request, keeps the account in sync and explains a failure.
-const useCollectionRequest = () => {
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
-  const run = async <T,>(request: () => Promise<T>, account: (data: T) => Parameters<typeof setAccount>[0]) => {
-    setBusy(true);
-    const result = await safeAsync(request);
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (!result.ok) return null;
-    setAccount(account(result.data));
-    return result.data;
-  };
-  return { busy, error, setError, run };
-};
-
-const DialogButtons = ({ busy, label, onClose, danger = false }: { busy: boolean; label: string; onClose: () => void; danger?: boolean }) => {
-  const { text } = useLocale();
-  return (
-    <Stack direction="row" wrap justify="flex-end" gap={vars.spacing[3]}>
-      <Button variant="outline" onClick={onClose}>
-        {text.common.cancel}
-      </Button>
-      <Button type="submit" variant={danger ? 'danger' : 'primary'} disabled={busy}>
-        {busy ? text.common.processing : label}
-      </Button>
-    </Stack>
-  );
-};
-
 // "New collection" (at the top level or inside another one) and "Rename".
 export const CollectionNameDialog = ({
   collection,
@@ -53,7 +22,7 @@ export const CollectionNameDialog = ({
   onCreated?: (id: string) => void;
 }) => {
   const { text } = useLocale();
-  const { busy, error, setError, run } = useCollectionRequest();
+  const { busy, error, setError, run } = useAccountAction();
   const [name, setName] = useState(collection?.name ?? '');
 
   const submit = async (event: FormEvent) => {
@@ -63,7 +32,7 @@ export const CollectionNameDialog = ({
       return;
     }
     if (collection) {
-      if (await run(() => libraryApi.renameCollection(collection.id, name), (account) => account)) onClose();
+      if (await run(() => libraryApi.renameCollection(collection.id, name))) onClose();
       return;
     }
     const created = await run(() => libraryApi.createCollection({ name, parentId, team }), (data) => data.account);
@@ -77,7 +46,7 @@ export const CollectionNameDialog = ({
     <Modal open onClose={onClose} title={collection ? text.myCollections.rename : parentId ? text.myCollections.newInside : text.myCollections.new}>
       <Stack as="form" gap={vars.spacing[4]} onSubmit={submit} noValidate>
         <TextField label={text.myCollections.name} value={name} onChange={setName} maxLength={collectionNameMaxLength} error={error} autoFocus />
-        <DialogButtons busy={busy} label={collection ? text.common.saveChanges : text.myCollections.create} onClose={onClose} />
+        <ModalActions confirmLabel={collection ? text.common.saveChanges : text.myCollections.create} submit busy={busy} onCancel={onClose} />
       </Stack>
     </Modal>
   );
@@ -86,7 +55,7 @@ export const CollectionNameDialog = ({
 // "Move": into another collection (not into itself or one inside it, and not deeper than allowed) or to the top level.
 export const MoveCollectionDialog = ({ collection, collections, onClose }: { collection: UserCollection; collections: UserCollection[]; onClose: () => void }) => {
   const { text } = useLocale();
-  const { busy, error, run } = useCollectionRequest();
+  const { busy, error, run } = useAccountAction();
   const blocked = new Set(collectionWithDescendants(collections, collection.id));
   const targets = collectionTree(collections).filter(({ collection: target, depth }) => !blocked.has(target.id) && depth + 1 < collectionMaxDepth);
   const topLevel = '';
@@ -94,7 +63,7 @@ export const MoveCollectionDialog = ({ collection, collections, onClose }: { col
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (await run(() => libraryApi.moveCollection(collection.id, parentId || null), (account) => account)) onClose();
+    if (await run(() => libraryApi.moveCollection(collection.id, parentId || null))) onClose();
   };
 
   return (
@@ -111,7 +80,7 @@ export const MoveCollectionDialog = ({ collection, collections, onClose }: { col
           ]}
         />
         <FieldMessage tone="error" message={error} />
-        <DialogButtons busy={busy} label={text.myCollections.move} onClose={onClose} />
+        <ModalActions confirmLabel={text.myCollections.move} submit busy={busy} onCancel={onClose} />
       </Stack>
     </Modal>
   );
@@ -120,7 +89,7 @@ export const MoveCollectionDialog = ({ collection, collections, onClose }: { col
 // "Share": turns the share link on or off, and copies it.
 export const ShareCollectionDialog = ({ collection, onClose }: { collection: UserCollection; onClose: () => void }) => {
   const { text } = useLocale();
-  const { busy, error, run } = useCollectionRequest();
+  const { busy, error, run } = useAccountAction();
   const { status, copy } = useCopy();
   const link = collection.shareId ? appUrl(sharedCollectionPath(collection.shareId)) : null;
 
@@ -130,7 +99,7 @@ export const ShareCollectionDialog = ({ collection, onClose }: { collection: Use
         label={text.myCollections.shareOn}
         checked={Boolean(collection.shareId)}
         disabled={busy}
-        onChange={(shared) => void run(() => libraryApi.setShared(collection.id, shared), (account) => account)}
+        onChange={(shared) => void run(() => libraryApi.setShared(collection.id, shared))}
       />
       {link ? (
         <Stack gap={vars.spacing[2]}>
@@ -154,11 +123,11 @@ export const ShareCollectionDialog = ({ collection, onClose }: { collection: Use
 // "Delete": the collections with everything inside them.
 export const DeleteCollectionsDialog = ({ ids, onClose, onDeleted }: { ids: string[]; onClose: () => void; onDeleted?: () => void }) => {
   const { text, locale } = useLocale();
-  const { busy, error, run } = useCollectionRequest();
+  const { busy, error, run } = useAccountAction();
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (await run(() => libraryApi.deleteCollections(ids), (account) => account)) {
+    if (await run(() => libraryApi.deleteCollections(ids))) {
       onDeleted?.();
       onClose();
     }
@@ -169,7 +138,7 @@ export const DeleteCollectionsDialog = ({ ids, onClose, onDeleted }: { ids: stri
       <Stack as="form" gap={vars.spacing[4]} onSubmit={submit} noValidate>
         <Text>{fillText(text.myCollections.deleteText, { count: formatNumber(ids.length, locale) })}</Text>
         <FieldMessage tone="error" message={error} />
-        <DialogButtons busy={busy} label={text.myCollections.delete} onClose={onClose} danger />
+        <ModalActions confirmLabel={text.myCollections.delete} tone="danger" submit busy={busy} onCancel={onClose} />
       </Stack>
     </Modal>
   );
@@ -178,7 +147,7 @@ export const DeleteCollectionsDialog = ({ ids, onClose, onDeleted }: { ids: stri
 // "Migrate previous work": item links or ids, pasted or from a file, go into a new collection.
 export const ImportDialog = ({ onClose, onImported }: { onClose: () => void; onImported: (id: string) => void }) => {
   const { text, locale } = useLocale();
-  const { busy, error, setError, run } = useCollectionRequest();
+  const { busy, error, setError, run } = useAccountAction();
   const [lines, setLines] = useState('');
   const [reading, setReading] = useState(false);
   const [result, setResult] = useState<{ id: string; imported: number; skipped: number } | null>(null);
@@ -236,7 +205,7 @@ export const ImportDialog = ({ onClose, onImported }: { onClose: () => void; onI
           onSelect={(file) => void readFile(file)}
         />
         <FieldMessage tone="error" message={error} />
-        <DialogButtons busy={busy} label={text.myCollections.import} onClose={onClose} />
+        <ModalActions confirmLabel={text.myCollections.import} submit busy={busy} onCancel={onClose} />
       </Stack>
     </Modal>
   );

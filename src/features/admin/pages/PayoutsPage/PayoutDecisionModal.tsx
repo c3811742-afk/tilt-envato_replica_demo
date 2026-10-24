@@ -1,10 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { decidePayout } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Payout, PayoutDecision } from '@/features/admin/types';
 import { isBlank } from '@/features/admin/utils';
-import { Button, DetailList, Modal, Text, TextField } from '@/shared/components';
+import { DetailList, Modal, ModalActions, Notice, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatPrice } from '@/shared/utils';
@@ -22,7 +21,7 @@ interface PayoutDecisionModalProps {
 export const PayoutDecisionModal = ({ payout, decision, onClose, onDone }: PayoutDecisionModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.payouts;
   const labels = t.decisions[decision];
   const [note, setNote] = useState('');
@@ -44,14 +43,7 @@ export const PayoutDecisionModal = ({ payout, decision, onClose, onDone }: Payou
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" variant={needsNote[decision] ? 'danger' : 'primary'} disabled={pending}>
-            {labels.confirm}
-          </Button>
-        </>
+        <ModalActions confirmLabel={labels.confirm} onCancel={onClose} submit tone={needsNote[decision] ? 'danger' : 'primary'} busy={pending} />
       }
     >
       <DetailList

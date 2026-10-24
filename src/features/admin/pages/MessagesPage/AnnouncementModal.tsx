@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { fetchAudienceSizes, sendAnnouncement } from '@/features/admin/api';
-import { ConfirmModal, Notice } from '@/features/admin/components';
 import { audiences } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Announcement, Audience } from '@/features/admin/types';
-import { fillText, hasErrors, isBlank, isOneOf, toDateTimeKey } from '@/features/admin/utils';
-import { AsyncContent, Button, Modal, Select, TextField } from '@/shared/components';
+import { hasErrors, isBlank, toDateTimeKey } from '@/features/admin/utils';
+import { AsyncContent, ConfirmModal, Modal, ModalActions, Notice, Select, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isOneOf } from '@/shared/utils';
 
 const timings = ['now', 'later'] as const;
 type Timing = (typeof timings)[number];
@@ -22,7 +21,7 @@ interface AnnouncementModalProps {
 export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const sizes = useAsync(fetchAudienceSizes, []);
   const t = text.admin.messages.announcements;
   const [audience, setAudience] = useState<Audience>('customers');
@@ -78,14 +77,7 @@ export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) =
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={sizes.status !== 'success'}>
-            {text.common.continue}
-          </Button>
-        </>
+        <ModalActions confirmLabel={text.common.continue} onCancel={onClose} submit busy={sizes.status !== 'success'} />
       }
     >
       <AsyncContent state={sizes}>
@@ -101,7 +93,7 @@ export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) =
                 }),
               }))}
               value={audience}
-              onChange={(value) => isOneOf(audiences, value) && setAudience(value)}
+              onChange={(value) => isOneOf(value, audiences) && setAudience(value)}
             />
             <TextField
               label={t.titleLabel}
@@ -121,7 +113,7 @@ export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) =
               label={t.timingLabel}
               options={timings.map((value) => ({ value, label: t.timings[value] }))}
               value={timing}
-              onChange={(value) => isOneOf(timings, value) && setTiming(value)}
+              onChange={(value) => isOneOf(value, timings) && setTiming(value)}
             />
             {timing === 'later' && (
               <TextField

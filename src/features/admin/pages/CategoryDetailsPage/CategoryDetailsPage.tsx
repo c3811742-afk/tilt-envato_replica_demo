@@ -1,28 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { fetchCategory, moveAttribute, removeAttribute } from '@/features/admin/api';
-import { ConfirmModal, Notice, ReorderButtons, RequirePermission } from '@/features/admin/components';
+import { ReorderButtons, RequirePermission } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Category, CategoryAttribute, MoveDirection } from '@/features/admin/types';
-import { fillText, formatList, isolate, localized } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { localized } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, Card, ConfirmModal, EmptyState, Icon, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { AttributeModal } from './AttributeModal';
+import { fillText, formatList, isolate } from '@/shared/utils';
 
 interface CategoryDetailsViewProps {
   category: Category;
@@ -102,7 +90,7 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
             label={fillText(text.admin.common.moveLabel, { name: attributeName(attribute) })}
             canMoveUp={index > 0}
             canMoveDown={index < count - 1}
-            disabled={action.pending}
+            disabled={action.busy}
             onMove={(direction) => move(attribute, direction)}
           />
         );
@@ -112,19 +100,22 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
       key: 'actions',
       label: text.admin.columns.actions,
       render: (attribute) => (
-        <Stack direction="row" wrap gap={vars.spacing[2]}>
-          <Button size="sm" variant="muted" onClick={() => setEditing(attribute)}>
-            {text.admin.common.edit}
+        <Stack direction="row" gap={vars.spacing[2]}>
+          <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setEditing(attribute)}>
+            <Icon name="pencil" size={vars.sizes.icon.sm} />
           </Button>
           <Button
             size="sm"
             variant="danger"
+            iconOnly
+            tooltip={text.admin.common.remove}
+            tooltipAlign="end"
             onClick={() => {
               action.clearError();
               setRemoving(attribute);
             }}
           >
-            {text.admin.common.remove}
+            <Icon name="trash" size={vars.sizes.icon.sm} />
           </Button>
         </Stack>
       ),
@@ -188,7 +179,7 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
           confirmLabel={text.admin.common.remove}
           tone="danger"
           message={t.removeMessage}
-          pending={action.pending}
+          pending={action.busy}
           error={action.error}
           onConfirm={remove}
           onClose={() => setRemoving(null)}

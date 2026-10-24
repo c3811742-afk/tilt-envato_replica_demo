@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { Button, Card, CodeField, EmailField, FieldMessage, IconNote, Stack, Text } from '@/shared/components';
 import { auth } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAction, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { User } from '@/shared/types';
-import { authApi, billingApi, fillText, safeAsync, validateEmail } from '@/shared/utils';
+import { authApi, billingApi, fillText, validateEmail } from '@/shared/utils';
 
 // Students verify a university email with a code, then get the student price on the Individual plan.
 export const StudentVerification = ({ user }: { user: User }) => {
   const { text } = useLocale();
   const { setAccount } = useSession();
-  const { fieldError, requestError } = useMessages();
+  const { fieldError } = useMessages();
+  const { run, busy, error, setError } = useAction();
   const [email, setEmail] = useState('');
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [code, setCode] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
 
   if (user.student) {
     return <IconNote icon="graduation" title={text.planPage.studentTitle} text={fillText(text.planPage.studentVerified, { email: user.student.email })} />;
@@ -27,18 +26,12 @@ export const StudentVerification = ({ user }: { user: User }) => {
       setError(fieldError(invalid));
       return;
     }
-    setBusy(true);
-    const result = await safeAsync(() => billingApi.requestStudentVerification(email));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
+    const result = await run(() => billingApi.requestStudentVerification(email));
     if (result.ok) setSentTo(email.trim().toLowerCase());
   };
 
   const verify = async () => {
-    setBusy(true);
-    const result = await safeAsync(() => billingApi.verifyStudent(code));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
+    const result = await run(() => billingApi.verifyStudent(code));
     if (result.ok) setAccount(result.data);
   };
 

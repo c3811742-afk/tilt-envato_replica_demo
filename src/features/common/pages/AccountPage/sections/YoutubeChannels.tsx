@@ -1,27 +1,15 @@
 import { useState } from 'react';
 import { Button, Card, FieldMessage, Icon, Section, Stack, Text, TextField } from '@/shared/components';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { YoutubeChannel } from '@/shared/types';
-import { libraryApi, safeAsync, type SessionAccount } from '@/shared/utils';
+import { libraryApi } from '@/shared/utils';
 
 // "Add my YouTube channel": music licensed here is cleared on these channels (and named in proof-of-license letters).
 export const YoutubeChannels = ({ channels }: { channels: YoutubeChannel[] }) => {
   const { text } = useLocale();
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
+  const { run, busy, error } = useAccountAction();
   const [url, setUrl] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
-
-  const run = async (action: () => Promise<SessionAccount>) => {
-    setBusy(true);
-    const result = await safeAsync(action);
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (result.ok) setAccount(result.data);
-    return result.ok;
-  };
 
   const add = async () => {
     if (await run(() => libraryApi.addYoutubeChannel(url))) setUrl('');

@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { addFeatured, fetchCollections, fetchLiveElements } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { featuredKinds } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { FeaturedKind, FeaturedSlot } from '@/features/admin/types';
-import { isOneOf } from '@/features/admin/utils';
-import { AsyncContent, Button, Modal, Select } from '@/shared/components';
+import { AsyncContent, Modal, ModalActions, Notice, Select } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
+import { isOneOf } from '@/shared/utils';
 
 const loadOptions = async () => {
   const [elements, collections] = await Promise.all([fetchLiveElements(), fetchCollections()]);
@@ -23,7 +22,7 @@ interface AddFeaturedModalProps {
 export const AddFeaturedModal = ({ featured, onClose, onAdded }: AddFeaturedModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const options = useAsync(loadOptions, []);
   const t = text.admin.homepage.featured;
   const [kind, setKind] = useState<FeaturedKind>('element');
@@ -46,14 +45,7 @@ export const AddFeaturedModal = ({ featured, onClose, onAdded }: AddFeaturedModa
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending || options.status !== 'success'}>
-            {t.add}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.add} onCancel={onClose} submit busy={pending || options.status !== 'success'} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
@@ -67,7 +59,7 @@ export const AddFeaturedModal = ({ featured, onClose, onAdded }: AddFeaturedModa
                 options={featuredKinds.map((value) => ({ value, label: text.admin.featuredKinds[value] }))}
                 value={kind}
                 onChange={(value) => {
-                  if (!isOneOf(featuredKinds, value)) return;
+                  if (!isOneOf(value, featuredKinds)) return;
                   setKind(value);
                   setRefId('');
                 }}

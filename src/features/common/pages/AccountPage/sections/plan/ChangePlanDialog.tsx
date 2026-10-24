@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { AsyncContent, Button, FieldMessage, IconNote, Modal, SegmentedControl, Select, Stack, Text, stateMessageHeights } from '@/shared/components';
+import { AsyncContent, FieldMessage, IconNote, Modal, ModalActions, SegmentedControl, Select, Stack, stateMessageHeights, Text } from '@/shared/components';
 import { planDurations, teamMaxMembers, type PlanDuration } from '@/shared/constants';
-import { useAsync, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Plan, PlanId, Subscription } from '@/shared/types';
-import { billingApi, fillText, formatNumber, safeAsync } from '@/shared/utils';
+import { billingApi, fillText, formatNumber } from '@/shared/utils';
 
 interface ChangePlanDialogProps {
   plans: Plan[]; // plans that can be bought here (Enterprise goes through sales)
@@ -18,15 +18,12 @@ interface ChangePlanDialogProps {
 // (or credited) for the rest of the period, and nothing changes until the user confirms it.
 export const ChangePlanDialog = ({ plans, subscription, initialPlanId, seatsOnly = false, onClose }: ChangePlanDialogProps) => {
   const { text, locale, price } = useLocale();
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
+  const { run, busy: saving, error } = useAccountAction();
   const [planId, setPlanId] = useState<PlanId>(initialPlanId ?? subscription.planId);
   const [duration, setDuration] = useState<PlanDuration>(subscription.duration);
   const plan = plans.find((candidate) => candidate.id === planId) ?? plans[0];
   const [members, setMembers] = useState(Math.max(subscription.members, plan.minMembers));
   const [credits, setCredits] = useState(plan.creditTiers[0]?.credits);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string>();
   const seats = plan.perMember ? Math.max(members, plan.minMembers) : 1;
   const request = { planId, duration, members: seats, credits: plan.creditTiers.length ? credits : undefined };
   const quote = useAsync(() => billingApi.quoteChange(request), [planId, duration, seats, credits], () => false);
@@ -40,16 +37,11 @@ export const ChangePlanDialog = ({ plans, subscription, initialPlanId, seatsOnly
   };
 
   const confirm = async (net: number) => {
-    setSaving(true);
-    const result = await safeAsync(() => billingApi.changePlan({ ...request, confirmedNet: net }));
-    setSaving(false);
-    if (!result.ok) {
-      setError(requestError(result.error));
-      quote.retry(); // the price may have changed: show the current one
+    if (await run(() => billingApi.changePlan({ ...request, confirmedNet: net }))) {
+      onClose();
       return;
     }
-    setAccount(result.data);
-    onClose();
+    quote.retry(); // the price may have changed: show the current one
   };
 
   return (
@@ -110,14 +102,13 @@ export const ChangePlanDialog = ({ plans, subscription, initialPlanId, seatsOnly
               </Stack>
               <IconNote text={text.planPage.prorationNote} />
               <FieldMessage tone="error" message={error} />
-              <Stack direction="row" wrap justify="flex-end" gap={vars.spacing[3]}>
-                <Button variant="outline" onClick={onClose}>
-                  {text.common.cancel}
-                </Button>
-                <Button disabled={saving || unchanged} onClick={() => void confirm(data.net)}>
-                  {saving ? text.common.processing : data.net > 0 ? text.planPage.confirmPay : text.planPage.confirmChange}
-                </Button>
-              </Stack>
+              <ModalActions
+                confirmLabel={data.net > 0 ? text.planPage.confirmPay : text.planPage.confirmChange}
+                busy={saving}
+                disabled={unchanged}
+                onCancel={onClose}
+                onConfirm={() => void confirm(data.net)}
+              />
             </Stack>
           );
         }}

@@ -2,10 +2,10 @@ import { useState, type CSSProperties } from 'react';
 import { useLocation } from 'react-router';
 import { Button, Checkbox, FieldMessage, Icon, Modal, Stack, Text, TextField, TextLink, type ButtonSize } from '@/shared/components';
 import { collectionNameMaxLength, routes, withReturnTo } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { UserCollection } from '@/shared/types';
-import { collectionTree, fillText, formatNumber, libraryApi, safeAsync } from '@/shared/utils';
+import { collectionTree, fillText, formatNumber, libraryApi } from '@/shared/utils';
 import styles from './SaveToCollection.module.css';
 
 interface SaveToCollectionProps {
@@ -81,20 +81,11 @@ interface CollectionPickerProps {
 
 const CollectionPicker = ({ itemId, collections, teamCollections }: CollectionPickerProps) => {
   const { text } = useLocale();
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
+  const { run, busy, error } = useAccountAction();
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string>();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
 
-  const toggle = async (collectionId: string) => {
-    setBusy(true);
-    const result = await safeAsync(() => libraryApi.toggleInCollection(collectionId, itemId));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (result.ok) setAccount(result.data);
-  };
+  const toggle = (collectionId: string) => run(() => libraryApi.toggleInCollection(collectionId, itemId));
 
   const create = async () => {
     if (!name.trim()) {
@@ -102,13 +93,7 @@ const CollectionPicker = ({ itemId, collections, teamCollections }: CollectionPi
       return;
     }
     setNameError(undefined);
-    setBusy(true);
-    const result = await safeAsync(() => libraryApi.createCollection({ name, itemId }));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (!result.ok) return;
-    setAccount(result.data.account);
-    setName('');
+    if (await run(() => libraryApi.createCollection({ name, itemId }), (data) => data.account)) setName('');
   };
 
   return (

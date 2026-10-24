@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { AsyncContent, Button, ChipGroup, IconNote, Modal, Stack, stateMessageHeights, TextField } from '@/shared/components';
+import { AsyncContent, ChipGroup, IconNote, Modal, ModalActions, Stack, stateMessageHeights, TextField } from '@/shared/components';
 import { useAsync, useLocale, useSearchFilters } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { api } from '@/shared/utils';
@@ -78,12 +78,7 @@ const AdvancedSearchForm = ({ onDone }: { onDone: () => void }) => {
         }}
       </AsyncContent>
       <IconNote icon="info" title={text.advancedSearch.tip} />
-      <Stack direction="row" justify="flex-end" gap={vars.spacing[3]}>
-        <Button variant="outline" onClick={onDone}>
-          {text.common.cancel}
-        </Button>
-        <Button type="submit">{text.advancedSearch.submit}</Button>
-      </Stack>
+      <ModalActions confirmLabel={text.advancedSearch.submit} submit onCancel={onDone} />
     </Stack>
   );
 };

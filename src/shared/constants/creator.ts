@@ -11,7 +11,6 @@ export type EgyptianBank = (typeof egyptianBanks)[number];
 export const creatorApplication = {
   aboutMinLength: 30,
   bioMaxLength: 300,
-  demoSecondsPerStage: 20, // demo: the application moves to the next stage this often
   samplesAccept: '.pdf,.zip',
   idAccept: 'image/jpeg,image/png,application/pdf',
   avatarAccept: 'image/jpeg,image/png',

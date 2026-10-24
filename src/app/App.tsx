@@ -168,7 +168,6 @@ export const App = () => (
                   <Route path={routes.licenseTerms} element={<LicenseTermsPage />} />
                   <Route path={routes.fairUse} element={<FairUsePage />} />
                   <Route path={routes.unsubscribe} element={<UnsubscribePage />} />
-                  <Route path={routes.creatorOnboarding} element={<CreatorOnboardingPage />} />
 
                   {/* Onboarding: each page is only shown at its step; anyone else is sent to theirs. */}
                   <Route element={<OnboardingGate allow="guest" />}>
@@ -190,6 +189,8 @@ export const App = () => (
                     <Route path={routes.accountSuspended} element={<AccountSuspendedPage />} />
                   </Route>
                   <Route element={<OnboardingGate allow="ready" />}>
+                    {/* Applying to sell on TILT needs an account: the admin team's decision is sent to it. */}
+                    <Route path={routes.creatorOnboarding} element={<CreatorOnboardingPage />} />
                     <Route path={routes.checkout} element={<CheckoutPage />} />
                     <Route path={routes.account} element={<AccountPage />} />
                     <Route path={routes.notifications} element={<NotificationsPage />} />

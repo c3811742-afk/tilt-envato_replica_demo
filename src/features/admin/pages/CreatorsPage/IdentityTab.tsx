@@ -1,27 +1,15 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { decideIdentityCheck, fetchIdentityChecks } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { applicationStatusTone, idRejectReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { IdentityCheck } from '@/features/admin/types';
-import { fillText, fromDateKey, isolate, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { fromDateKey, replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 import { DecisionModal } from './DecisionModal';
 
 const isExpired = (check: IdentityCheck) => fromDateKey(check.expiresAt).getTime() < Date.now();
@@ -31,7 +19,7 @@ export const IdentityTab = () => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
   const checks = useAsync(fetchIdentityChecks, []);
-  const { run, pending, error, clearError } = useAdminAction();
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const [opened, setOpened] = useState<IdentityCheck | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.creators;

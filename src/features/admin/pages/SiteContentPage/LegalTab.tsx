@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { fetchLegalPages, saveLegalPage } from '@/features/admin/api';
-import { LocalizedField, Notice } from '@/features/admin/components';
+import { LocalizedField } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { LegalPage } from '@/features/admin/types';
-import { fillText, hasErrors, isolate, localized, localizedErrors, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, Card, Modal, Stack, Text } from '@/shared/components';
+import { hasErrors, localized, localizedErrors, replaceById } from '@/features/admin/utils';
+import { AsyncContent, Button, Card, Icon, Modal, ModalActions, Notice, Stack, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 
 interface LegalModalProps {
   page: LegalPage;
@@ -18,7 +18,7 @@ interface LegalModalProps {
 const LegalModal = ({ page, onClose, onSaved }: LegalModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.content.legal;
   const [body, setBody] = useState(page.body);
   const [submitted, setSubmitted] = useState(false);
@@ -39,14 +39,7 @@ const LegalModal = ({ page, onClose, onSaved }: LegalModalProps) => {
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {text.common.saveChanges}
-          </Button>
-        </>
+        <ModalActions confirmLabel={text.common.saveChanges} onCancel={onClose} submit busy={pending} />
       }
     >
       <Text color={vars.colors.textMuted}>{t.editMessage}</Text>
@@ -90,8 +83,8 @@ export const LegalTab = () => {
                 </Text>
                 <Text autoDirection>{localized(page.body, locale)}</Text>
                 <Stack direction="row" wrap>
-                  <Button variant="muted" onClick={() => setEditing(page)}>
-                    {text.admin.common.edit}
+                  <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} tooltipAlign="end" onClick={() => setEditing(page)}>
+                    <Icon name="pencil" size={vars.sizes.icon.sm} />
                   </Button>
                 </Stack>
               </Card>

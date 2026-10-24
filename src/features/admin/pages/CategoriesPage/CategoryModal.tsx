@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { createCategory, renameCategory } from '@/features/admin/api';
-import { LocalizedField, Notice } from '@/features/admin/components';
+import { LocalizedField } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Category } from '@/features/admin/types';
-import { emptyLocalized, fillText, hasErrors, isolate, localized, localizedErrors } from '@/features/admin/utils';
-import { Button, Modal, Select, Text } from '@/shared/components';
+import { emptyLocalized, hasErrors, localized, localizedErrors } from '@/features/admin/utils';
+import { Modal, ModalActions, Notice, Select, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import { fillText, isolate } from '@/shared/utils';
 
 // Adding: a subcategory of one of the site's categories (chosen here, or already chosen).
 // Editing: only the names; the parent can't change, so subcategories never end up three levels deep.
@@ -22,7 +23,7 @@ interface CategoryModalProps {
 export const CategoryModal = ({ mode, categories, onClose, onSaved }: CategoryModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.categoryList;
   const editing = mode.kind === 'edit' ? mode.category : null;
   const [name, setName] = useState(editing?.name ?? emptyLocalized());
@@ -56,14 +57,7 @@ export const CategoryModal = ({ mode, categories, onClose, onSaved }: CategoryMo
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {editing ? text.common.saveChanges : t.addSub}
-          </Button>
-        </>
+        <ModalActions confirmLabel={editing ? text.common.saveChanges : t.addSub} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}

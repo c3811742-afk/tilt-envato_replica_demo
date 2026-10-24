@@ -1,5 +1,5 @@
 .group {
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap; /* up and down stay side by side */
   gap: var(--spacing-2);
 }

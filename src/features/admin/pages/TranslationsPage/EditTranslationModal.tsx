@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { saveTranslation } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage, TranslationEntry } from '@/features/admin/types';
-import { fillText, formatList, isBlank, placeholdersOf, samePlaceholders } from '@/features/admin/utils';
-import { Button, Modal, Stack, Text, TextField } from '@/shared/components';
+import { isBlank, placeholdersOf, samePlaceholders } from '@/features/admin/utils';
+import { Modal, ModalActions, Notice, Stack, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import { fillText, formatList } from '@/shared/utils';
 
 interface EditTranslationModalProps {
   language: SiteLanguage;
@@ -19,7 +19,7 @@ interface EditTranslationModalProps {
 export const EditTranslationModal = ({ language, entry, onClose, onSaved }: EditTranslationModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.translations;
   const [value, setValue] = useState(entry.value);
   const [submitted, setSubmitted] = useState(false);
@@ -46,14 +46,7 @@ export const EditTranslationModal = ({ language, entry, onClose, onSaved }: Edit
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {text.common.saveChanges}
-          </Button>
-        </>
+        <ModalActions confirmLabel={text.common.saveChanges} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}

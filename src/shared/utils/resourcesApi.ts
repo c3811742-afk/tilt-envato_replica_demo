@@ -19,12 +19,15 @@ export const readList = <T>(key: string): T[] => {
 
 const subscribers = () => readList<string>(storageKeys.newsletter);
 
+// An application to sell on TILT as a creator (from the creator application).
 export interface AuthorApplication {
   kind: 'author';
   name: string;
   email: string;
   portfolio: string;
   categories: string[];
+  about?: string; // what they make, in their words
+  accountId?: string; // the applicant's account, so the decision reaches them
 }
 
 export interface PartnerApplication {
@@ -35,6 +38,17 @@ export interface PartnerApplication {
   audience: string;
   message: string;
 }
+
+// An application as stored, with the admin team's decision once there is one.
+export type SavedApplication = (AuthorApplication | PartnerApplication) & {
+  reference: string;
+  at: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  decision?: { reason?: string; note: string; adminName: string; at: string };
+};
+
+export const readApplications = () => readList<SavedApplication>(storageKeys.applications);
+export const saveApplications = (list: SavedApplication[]) => storage.set(storageKeys.applications, JSON.stringify(list));
 
 export const resourcesApi = {
   isSubscribed: (email: string) => subscribers().includes(normalizeEmail(email)),
@@ -54,11 +68,11 @@ export const resourcesApi = {
       return address;
     }),
 
-  // An application to become an author or a partner. Returns its reference number.
+  // An application to become a creator or a partner. Returns its reference number.
   apply: (application: AuthorApplication | PartnerApplication) =>
     call(() => {
       const reference = `APP-${randomDigits(6)}`;
-      storage.set(storageKeys.applications, JSON.stringify([...readList(storageKeys.applications), { ...application, reference, at: new Date().toISOString() }]));
+      saveApplications([...readApplications(), { ...application, reference, at: new Date().toISOString() }]);
       return reference;
     }),
 };

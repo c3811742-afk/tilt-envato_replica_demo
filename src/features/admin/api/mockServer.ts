@@ -27,7 +27,7 @@ import {
   seedUserDownloads,
   seedUsers,
 } from '@/features/admin/mocks';
-import type { Admin, AuditAction, AuditDetails, AuditTarget, ClaimStatus, ItemReportStatus, ReportStatus } from '@/features/admin/types';
+import type { Admin, AuditAction, AuditDetails, AuditTarget } from '@/features/admin/types';
 import { hasPermission } from '@/features/admin/utils/permissions';
 import { mockItems } from '@/shared/mocks';
 import { editedTags } from '@/shared/utils';
@@ -70,9 +70,6 @@ export const db = {
   blockedGenerations: structuredClone(seedBlockedGenerations),
   users: structuredClone(seedUsers),
   userDownloads: structuredClone(seedUserDownloads),
-  siteClaimDecisions: {} as Record<string, { status: ClaimStatus; note?: string }>, // decisions on copyright reports from the site
-  siteReportStatus: {} as Record<string, ItemReportStatus>,
-  siteSearchReportStatus: {} as Record<string, ReportStatus>, // answers to search reports from the site // answers to broken-download reports from the site
   dismissedAlerts: {} as Record<string, string>, // user id -> when an admin last dismissed their download alert
   creatorApplications: structuredClone(seedCreatorApplications),
   identityChecks: structuredClone(seedIdentityChecks),

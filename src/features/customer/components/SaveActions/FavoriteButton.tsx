@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { useLocation } from 'react-router';
 import { Button, FieldMessage, Icon, Stack, type ButtonSize } from '@/shared/components';
 import { routes, withReturnTo } from '@/shared/constants';
-import { useLocale, useSession } from '@/shared/hooks';
+import { useAccountAction, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { libraryApi, safeAsync } from '@/shared/utils';
+import { libraryApi } from '@/shared/utils';
 
 interface FavoriteButtonProps {
   itemId: string;
@@ -17,21 +16,14 @@ interface FavoriteButtonProps {
 // Adds an item to the user's favorites, or removes it. Guests are sent to sign in first.
 export const FavoriteButton = ({ itemId, size = 'md', iconOnly = false, subtle = false, fullWidth = false }: FavoriteButtonProps) => {
   const { text } = useLocale();
-  const { session, setAccount } = useSession();
+  const { session } = useSession();
   const { pathname, search } = useLocation();
-  const [saving, setSaving] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const { run, busy: saving, error } = useAccountAction();
   const signedIn = session.status === 'signedIn';
   const favorite = signedIn && session.user.favoriteIds.includes(itemId);
   const label = favorite ? text.favorites.remove : text.favorites.add;
 
-  const toggle = async () => {
-    setSaving(true);
-    const result = await safeAsync(() => libraryApi.toggleFavorite(itemId));
-    setSaving(false);
-    setFailed(!result.ok);
-    if (result.ok) setAccount(result.data);
-  };
+  const toggle = () => run(() => libraryApi.toggleFavorite(itemId));
 
   const quiet = subtle ? { variant: 'ghost', size: 'xs', iconOnly: true } as const : { size, iconOnly };
   const content = (
@@ -69,7 +61,7 @@ export const FavoriteButton = ({ itemId, size = 'md', iconOnly = false, subtle =
   return (
     <Stack gap={vars.spacing[1]}>
       {button}
-      <FieldMessage tone="error" message={failed ? text.favorites.failed : undefined} />
+      <FieldMessage tone="error" message={error && text.favorites.failed} />
     </Stack>
   );
 };

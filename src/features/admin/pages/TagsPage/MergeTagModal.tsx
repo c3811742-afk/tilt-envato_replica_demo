@@ -1,13 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { mergeTags } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Tag } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import { Button, Modal, Select, Text } from '@/shared/components';
+import { Modal, ModalActions, Notice, Select, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, isolate } from '@/shared/utils';
 
 interface MergeTagModalProps {
   tag: Tag;
@@ -20,7 +18,7 @@ interface MergeTagModalProps {
 export const MergeTagModal = ({ tag, tags, onClose, onMerged }: MergeTagModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.tags;
   const [targetId, setTargetId] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -42,14 +40,7 @@ export const MergeTagModal = ({ tag, tags, onClose, onMerged }: MergeTagModalPro
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {t.merge}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.merge} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}

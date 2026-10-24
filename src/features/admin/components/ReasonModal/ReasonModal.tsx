@@ -1,11 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { Button, Modal, Select, Text, TextField } from '@/shared/components';
+import { Modal, ModalActions, Notice, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { withDefaults } from '@/shared/utils';
-import { isOneOf } from '@/features/admin/utils/lists';
+import { isOneOf, withDefaults } from '@/shared/utils';
 
-import { Notice } from '../Notice';
 
 import { reasonModalDefaults } from './ReasonModal.defaults';
 import type { ReasonModalProps } from './ReasonModal.types';
@@ -51,14 +49,7 @@ export const ReasonModal = <R extends string>(props: ReasonModalProps<R>) => {
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" variant={tone} disabled={pending}>
-            {confirmLabel}
-          </Button>
-        </>
+        <ModalActions confirmLabel={confirmLabel} onCancel={onClose} submit tone={tone} busy={pending} />
       }
     >
       {children}
@@ -69,7 +60,7 @@ export const ReasonModal = <R extends string>(props: ReasonModalProps<R>) => {
         placeholder={reasonPlaceholder}
         options={reasons.map((value) => ({ value, label: reasonLabels[value] }))}
         value={reason}
-        onChange={(value) => isOneOf(reasons, value) && setReason(value)}
+        onChange={(value) => isOneOf(value, reasons) && setReason(value)}
         error={submitted && !reason ? reasonRequired : undefined}
         required
       />

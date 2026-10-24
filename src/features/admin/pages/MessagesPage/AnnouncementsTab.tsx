@@ -1,24 +1,13 @@
 import { useState } from 'react';
 import { cancelAnnouncement, fetchAnnouncements } from '@/features/admin/api';
-import { ConfirmModal, Notice } from '@/features/admin/components';
 import { messageStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Announcement } from '@/features/admin/types';
-import { fillText, isolate, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, ConfirmModal, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isolate } from '@/shared/utils';
 import { AnnouncementModal } from './AnnouncementModal';
 
 const dateTime: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
@@ -139,7 +128,7 @@ export const AnnouncementsTab = () => {
           confirmLabel={t.cancelSending}
           tone="danger"
           message={t.cancelMessage}
-          pending={action.pending}
+          pending={action.busy}
           error={action.error}
           onConfirm={cancel}
           onClose={() => setCanceling(null)}

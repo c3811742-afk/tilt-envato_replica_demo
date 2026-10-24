@@ -1,10 +1,13 @@
+import type { ReactNode } from 'react';
 import type { IconName } from '@/shared/assets';
 
 export interface MenuItem {
   key: string;
   label: string;
   icon?: IconName;
-  onSelect: () => void;
+  onSelect?: () => void; // an action; or give `to`
+  to?: string; // a page to open (app path from routes.ts) instead of an action
+  count?: string; // a number shown at the end, already formatted (e.g. "3" things waiting)
   danger?: boolean; // a destructive action (e.g. Delete), shown in the danger color
   section?: string; // the group it belongs to; a heading is shown above the first item of each group
   disabled?: boolean;
@@ -13,6 +16,9 @@ export interface MenuItem {
 export interface MenuProps {
   label?: string; // accessible name of the button that opens the menu, e.g. "More actions"
   icon?: IconName; // what that button shows
+  trigger?: ReactNode; // what the button shows instead of `icon` (e.g. a bell and a count); the button then fits it
+  title?: string; // a heading at the top of the open list
+  empty?: string; // shown when there are no items (e.g. "Nothing is waiting")
   items?: MenuItem[];
   columns?: boolean; // the groups side by side (e.g. "Quick edits" next to "Use in")
   width?: string; // of the open list

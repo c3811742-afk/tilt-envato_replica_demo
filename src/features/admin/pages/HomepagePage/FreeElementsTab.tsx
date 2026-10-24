@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { fetchFreeElements, fetchLiveElements, saveFreeElements } from '@/features/admin/api';
-import { ItemPicker, Notice } from '@/features/admin/components';
+import { ItemPicker } from '@/features/admin/components';
 import { maxFreeElements } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CatalogElement } from '@/features/admin/types';
-import { fillText, fromDateKey, isolate, toggleItem, toMonthKey } from '@/features/admin/utils';
-import { AsyncContent, Button, Stack, Text, TextField } from '@/shared/components';
+import { fromDateKey, toggleItem, toMonthKey } from '@/features/admin/utils';
+import { AsyncContent, Button, Notice, Stack, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isolate } from '@/shared/utils';
 
 const monthFormat: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
 
@@ -22,7 +22,7 @@ interface FreeElementsFormProps {
 const FreeElementsForm = ({ month, elements, initialIds }: FreeElementsFormProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   // An element chosen earlier may have been unpublished since; it can't stay free.
   const [selected, setSelected] = useState(() =>
     initialIds.filter((id) => elements.some((element) => element.id === id)),

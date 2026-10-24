@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { addLanguage, adminErrorCode } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage, TextDirection } from '@/features/admin/types';
-import { hasErrors, isBlank, isOneOf, isValidLanguageCode } from '@/features/admin/utils';
-import { Button, Modal, Select, TextField } from '@/shared/components';
+import { hasErrors, isBlank, isValidLanguageCode } from '@/features/admin/utils';
+import { Modal, ModalActions, Notice, Select, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
+import { isOneOf } from '@/shared/utils';
 
 const directions: readonly TextDirection[] = ['ltr', 'rtl'];
 
@@ -17,7 +17,7 @@ interface AddLanguageModalProps {
 export const AddLanguageModal = ({ onClose, onAdded }: AddLanguageModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error, clearError } = useAdminAction();
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const t = text.admin.languages;
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
@@ -55,14 +55,7 @@ export const AddLanguageModal = ({ onClose, onAdded }: AddLanguageModalProps) =>
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {t.add}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.add} onCancel={onClose} submit busy={pending} />
       }
     >
       <Notice tone="info">{t.addMessage}</Notice>
@@ -99,7 +92,7 @@ export const AddLanguageModal = ({ onClose, onAdded }: AddLanguageModalProps) =>
         label={t.directionLabel}
         options={directions.map((value) => ({ value, label: t.directions[value] }))}
         value={direction}
-        onChange={(value) => isOneOf(directions, value) && setDirection(value)}
+        onChange={(value) => isOneOf(value, directions) && setDirection(value)}
       />
     </Modal>
   );

@@ -1,10 +1,9 @@
 import { generatePath } from 'react-router';
 import type { Permission } from '@/features/admin/constants';
 import type { AdminSearchGroup, AdminSearchResult } from '@/features/admin/types';
-import { matchesQuery } from '@/features/admin/utils/lists';
 import { hasPermission } from '@/features/admin/utils/permissions';
 import { routes } from '@/shared/constants';
-import { articleStore, faqStore, promoCodeStore } from '@/shared/utils';
+import { articleStore, faqStore, matchesText, promoCodeStore } from '@/shared/utils';
 import { allTransactions } from './billingApi';
 import { allCategories } from './catalogApi';
 import { allElements } from './elementsApi';
@@ -30,7 +29,7 @@ const sources: SearchSource[] = [
     permissions: ['manageUsers'],
     find: (query) =>
       allUsers()
-        .filter((user) => matchesQuery(query, [user.name, user.email]))
+        .filter((user) => matchesText(query, ...[user.name, user.email]))
         .map((user) => ({ id: user.id, title: user.name, detail: user.email, to: generatePath(routes.adminUser, { userId: user.id }) })),
   },
   {
@@ -38,7 +37,7 @@ const sources: SearchSource[] = [
     permissions: ['review', 'unpublish'],
     find: (query) =>
       allElements()
-        .filter((element) => matchesQuery(query, [element.title, element.creator.name, ...element.tags]))
+        .filter((element) => matchesText(query, ...[element.title, element.creator.name, ...element.tags]))
         .map((element) => ({
           id: element.id,
           title: element.title,
@@ -51,7 +50,7 @@ const sources: SearchSource[] = [
     permissions: ['manageCatalog'],
     find: (query) =>
       allCategories()
-        .filter((category) => matchesQuery(query, [category.name.en, category.name.ar]))
+        .filter((category) => matchesText(query, ...[category.name.en, category.name.ar]))
         .map((category) => ({
           id: category.id,
           title: category.name.en,
@@ -62,14 +61,14 @@ const sources: SearchSource[] = [
   {
     group: 'tags',
     permissions: ['manageCatalog'],
-    find: (query) => db.tags.filter((tag) => matchesQuery(query, [tag.name])).map((tag) => ({ id: tag.id, title: tag.name, to: routes.adminTags })),
+    find: (query) => db.tags.filter((tag) => matchesText(query, ...[tag.name])).map((tag) => ({ id: tag.id, title: tag.name, to: routes.adminTags })),
   },
   {
     group: 'tickets',
     permissions: ['handleSupport'],
     find: (query) =>
       allTickets()
-        .filter((ticket) => matchesQuery(query, [ticket.subject, ticket.requester.name, ticket.requester.email, ticket.reference ?? '']))
+        .filter((ticket) => matchesText(query, ...[ticket.subject, ticket.requester.name, ticket.requester.email, ticket.reference ?? '']))
         .map((ticket) => ({
           id: ticket.id,
           title: ticket.subject,
@@ -82,7 +81,7 @@ const sources: SearchSource[] = [
     permissions: ['manageLicenses'],
     find: (query) =>
       allLicenses()
-        .filter((license) => matchesQuery(query, [license.code, license.element.title, license.customer.name, license.customer.email]))
+        .filter((license) => matchesText(query, ...[license.code, license.element.title, license.customer.name, license.customer.email]))
         .map((license) => ({ id: license.id, title: license.code, detail: license.element.title, to: routes.adminLicenses })),
   },
   {
@@ -90,7 +89,7 @@ const sources: SearchSource[] = [
     permissions: ['manageBilling'],
     find: (query) =>
       allTransactions()
-        .filter((transaction) => matchesQuery(query, [transaction.id, transaction.customer.name, transaction.customer.email]))
+        .filter((transaction) => matchesText(query, ...[transaction.id, transaction.customer.name, transaction.customer.email]))
         .map((transaction) => ({
           id: transaction.id,
           title: transaction.customer.name,
@@ -103,7 +102,7 @@ const sources: SearchSource[] = [
     permissions: ['issueInvoices'],
     find: (query) =>
       db.invoices
-        .filter((invoice) => matchesQuery(query, [invoice.number, invoice.customerName]))
+        .filter((invoice) => matchesText(query, ...[invoice.number, invoice.customerName]))
         .map((invoice) => ({ id: invoice.id, title: invoice.number, detail: invoice.customerName, to: routes.adminInvoices })),
   },
   {
@@ -112,7 +111,7 @@ const sources: SearchSource[] = [
     find: (query) =>
       promoCodeStore
         .get()
-        .filter((promo) => matchesQuery(query, [promo.code]))
+        .filter((promo) => matchesText(query, ...[promo.code]))
         .map((promo) => ({ id: promo.id, title: promo.code, to: withTab(routes.adminPlans, 'promoCodes') })),
   },
   {
@@ -120,7 +119,7 @@ const sources: SearchSource[] = [
     permissions: ['reviewCreators'],
     find: (query) =>
       allApplications()
-        .filter((application) => matchesQuery(query, [application.id, application.name, application.email]))
+        .filter((application) => matchesText(query, ...[application.id, application.name, application.email]))
         .map((application) => ({ id: application.id, title: application.name, detail: application.id, to: routes.adminCreators })),
   },
   {
@@ -129,11 +128,11 @@ const sources: SearchSource[] = [
     find: (query) => [
       ...faqStore
         .get()
-        .filter((faq) => matchesQuery(query, [faq.question.en, faq.question.ar]))
+        .filter((faq) => matchesText(query, ...[faq.question.en, faq.question.ar]))
         .map((faq) => ({ id: faq.id, title: faq.question.en, titles: faq.question, to: withTab(routes.adminContent, 'faqs') })),
       ...articleStore
         .get()
-        .filter((article) => matchesQuery(query, [article.title.en, article.title.ar]))
+        .filter((article) => matchesText(query, ...[article.title.en, article.title.ar]))
         .map((article) => ({
           id: article.id,
           title: article.title.en,
@@ -147,7 +146,7 @@ const sources: SearchSource[] = [
     permissions: ['manageAdmins'],
     find: (query) =>
       db.admins
-        .filter((admin) => matchesQuery(query, [admin.name, admin.email]))
+        .filter((admin) => matchesText(query, ...[admin.name, admin.email]))
         .map((admin) => ({ id: admin.id, title: admin.name, detail: admin.email, to: routes.adminAdmins })),
   },
 ];

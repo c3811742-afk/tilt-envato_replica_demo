@@ -1,4 +1,4 @@
-import { FieldMessage, Grid, IconNote, OptionCardGroup, PhoneField, Section, Select, Stack, TextField } from '@/shared/components';
+import { Grid, OptionCardGroup, PhoneField, Section, Select, Stack, TextField } from '@/shared/components';
 import { egyptianBanks } from '@/shared/constants';
 import { vars } from '@/shared/theme';
 import type { PayoutMethod, TaxStatus } from '@/shared/types';
@@ -36,16 +36,14 @@ export const PayoutStep = ({ values, errors, update }: OnboardingStepProps) => {
         >
           {values.payoutMethod === 'bankTransfer' && (
             <Stack gap={vars.spacing[4]}>
-              <IconNote icon="building" text={p.demoNote} />
-              <Stack gap={vars.spacing[1]}>
-                <Select
-                  label={p.bankNameLabel}
-                  value={values.bankName}
-                  options={[{ value: '', label: p.bankNamePlaceholder }, ...egyptianBanks.map((bank) => ({ value: bank, label: text.banks[bank] }))]}
-                  onChange={(bank) => update('bankName', bank)}
-                />
-                <FieldMessage tone="error" message={errorFor('bankName')} />
-              </Stack>
+              <Select
+                label={p.bankNameLabel}
+                placeholder={p.bankNamePlaceholder}
+                value={values.bankName}
+                options={egyptianBanks.map((bank) => ({ value: bank, label: text.banks[bank] }))}
+                onChange={(bank) => update('bankName', bank)}
+                error={errorFor('bankName')}
+              />
               <TextField
                 autoComplete="name"
                 label={p.accountHolderLabel}

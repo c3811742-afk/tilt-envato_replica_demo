@@ -1,25 +1,12 @@
 import { useState } from 'react';
 import { fetchTransactions } from '@/features/admin/api';
-import { FilterBar, Notice } from '@/features/admin/components';
 import { transactionStatuses, transactionStatusTone } from '@/features/admin/constants';
 import type { Transaction, TransactionStatus } from '@/features/admin/types';
-import { fillText, isOneOf, isolate, matchesQuery, refundable, replaceById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Select,
-  Stack,
-  Table,
-  Text,
-  TextField,
-} from '@/shared/components';
+import { refundable, replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, Select, Stack, Table, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatPrice } from '@/shared/utils';
+import { fillText, formatDate, formatPrice, isolate, isOneOf, matchesText } from '@/shared/utils';
 import { RefundModal } from './RefundModal';
 
 const allStatuses = 'all';
@@ -97,7 +84,7 @@ export const TransactionsTab = () => {
           const visible = list.filter(
             (row) =>
               (status === allStatuses || row.status === status) &&
-              matchesQuery(query, [row.customer.name, row.customer.email, row.id]),
+              matchesText(query, ...[row.customer.name, row.customer.email, row.id]),
           );
           return (
             <Stack>
@@ -116,7 +103,7 @@ export const TransactionsTab = () => {
                     ...transactionStatuses.map((value) => ({ value, label: t.statuses[value] })),
                   ]}
                   value={status}
-                  onChange={(value) => setStatus(isOneOf(transactionStatuses, value) ? value : allStatuses)}
+                  onChange={(value) => setStatus(isOneOf(value, transactionStatuses) ? value : allStatuses)}
                 />
               </FilterBar>
               {visible.length > 0 ? (

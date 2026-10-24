@@ -1,29 +1,16 @@
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { fetchUser } from '@/features/admin/api';
-import { Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { accountStatusTone, userDetailTabs } from '@/features/admin/constants';
-import { useTabParam } from '@/features/admin/hooks';
 import type { StatusAction, UserAccount, UserDetails } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  Card,
-  DetailList,
-  SectionHeader,
-  Stack,
-  Tabs,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, Card, DetailList, Notice, SectionHeader, Stack, Tabs, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
-import { useAsync, useLocale } from '@/shared/hooks';
+import { useAsync, useLocale, useTabParam } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 import { AppealModal } from './AppealModal';
-import { DownloadsTable, LicensesTable, SubscriptionsTable } from './UserTables';
+import { DownloadsTable, LicensesTable, SubscriptionsTable, GenerationsTable } from './UserTables';
 import { StatusModal } from './StatusModal';
 
 // Which status changes each status allows.
@@ -60,6 +47,7 @@ const UserView = ({ details, onChange }: UserViewProps) => {
     subscriptions: <SubscriptionsTable subscriptions={details.subscriptions} />,
     downloads: <DownloadsTable downloads={details.downloads} />,
     licenses: <LicensesTable licenses={details.licenses} />,
+    ai: <GenerationsTable generations={details.generations} credits={details.credits} />,
   };
 
   return (

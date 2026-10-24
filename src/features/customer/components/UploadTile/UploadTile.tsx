@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, Icon, Stack, Text } from '@/shared/components';
+import { Button, Card, Icon, MediaPreview, Stack, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { UploadRef } from '@/shared/types';
 import { fileStore, formatFileSize, safeAsync } from '@/shared/utils';
-import styles from './UploadTile.module.css';
 
 const kindIcons = { image: 'image', video: 'video', audio: 'music' } as const;
 
@@ -31,12 +30,16 @@ export const UploadTile = ({ upload, onRemove }: { upload: UploadRef; onRemove?:
 
   return (
     <Card as="li" padding={vars.spacing[3]} gap={vars.spacing[3]}>
-      <div className={styles.preview}>
-        {url && upload.kind === 'image' && <img src={url} alt={upload.name} className={styles.media} />}
-        {url && upload.kind === 'video' && <video src={url} controls className={styles.media} aria-label={upload.name} />}
-        {url && upload.kind === 'audio' && <audio src={url} controls className={styles.audio} aria-label={upload.name} />}
-        {!url && <Icon name={kindIcons[upload.kind]} size={vars.sizes.icon.xl} color={vars.colors.textMuted} />}
-      </div>
+      {/* A square like the item cards next to it; the file type's icon until the file is read (or if it's missing). */}
+      <MediaPreview
+        kind={upload.kind}
+        src={url ?? undefined}
+        alt={upload.name}
+        aspectRatio={vars.sizes.itemCard.coverRatio}
+        fit="cover"
+        border={false}
+        placeholder={<Icon name={kindIcons[upload.kind]} size={vars.sizes.icon.xl} color={vars.colors.textMuted} />}
+      />
       <Stack direction="row" align="center" justify="space-between" gap={vars.spacing[2]}>
         <Stack gap={vars.spacing[1]}>
           <Text variant="title" autoDirection maxLines={1}>

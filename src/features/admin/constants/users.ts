@@ -12,7 +12,7 @@ import type {
 import { type BadgeVariant } from '@/shared/components';
 
 export const userTabs = ['accounts', 'appeals', 'downloadAlerts'] as const;
-export const userDetailTabs = ['subscriptions', 'downloads', 'licenses'] as const;
+export const userDetailTabs = ['subscriptions', 'downloads', 'licenses', 'ai'] as const;
 export const creatorTabs = ['applications', 'identity'] as const;
 
 export const userKinds: readonly UserKind[] = ['customer', 'creator'];

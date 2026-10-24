@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { AsyncContent, Badge, Button, Card, Checkbox, CodeBadge, FieldMessage, IconNote, Modal, Section, Stack, Text } from '@/shared/components';
 import { cardPaymentMethods, planChangeParam, routes } from '@/shared/constants';
-import { useAsync, useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useAsync, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { PlanId, Subscription } from '@/shared/types';
-import { api, billingApi, fillText, formatDate, formatNumber, isSubscriptionActive, safeAsync, type SessionAccount } from '@/shared/utils';
+import { api, billingApi, fillText, formatDate, formatNumber, isSubscriptionActive, type SessionAccount } from '@/shared/utils';
 import { ChangePlanDialog } from './plan/ChangePlanDialog';
 import { StudentVerification } from './plan/StudentVerification';
 import { UsageMeters } from './plan/UsageMeters';
@@ -78,19 +78,12 @@ export const PlanSettings = () => {
 
 // Runs one plan action (renew, cancel, keep, auto-renew) and keeps the account in sync; shows why it failed.
 const usePlanAction = () => {
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
+  const { busy, error, run: runAction } = useAccountAction();
   const [done, setDone] = useState<string>();
   const run = async (action: () => Promise<SessionAccount>, doneText?: (account: SessionAccount) => string) => {
-    setBusy(true);
-    const result = await safeAsync(action);
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    setDone(result.ok && doneText ? doneText(result.data) : undefined);
-    if (result.ok) setAccount(result.data);
-    return result.ok;
+    const account = await runAction(action);
+    setDone(account && doneText ? doneText(account) : undefined);
+    return account !== null;
   };
   return { busy, error, done, run };
 };

@@ -1,28 +1,15 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { dismissDownloadAlert, fetchDownloadAlerts } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { accountStatusTone, downloadAlertRule } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { DownloadAlert } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
 import { StatusModal } from '@/features/admin/pages/UserPage';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, isolate } from '@/shared/utils';
 
 // Accounts that downloaded far more than usual in the last day (possible sharing or scraping).
 // The admin either marks it as fine or suspends the account.
@@ -30,7 +17,7 @@ export const DownloadAlertsTab = () => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
   const alerts = useAsync(fetchDownloadAlerts, []);
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const [suspending, setSuspending] = useState<DownloadAlert | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.users;

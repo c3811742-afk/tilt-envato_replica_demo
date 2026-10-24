@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { aiShortcuts, type AiGraphicKind, type AiOperation, type AiShortcut, type Text } from '@/shared/constants';
+import type { AiGraphicKind } from '@/shared/constants';
 import type { Generation } from '@/shared/types';
 import { canvasBlob, fileStore, generatedGraphic, generatedImage, imageCanvas, safeAsync, toFileName } from '@/shared/utils';
 
@@ -65,7 +65,3 @@ export const findOutput = (generations: Generation[], ref: string | null) => {
   return generation && generation.outputs[position]?.kind === 'image' ? { generation, index: position } : null;
 };
 
-const isShortcut = (operation: AiOperation): operation is AiShortcut => (aiShortcuts as readonly string[]).includes(operation);
-
-// A tool's or quick edit's name in the active language.
-export const operationName = (text: Text, operation: AiOperation) => (isShortcut(operation) ? text.ai.shortcuts[operation] : text.ai.tools[operation].name);

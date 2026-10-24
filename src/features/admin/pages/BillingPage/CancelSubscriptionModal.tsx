@@ -1,13 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { cancelSubscription } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { cancelReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CancelReason, CancelTiming, Subscription } from '@/features/admin/types';
-import { fillText, isOneOf, isolate } from '@/features/admin/utils';
-import { Button, Modal, Select, Text, TextField } from '@/shared/components';
+import { Modal, ModalActions, Notice, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate, isOneOf } from '@/shared/utils';
 
 const timings: readonly CancelTiming[] = ['periodEnd', 'now'];
 
@@ -21,7 +19,7 @@ interface CancelSubscriptionModalProps {
 export const CancelSubscriptionModal = ({ subscription, onClose, onCanceled }: CancelSubscriptionModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.billing.cancel;
   // A subscription already ending at period end can only be ended now.
   const options = subscription.status === 'canceling' ? timings.filter((option) => option === 'now') : timings;
@@ -46,14 +44,7 @@ export const CancelSubscriptionModal = ({ subscription, onClose, onCanceled }: C
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" variant="danger" disabled={pending}>
-            {t.confirm}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.confirm} onCancel={onClose} submit tone="danger" busy={pending} />
       }
     >
       <Text>
@@ -64,14 +55,14 @@ export const CancelSubscriptionModal = ({ subscription, onClose, onCanceled }: C
         label={t.timingLabel}
         options={options.map((value) => ({ value, label: fillText(t.timings[value], { date: renewal }) }))}
         value={timing}
-        onChange={(value) => isOneOf(timings, value) && setTiming(value)}
+        onChange={(value) => isOneOf(value, timings) && setTiming(value)}
       />
       <Select
         label={text.admin.live.reasonLabel}
         placeholder={text.admin.live.reasonPlaceholder}
         options={cancelReasons.map((value) => ({ value, label: text.admin.cancelReasons[value] }))}
         value={reason}
-        onChange={(value) => isOneOf(cancelReasons, value) && setReason(value)}
+        onChange={(value) => isOneOf(value, cancelReasons) && setReason(value)}
         error={submitted && !reason ? text.admin.live.reasonRequired : undefined}
         required
       />

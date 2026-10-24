@@ -1,10 +1,10 @@
 import { useAdminSession } from '@/features/admin/hooks';
-import { fillText, isolate } from '@/features/admin/utils';
 import { Divider, Dropdown, Icon, Select, Stack, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import styles from './AdminAccountMenu.module.css';
+import { fillText, isolate } from '@/shared/utils';
 
 // The signed-in admin: who they are, their role, the demo switch between admins, and a way back to the site.
 export const AdminAccountMenu = () => {
@@ -43,9 +43,6 @@ export const AdminAccountMenu = () => {
           }))}
           onChange={switchAdmin}
         />
-        <Text variant="bodySm" color={vars.colors.textMuted}>
-          {t.demoHint}
-        </Text>
         <Divider />
         <TextLink to={routes.home} variant="bodySm" underline={false}>
           {text.admin.topBar.viewSite}

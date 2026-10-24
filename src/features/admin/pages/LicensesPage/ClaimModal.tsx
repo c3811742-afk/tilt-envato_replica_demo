@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { decideClaim } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { claimStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { ClaimDecision, CopyrightClaim } from '@/features/admin/types';
-import { fillText, isBlank } from '@/features/admin/utils';
-import { Badge, Button, DetailList, Modal, Text, TextField } from '@/shared/components';
+import { isBlank } from '@/features/admin/utils';
+import { Badge, Button, DetailList, Modal, Notice, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate } from '@/shared/utils';
 
 interface ClaimModalProps {
   claim: CopyrightClaim;
@@ -20,7 +19,7 @@ interface ClaimModalProps {
 export const ClaimModal = ({ claim, onClose, onDecided }: ClaimModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.claims;
   const [note, setNote] = useState('');
   const [noteError, setNoteError] = useState<string>();

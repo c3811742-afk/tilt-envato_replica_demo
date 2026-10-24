@@ -1,24 +1,13 @@
 import { useState } from 'react';
 import { fetchLiveElements, unpublishElement } from '@/features/admin/api';
-import { ElementSummary, FilterBar, Notice, RequirePermission } from '@/features/admin/components';
-import { useAdminSession } from '@/features/admin/hooks';
+import { ElementSummary, RequirePermission } from '@/features/admin/components';
+import { useAdminSession, useAdminAction } from '@/features/admin/hooks';
 import type { CatalogElement, UnpublishInput } from '@/features/admin/types';
-import { elementMatchesQuery, errorMessage, fillText, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-  TextField,
-} from '@/shared/components';
+import { elementMatchesQuery } from '@/features/admin/utils';
+import { AsyncContent, Button, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber, safeAsync } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isolate } from '@/shared/utils';
 import { UnpublishModal } from './UnpublishModal';
 
 const LiveElements = () => {
@@ -27,26 +16,19 @@ const LiveElements = () => {
   const live = useAsync(fetchLiveElements, []);
   const [query, setQuery] = useState('');
   const [target, setTarget] = useState<CatalogElement | null>(null);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, busy: pending, error, clearError } = useAdminAction();
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin;
 
   const openUnpublish = (element: CatalogElement) => {
-    setError(null);
+    clearError();
     setTarget(element);
   };
 
   const submitUnpublish = async (input: UnpublishInput) => {
     if (!target) return;
-    setPending(true);
-    setError(null);
-    const result = await safeAsync(() => unpublishElement(currentAdmin.id, target.id, input));
-    setPending(false);
-    if (!result.ok) {
-      setError(errorMessage(result.error, text));
-      return;
-    }
+    const result = await run(() => unpublishElement(currentAdmin.id, target.id, input));
+    if (!result.ok) return;
     setTarget(null);
     setNotice(fillText(t.live.unpublished, { title: isolate(result.data.title) }));
     live.retry();

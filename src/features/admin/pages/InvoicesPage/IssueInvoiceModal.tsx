@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { fetchUninvoicedTransactions, issueInvoice } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { invoiceKinds } from '@/features/admin/constants';
 import { vatRate } from '@/shared/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Invoice, InvoiceKind } from '@/features/admin/types';
-import { fillText, isOneOf, isValidTaxId, refundable } from '@/features/admin/utils';
-import { AsyncContent, Button, DetailList, EmptyState, Modal, Select, TextField } from '@/shared/components';
+import { isValidTaxId, refundable } from '@/features/admin/utils';
+import { AsyncContent, DetailList, EmptyState, Modal, ModalActions, Notice, Select, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
-import { formatDate, formatPrice } from '@/shared/utils';
+import { fillText, formatDate, formatPrice, isOneOf } from '@/shared/utils';
 
 interface IssueInvoiceModalProps {
   onClose: () => void;
@@ -19,7 +18,7 @@ interface IssueInvoiceModalProps {
 export const IssueInvoiceModal = ({ onClose, onIssued }: IssueInvoiceModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const transactions = useAsync(fetchUninvoicedTransactions, []);
   const t = text.admin.invoices;
   const [transactionId, setTransactionId] = useState('');
@@ -51,14 +50,7 @@ export const IssueInvoiceModal = ({ onClose, onIssued }: IssueInvoiceModalProps)
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending || list.length === 0}>
-            {t.send}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.send} onCancel={onClose} submit busy={pending || list.length === 0} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
@@ -85,7 +77,7 @@ export const IssueInvoiceModal = ({ onClose, onIssued }: IssueInvoiceModalProps)
               label={t.kindLabel}
               options={invoiceKinds.map((value) => ({ value, label: t.kinds[value] }))}
               value={kind}
-              onChange={(value) => isOneOf(invoiceKinds, value) && setKind(value)}
+              onChange={(value) => isOneOf(value, invoiceKinds) && setKind(value)}
             />
             {kind === 'invoice' && (
               <TextField

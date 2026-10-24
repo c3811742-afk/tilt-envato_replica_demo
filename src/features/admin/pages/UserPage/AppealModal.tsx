@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { decideAppeal } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { accountStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { AppealOutcome, UserAccount } from '@/features/admin/types';
-import { Badge, Button, DetailList, Modal, Text, TextField } from '@/shared/components';
+import { Badge, Button, DetailList, Modal, Notice, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { formatDate } from '@/shared/utils';
 
@@ -18,7 +17,7 @@ interface AppealModalProps {
 export const AppealModal = ({ user, onClose, onDecided }: AppealModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const [note, setNote] = useState('');
   const t = text.admin.users;
 

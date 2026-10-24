@@ -20,7 +20,7 @@ import {
   type AiVoiceLanguage,
   type AiVoiceType,
 } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAction, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { AiRequest } from '@/shared/types';
 import {
@@ -57,15 +57,12 @@ const useGenerate = () => {
   const { text } = useLocale();
   const { setAccount } = useSession();
   const { requestError } = useMessages();
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string>();
+  // A server answer (no credits, model not in the plan) is explained; anything else is a generic failure.
+  const action = useAction((error) => (isApiError(error) ? requestError(error) : text.ai.failed));
+  const { busy: sending, error, setError } = action;
 
   const run = async (request: AiRequest, make?: () => Promise<GeneratedFile[]>) => {
-    setSending(true);
-    const result = await safeAsync(async () => aiApi.generate({ request, files: make ? await make() : [] }));
-    setSending(false);
-    // A server answer (no credits, model not in the plan) is explained; anything else is a generic failure.
-    setError(result.ok ? undefined : isApiError(result.error) ? requestError(result.error) : text.ai.failed);
+    const result = await action.run(async () => aiApi.generate({ request, files: make ? await make() : [] }));
     if (result.ok) setAccount(result.data);
   };
   return { sending, error, setError, run };

@@ -1,46 +1,13 @@
 import { useState, type FormEvent } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  EmailField,
-  EmptyState,
-  FieldMessage,
-  IconNote,
-  Meter,
-  Modal,
-  Page,
-  Section,
-  Select,
-  Stack,
-  Text,
-  TextField,
-} from '@/shared/components';
+import { Badge, Button, Card, EmailField, EmptyState, FieldMessage, IconNote, Meter, Modal, ModalActions, Page, Section, Select, Stack, Text, TextField } from '@/shared/components';
 import { myCollectionsPath, planChangePath, routes } from '@/shared/constants';
-import { useLocale, useMessages, useSession } from '@/shared/hooks';
+import { useAccountAction, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { InviteRole, PlanId, TeamInvitation, TeamMember, TeamSession } from '@/shared/types';
-import { fillText, formatDate, formatNumber, safeAsync, seatsInUse, teamApi, validateEmail, type SessionAccount } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, seatsInUse, teamApi, validateEmail } from '@/shared/utils';
 import { TeamLicenses } from './TeamLicenses';
 
 const inviteRoles: InviteRole[] = ['member', 'admin'];
-
-// Runs a team request, keeps the session in sync and explains a failure.
-const useTeamAction = () => {
-  const { setAccount } = useSession();
-  const { requestError } = useMessages();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
-  const run = async (request: () => Promise<SessionAccount>) => {
-    setBusy(true);
-    const result = await safeAsync(request);
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
-    if (result.ok) setAccount(result.data);
-    return result.ok;
-  };
-  return { busy, error, setError, run };
-};
 
 // "Team": invitations to answer, or the team itself: seats, members and their roles, invites, licenses and collections.
 export const TeamPage = () => {
@@ -62,7 +29,7 @@ export const TeamPage = () => {
 
 const Invitations = ({ invitations }: { invitations: TeamInvitation[] }) => {
   const { text } = useLocale();
-  const { busy, error, run } = useTeamAction();
+  const { busy, error, run } = useAccountAction();
   return (
     <Section title={text.team.invitationsTitle} variant="h3" gap={vars.spacing[3]}>
       {invitations.map((invitation) => (
@@ -135,7 +102,7 @@ const TeamView = ({ team, myId, planId }: { team: TeamSession; myId: string; pla
 // The owner renames the team.
 const TeamName = ({ name }: { name: string }) => {
   const { text } = useLocale();
-  const { busy, error, setError, run } = useTeamAction();
+  const { busy, error, setError, run } = useAccountAction();
   const [value, setValue] = useState(name);
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -159,7 +126,7 @@ const TeamName = ({ name }: { name: string }) => {
 
 const Members = ({ team, myId }: { team: TeamSession; myId: string }) => {
   const { text, locale } = useLocale();
-  const { busy, error, run } = useTeamAction();
+  const { busy, error, run } = useAccountAction();
   const [removing, setRemoving] = useState<TeamMember | null>(null);
   // Admins can remove members; the owner can also manage admins.
   const canRemove = (member: TeamMember) =>
@@ -210,14 +177,7 @@ const Members = ({ team, myId }: { team: TeamSession; myId: string }) => {
           onClose={() => setRemoving(null)}
           title={fillText(text.team.removeTitle, { name: removing.name })}
           actions={
-            <>
-              <Button variant="outline" onClick={() => setRemoving(null)}>
-                {text.common.cancel}
-              </Button>
-              <Button variant="danger" disabled={busy} onClick={() => void run(() => teamApi.removeMember(removing.accountId)).then((ok) => ok && setRemoving(null))}>
-                {text.team.remove}
-              </Button>
-            </>
+            <ModalActions confirmLabel={text.team.remove} onCancel={() => setRemoving(null)} tone="danger" busy={busy} onConfirm={() => void run(() => teamApi.removeMember(removing.accountId)).then((ok) => ok && setRemoving(null))} />
           }
         >
           <Text>{text.team.removeText}</Text>
@@ -231,7 +191,7 @@ const Members = ({ team, myId }: { team: TeamSession; myId: string }) => {
 const InviteForm = ({ isOwner, full }: { isOwner: boolean; full: boolean }) => {
   const { text } = useLocale();
   const { fieldError } = useMessages();
-  const { busy, error, setError, run } = useTeamAction();
+  const { busy, error, setError, run } = useAccountAction();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<InviteRole>('member');
   const [sentTo, setSentTo] = useState<string>();
@@ -276,7 +236,7 @@ const InviteForm = ({ isOwner, full }: { isOwner: boolean; full: boolean }) => {
 
 const PendingInvites = ({ team }: { team: TeamSession }) => {
   const { text, locale } = useLocale();
-  const { busy, error, run } = useTeamAction();
+  const { busy, error, run } = useAccountAction();
   return (
     <Section title={text.team.pendingTitle} variant="h3" gap={vars.spacing[3]}>
       {team.invites.length === 0 ? (
@@ -309,21 +269,14 @@ const PendingInvites = ({ team }: { team: TeamSession }) => {
 
 const LeaveDialog = ({ teamName, onClose }: { teamName: string; onClose: () => void }) => {
   const { text } = useLocale();
-  const { busy, error, run } = useTeamAction();
+  const { busy, error, run } = useAccountAction();
   return (
     <Modal
       open
       onClose={onClose}
       title={fillText(text.team.leaveTitle, { team: teamName })}
       actions={
-        <>
-          <Button variant="outline" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button variant="danger" disabled={busy} onClick={() => void run(teamApi.leave).then((ok) => ok && onClose())}>
-            {text.team.leave}
-          </Button>
-        </>
+        <ModalActions confirmLabel={text.team.leave} onCancel={onClose} tone="danger" busy={busy} onConfirm={() => void run(teamApi.leave).then((ok) => ok && onClose())} />
       }
     >
       <Text>{text.team.leaveText}</Text>

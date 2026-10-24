@@ -10,7 +10,7 @@ import { authorize, db, logAction, now, respond } from './mockServer';
 // ---------- Items in the customer library ----------
 // The site's catalog shown as live elements, so taking one down really removes it from the site.
 
-const typeOfCategory: Record<CategoryId, ElementType> = {
+export const typeOfCategory: Record<CategoryId, ElementType> = {
   videoTemplates: 'videoTemplate',
   stockVideo: 'video',
   music: 'music',

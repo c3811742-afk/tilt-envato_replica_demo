@@ -1,24 +1,12 @@
 import { useState } from 'react';
 import { fetchInvoices } from '@/features/admin/api';
-import { Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { invoiceStatusTone } from '@/features/admin/constants';
 import type { Invoice } from '@/features/admin/types';
-import { fillText, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatPrice } from '@/shared/utils';
+import { fillText, formatDate, formatPrice, isolate } from '@/shared/utils';
 import { IssueInvoiceModal } from './IssueInvoiceModal';
 
 const Invoices = () => {
@@ -96,7 +84,6 @@ const Invoices = () => {
   return (
     <Stack gap={vars.spacing[6]}>
       <SectionHeader as="h1" title={t.title} subtitle={t.description} actions={current.length > 0 && issueButton} />
-      <Notice tone="info">{t.demoNote}</Notice>
       {notice && (
         <Notice tone={notice.tone} onDismiss={() => setNotice(null)}>
           {notice.message}

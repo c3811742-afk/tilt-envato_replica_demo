@@ -1,28 +1,16 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { fetchTicket, replyToTicket, setTicketClosed } from '@/features/admin/api';
-import { Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { ticketStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Ticket } from '@/features/admin/types';
-import { fillText, isBlank, isolate } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  SectionHeader,
-  Stack,
-  Text,
-  TextField,
-  TextLink,
-} from '@/shared/components';
+import { isBlank } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, Card, EmptyState, MessageThread, Notice, SectionHeader, Stack, TextField, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
-import styles from './TicketPage.module.css';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 
 const dateTime: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
 
@@ -79,7 +67,7 @@ const TicketView = ({ ticket, onChange }: TicketViewProps) => {
         actions={
           <>
             <Badge variant={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>
-            <Button variant="muted" size="sm" disabled={status.pending} onClick={toggleClosed}>
+            <Button variant="muted" size="sm" disabled={status.busy} onClick={toggleClosed}>
               {closed ? t.reopen : t.close}
             </Button>
           </>
@@ -91,21 +79,18 @@ const TicketView = ({ ticket, onChange }: TicketViewProps) => {
         </Notice>
       )}
       {status.error && <Notice tone="danger">{status.error}</Notice>}
-      <ol className={styles.thread}>
-        {ticket.messages.map((message) => (
-          <li key={message.id} className={message.fromSupport ? styles.fromSupport : styles.fromUser}>
-            <Stack gap={vars.spacing[2]}>
-              <Text as="span" variant="label" color={vars.colors.textMuted}>
-                {fillText(message.fromSupport ? t.supportWrote : t.userWrote, {
-                  name: isolate(message.authorName),
-                  date: formatDate(message.at, locale, dateTime),
-                })}
-              </Text>
-              <Text autoDirection>{message.body}</Text>
-            </Stack>
-          </li>
-        ))}
-      </ol>
+      <MessageThread
+        label={t.threadLabel}
+        messages={ticket.messages.map((message) => ({
+          id: message.id,
+          fromTeam: message.fromSupport,
+          body: message.body,
+          heading: fillText(message.fromSupport ? t.supportWrote : t.userWrote, {
+            name: isolate(message.authorName),
+            date: formatDate(message.at, locale, dateTime),
+          }),
+        }))}
+      />
       {closed ? (
         <Notice tone="info">{t.closedNote}</Notice>
       ) : (
@@ -122,7 +107,7 @@ const TicketView = ({ ticket, onChange }: TicketViewProps) => {
                 required
               />
               <Stack direction="row" wrap>
-                <Button type="submit" disabled={reply.pending}>
+                <Button type="submit" disabled={reply.busy}>
                   {t.send}
                 </Button>
               </Stack>

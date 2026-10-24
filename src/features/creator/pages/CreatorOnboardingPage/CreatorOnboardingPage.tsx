@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react';
 import { Button, Card, FieldMessage, Icon, Page, SectionHeader, Stack, Stepper, Text } from '@/shared/components';
 import { routes } from '@/shared/constants';
-import { useLocale } from '@/shared/hooks';
+import { useAction, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { creatorApi, fillText, formatNumber, safeAsync } from '@/shared/utils';
+import { creatorApi, fillText, formatNumber } from '@/shared/utils';
 import { hasErrors, normalizeApplication, onboardingSteps, validateStep, type OnboardingErrors } from './onboardingModel';
 import { OnboardingSubmitted } from './OnboardingSubmitted';
 import { AgreementStep, ApplicationStep, IdentityStep, PayoutStep, ProfileStep } from './steps';
@@ -23,8 +23,8 @@ export const CreatorOnboardingPage = () => {
   const t = text.creatorOnboarding;
   const { draft, setDraft, resetDraft } = useOnboardingDraft();
   const [errors, setErrors] = useState<OnboardingErrors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [submitFailed, setSubmitFailed] = useState(false);
+  // Sending the application: busy while it goes, and the step's own message if it fails.
+  const { run, busy: submitting, error: submitError } = useAction(() => t.submitError);
 
   const { stepIndex, values, receipt } = draft;
   const step = onboardingSteps[stepIndex];
@@ -64,14 +64,11 @@ export const CreatorOnboardingPage = () => {
       goTo(stepIndex + 1);
       return;
     }
-    setSubmitting(true);
-    setSubmitFailed(false);
-    const result = await safeAsync(() => creatorApi.submitApplication(normalizeApplication(values)));
-    setSubmitting(false);
+    const result = await run(() => creatorApi.submitApplication(normalizeApplication(values)));
     if (result.ok) {
       setDraft((current) => ({ ...current, receipt: result.data }));
       window.scrollTo({ top: 0 });
-    } else setSubmitFailed(true);
+    }
   };
 
   if (receipt) {
@@ -98,7 +95,7 @@ export const CreatorOnboardingPage = () => {
           <StepFields values={values} errors={errors} update={update} />
 
           <Stack gap={vars.spacing[3]}>
-            <FieldMessage tone="error" message={hasErrors(errors) ? t.fixErrors : submitFailed ? t.submitError : undefined} />
+            <FieldMessage tone="error" message={hasErrors(errors) ? t.fixErrors : submitError} />
             <Stack direction="row" wrap align="center" justify="space-between" gap={vars.spacing[3]}>
               <Stack direction="row" wrap align="center" gap={vars.spacing[3]}>
                 <Button variant="outline" to={routes.home}>

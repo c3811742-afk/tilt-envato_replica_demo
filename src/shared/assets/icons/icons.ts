@@ -23,6 +23,7 @@ export const icons = {
   check: ['M20 6L9 17l-5-5'],
   more: [circle(5, 12, 1), circle(12, 12, 1), circle(19, 12, 1)], // three dots: opens a menu of more actions
   chevronDown: ['M6 9l6 6 6-6'],
+  chevronUp: ['M18 15l-6-6-6 6'],
   chevronEnd: ['M9 18l6-6-6-6'], // points to the end of the line: flip in RTL
   chevronStart: ['M15 18l-6-6 6-6'], // points to the start of the line: flip in RTL
   arrowEnd: ['M5 12h14', 'M12 5l7 7-7 7'], // flip in RTL

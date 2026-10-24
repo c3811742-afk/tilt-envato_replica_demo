@@ -1,27 +1,13 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchTickets } from '@/features/admin/api';
-import { FilterBar } from '@/features/admin/components';
 import { ticketStatuses, ticketStatusTone } from '@/features/admin/constants';
 import type { Ticket, TicketStatus } from '@/features/admin/types';
-import { isOneOf } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Select,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, type RecordColumn, recordRows, Select, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, isOneOf } from '@/shared/utils';
 
 const allStatuses = 'all';
 const dateTime: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
@@ -88,7 +74,7 @@ export const TicketsTab = () => {
                   ...ticketStatuses.map((value) => ({ value, label: t.statuses[value] })),
                 ]}
                 value={status}
-                onChange={(value) => setStatus(isOneOf(ticketStatuses, value) ? value : allStatuses)}
+                onChange={(value) => setStatus(isOneOf(value, ticketStatuses) ? value : allStatuses)}
               />
             </FilterBar>
             {visible.length > 0 ? (

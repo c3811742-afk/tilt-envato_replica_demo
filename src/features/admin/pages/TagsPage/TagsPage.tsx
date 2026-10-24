@@ -1,26 +1,12 @@
 import { useState } from 'react';
 import { fetchTags, setTagBanned } from '@/features/admin/api';
-import { ConfirmModal, FilterBar, Notice, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Tag } from '@/features/admin/types';
-import { fillText, isOneOf, isolate, matchesQuery } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Select,
-  Stack,
-  Table,
-  Text,
-  TextField,
-} from '@/shared/components';
+import { AsyncContent, Badge, Button, ConfirmModal, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, SectionHeader, Select, Stack, Table, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { fillText, formatNumber, isolate, isOneOf, matchesText } from '@/shared/utils';
 import { MergeTagModal } from './MergeTagModal';
 import { RenameTagModal } from './RenameTagModal';
 
@@ -76,7 +62,7 @@ const Tags = () => {
       label: text.admin.columns.actions,
       render: (tag) =>
         tag.banned ? (
-          <Button size="sm" variant="muted" disabled={action.pending} onClick={() => setBanned(tag, false)}>
+          <Button size="sm" variant="muted" disabled={action.busy} onClick={() => setBanned(tag, false)}>
             {t.unban}
           </Button>
         ) : (
@@ -117,7 +103,7 @@ const Tags = () => {
         {(list) => {
           const visible = list.filter(
             (tag) =>
-              matchesQuery(query, [tag.name]) &&
+              matchesText(query, ...[tag.name]) &&
               (filter === 'all' || (filter === 'banned') === tag.banned),
           );
           return (
@@ -128,7 +114,7 @@ const Tags = () => {
                   label={t.filterLabel}
                   options={tagFilters.map((value) => ({ value, label: t.filters[value] }))}
                   value={filter}
-                  onChange={(value) => isOneOf(tagFilters, value) && setFilter(value)}
+                  onChange={(value) => isOneOf(value, tagFilters) && setFilter(value)}
                 />
               </FilterBar>
               <Text color={vars.colors.textMuted}>{fillText(t.count, { count: formatNumber(list.length, locale) })}</Text>
@@ -171,7 +157,7 @@ const Tags = () => {
           confirmLabel={t.ban}
           tone="danger"
           message={fillText(t.banMessage, { count: formatNumber(dialog.tag.usage, locale) })}
-          pending={action.pending}
+          pending={action.busy}
           error={action.error}
           onConfirm={() => setBanned(dialog.tag, true)}
           onClose={() => setDialog(null)}

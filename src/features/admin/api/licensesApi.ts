@@ -1,6 +1,6 @@
 import type { ClaimDecision, ClaimStatus, CopyrightClaim, License, RevokeInput } from '@/features/admin/types';
 import type { LicenseRecord } from '@/shared/types';
-import { findAccountById, readAccounts, readLicenses, revokeLicenseRecord } from '@/shared/utils';
+import { findAccountById, readAccounts, readLicenses, revokeLicenseRecord, saveAccount, withAlert } from '@/shared/utils';
 import { sameText } from '@/features/admin/utils/lists';
 import { takeElementDown } from './elementsApi';
 import { AdminApiError } from './errors';
@@ -50,11 +50,11 @@ export const revokeLicense = (actorId: string, id: string, input: RevokeInput) =
     return saved;
   });
 
-// Copyright reports sent from item pages on the site. The admin's decision is kept here.
+// Copyright reports sent from item pages on the site. The admin's decision is kept on the report itself.
 const siteClaims = (): CopyrightClaim[] =>
   readAccounts().flatMap((account) =>
     account.copyrightReports.map((report): CopyrightClaim => {
-      const decision = db.siteClaimDecisions[report.id];
+      const decision = report.decision;
       return {
         id: report.id,
         reference: report.reference,
@@ -91,7 +91,17 @@ export const decideClaim = (actorId: string, id: string, decision: ClaimDecision
     if (closed || found.status === decision) throw new AdminApiError('alreadyClosed');
 
     const claim: CopyrightClaim = { ...found, status: decision, decisionNote: note.trim() || undefined };
-    if (claim.source === 'site') db.siteClaimDecisions[id] = { status: decision, note: claim.decisionNote };
+    if (claim.source === 'site') {
+      // Saved on the reporter's account, and they're told the outcome.
+      const reporter = readAccounts().find((account) => account.copyrightReports.some((report) => report.id === id));
+      if (reporter) {
+        const updated = {
+          ...reporter,
+          copyrightReports: reporter.copyrightReports.map((report) => (report.id === id ? { ...report, decision: { status: decision, note: claim.decisionNote } } : report)),
+        };
+        saveAccount(withAlert(updated, 'reportAnswered', { title: claim.element.title, outcome: decision }));
+      }
+    }
     else db.claims = db.claims.map((current) => (current.id === id ? claim : current));
     if (decision === 'takenDown') {
       takeElementDown(actor, claim.element.id, { reason: 'copyright', note: claim.decisionNote ?? '' });

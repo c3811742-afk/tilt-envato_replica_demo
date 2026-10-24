@@ -1,79 +1,11 @@
-.topBar {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: var(--z-index-sticky);
-  border-block-end: var(--borders-width-thick) var(--borders-style) var(--colors-nav-accent);
-  background: var(--colors-surface);
-}
-
-.content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-4);
-  min-block-size: var(--sizes-header-height);
-  padding-inline: var(--sizes-container-padding-x);
-}
-
-.brand {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: var(--spacing-2);
-  color: var(--colors-text);
-  text-decoration: none;
-}
-
-.brand:focus-visible {
-  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
-  outline-offset: var(--spacing-1);
-}
-
-.logo {
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-black);
-  line-height: var(--line-height-body);
-}
-
 /* The "Admin" tag: lime on blue, the two brand colors together. Phones leave it out so the buttons fit;
-   the blue menu bar under the top bar already marks the admin area there. */
+   the blue menu under the top bar already marks the admin area there. */
 .tag {
   display: none;
-  padding-block: var(--spacing-1);
-  padding-inline: var(--spacing-2);
-  background: var(--colors-nav);
-  color: var(--colors-nav-accent);
-  font-family: var(--text-styles-label-font-family);
-  font-size: var(--text-styles-label-font-size);
-  font-weight: var(--text-styles-label-font-weight);
-  letter-spacing: var(--text-styles-label-letter-spacing);
-  text-transform: var(--text-styles-label-text-transform);
 }
 
 @media (--sm-up) {
   .tag {
-    display: inline;
+    display: inline-flex;
   }
-}
-
-/* Phones find accounts from the Users page; the bar appears from tablet width up. */
-.search {
-  display: none;
-}
-
-@media (--md-up) {
-  .search {
-    display: block;
-    flex: 1;
-    max-inline-size: var(--sizes-readable-max-width);
-    min-inline-size: 0; /* shrinks before the buttons next to it do */
-  }
-}
-
-.actions {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: var(--spacing-2);
 }

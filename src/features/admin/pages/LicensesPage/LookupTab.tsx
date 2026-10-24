@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { fetchLicenses, findLicense, revokeLicense } from '@/features/admin/api';
-import { Notice, ReasonModal } from '@/features/admin/components';
+import { ReasonModal } from '@/features/admin/components';
 import { licenseStatusTone, revokeReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { License, RevokeInput } from '@/features/admin/types';
-import { fillText, isBlank, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Badge, Button, Card, DetailList, type DetailRow, EmptyState, type RecordColumn, recordRows, Stack, Table, Text, TextField } from '@/shared/components';
+import { isBlank, replaceById } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, Card, DetailList, type DetailRow, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 
 interface LicenseCardProps {
   license: License;
@@ -164,7 +164,7 @@ export const LookupTab = () => {
             required
           />
           <Stack direction="row" wrap>
-            <Button type="submit" disabled={lookup.pending}>
+            <Button type="submit" disabled={lookup.busy}>
               {t.lookUp}
             </Button>
           </Stack>
@@ -186,7 +186,7 @@ export const LookupTab = () => {
           reasons={revokeReasons}
           reasonLabels={text.admin.revokeReasons}
           noteLabel={t.revokeNoteLabel}
-          pending={revoke.pending}
+          pending={revoke.busy}
           error={revoke.error}
           onClose={() => setRevoking(null)}
           onSubmit={submitRevoke}

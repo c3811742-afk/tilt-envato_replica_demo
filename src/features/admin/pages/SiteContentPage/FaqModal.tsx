@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { saveFaq } from '@/features/admin/api';
-import { LocalizedField, Notice } from '@/features/admin/components';
+import { LocalizedField } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Faq } from '@/features/admin/types';
 import { emptyLocalized, hasErrors, localizedErrors } from '@/features/admin/utils';
-import { Button, Modal } from '@/shared/components';
+import { Modal, ModalActions, Notice } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface FaqModalProps {
@@ -16,7 +16,7 @@ interface FaqModalProps {
 export const FaqModal = ({ faq, onClose, onSaved }: FaqModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.content.faqs;
   const [group, setGroup] = useState(faq?.group ?? emptyLocalized());
   const [question, setQuestion] = useState(faq?.question ?? emptyLocalized());
@@ -39,14 +39,7 @@ export const FaqModal = ({ faq, onClose, onSaved }: FaqModalProps) => {
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {faq ? text.common.saveChanges : t.add}
-          </Button>
-        </>
+        <ModalActions confirmLabel={faq ? text.common.saveChanges : t.add} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}

@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { fetchPayoutRules, savePayoutRules } from '@/features/admin/api';
-import { FilterBar, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { PayoutRules } from '@/features/admin/types';
-import { fillText, hasErrors, isValidAmount, isWholeNumber, toNumber } from '@/features/admin/utils';
-import { AsyncContent, Button, Card, Stack, Text, TextField } from '@/shared/components';
+import { hasErrors, isValidAmount, isWholeNumber, toNumber } from '@/features/admin/utils';
+import { AsyncContent, Button, Card, FilterBar, Notice, Stack, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber, formatPrice } from '@/shared/utils';
+import { fillText, formatNumber, formatPrice } from '@/shared/utils';
 
 // The last day every month has, so payouts never skip a short month.
 const lastPayoutDay = 28;
@@ -20,7 +19,7 @@ interface RulesFormProps {
 const RulesForm = ({ rules, onSaved }: RulesFormProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.payouts.rules;
   const [share, setShare] = useState(String(rules.creatorShare));
   const [minimum, setMinimum] = useState(String(rules.minimumPayout));

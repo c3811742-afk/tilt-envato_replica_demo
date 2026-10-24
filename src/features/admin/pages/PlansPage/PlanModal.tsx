@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { savePlan } from '@/features/admin/api';
-import { FilterBar, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Plan } from '@/features/admin/types';
-import { fillText, hasErrors, isValidAmount, isWholeNumber, localized, toNumber } from '@/features/admin/utils';
-import { Button, Checkbox, Modal, TextField } from '@/shared/components';
+import { hasErrors, isValidAmount, isWholeNumber, localized, toNumber } from '@/features/admin/utils';
+import { Checkbox, FilterBar, Modal, ModalActions, Notice, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
+import { fillText } from '@/shared/utils';
 
 interface PlanModalProps {
   plan: Plan;
@@ -19,7 +19,7 @@ const asField = (value: number | null | undefined) => (value === null || value =
 export const PlanModal = ({ plan, onClose, onSaved }: PlanModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.plans;
   const [monthlyPrice, setMonthlyPrice] = useState(asField(plan.monthlyPrice));
   const [unlimited, setUnlimited] = useState(plan.downloadLimit === null);
@@ -64,14 +64,7 @@ export const PlanModal = ({ plan, onClose, onSaved }: PlanModalProps) => {
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {text.common.saveChanges}
-          </Button>
-        </>
+        <ModalActions confirmLabel={text.common.saveChanges} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}

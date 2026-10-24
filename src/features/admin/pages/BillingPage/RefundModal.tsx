@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { refundTransaction } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import { refundReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { RefundReason, Transaction } from '@/features/admin/types';
-import { fillText, hasErrors, isOneOf, isValidAmount, isolate, refundable, toNumber } from '@/features/admin/utils';
-import { Button, Modal, Select, Text, TextField } from '@/shared/components';
+import { hasErrors, isValidAmount, refundable, toNumber } from '@/features/admin/utils';
+import { Modal, ModalActions, Notice, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatPrice } from '@/shared/utils';
+import { fillText, formatPrice, isolate, isOneOf } from '@/shared/utils';
 
 interface RefundModalProps {
   transaction: Transaction;
@@ -20,7 +19,7 @@ interface RefundModalProps {
 export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalProps) => {
   const { text, locale } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.billing.refund;
   const available = refundable(transaction);
   const [amount, setAmount] = useState(String(available));
@@ -52,14 +51,7 @@ export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalPro
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" variant="danger" disabled={pending}>
-            {t.confirm}
-          </Button>
-        </>
+        <ModalActions confirmLabel={t.confirm} onCancel={onClose} submit tone="danger" busy={pending} />
       }
     >
       <Text>
@@ -86,7 +78,7 @@ export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalPro
         placeholder={text.admin.live.reasonPlaceholder}
         options={refundReasons.map((value) => ({ value, label: text.admin.refundReasons[value] }))}
         value={reason}
-        onChange={(value) => isOneOf(refundReasons, value) && setReason(value)}
+        onChange={(value) => isOneOf(value, refundReasons) && setReason(value)}
         error={submitted ? errors.reason : undefined}
         required
       />

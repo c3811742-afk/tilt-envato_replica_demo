@@ -1,36 +1,66 @@
+/* Phones and tablets: the button, then the panel when it's open, then the page. */
+.phoneToggle {
+  padding: var(--spacing-3) var(--sizes-container-padding-x) 0;
+}
+
 .rail {
   display: none;
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--sidebar-layout-background);
+  color: var(--sidebar-layout-color);
+}
+
+.open {
+  display: block;
+  margin-block-start: var(--spacing-3);
+}
+
+.sidebar {
+  padding: var(--spacing-3) var(--sizes-container-padding-x) var(--spacing-5);
 }
 
 .main {
   min-inline-size: 0;
 }
 
+/* Folding is a desktop thing: on phones the panel opens and closes with the button above the page. */
+.toggle {
+  display: none;
+}
+
 @media (--lg-up) {
-  /* Reaches the footer: the space the app leaves under every page moves inside the main column. */
   .layout {
     display: grid;
     grid-template-columns: var(--sidebar-layout-width) minmax(0, 1fr);
-    margin-block-end: calc(-1 * var(--sizes-page-end-space));
     transition: grid-template-columns var(--motion-base) var(--motion-ease); /* folding slides the panel */
   }
 
-  .main {
+  .phoneToggle {
+    display: none;
+  }
+
+  /* Reaches the footer: the space the app leaves under every page moves inside the main column. */
+  .reachFooter {
+    margin-block-end: calc(-1 * var(--sizes-page-end-space));
+  }
+
+  .reachFooter .main {
     padding-block-end: var(--sizes-page-end-space);
   }
 
-  /* The panel's background and edge, the full height of the page, so it joins the header and the footer. */
+  /* The panel's background and edge, the full height of the page, so it joins the top bar (and the footer). */
   .rail {
     display: block;
+    margin-block-start: 0;
+    border-block-end: 0;
     border-inline-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-    background: var(--colors-surface);
   }
 
-  /* The panel's content: in view under the header, the height of the screen, scrolling on its own. */
+  /* The panel's content: in view under the top bar, the height of the screen, scrolling on its own. */
   .sidebar {
     position: sticky;
-    inset-block-start: var(--sizes-header-total-height);
-    max-block-size: calc(var(--sizes-viewport-full-height) - var(--sizes-header-total-height));
+    inset-block-start: var(--sidebar-layout-top);
+    max-block-size: calc(var(--sizes-viewport-full-height) - var(--sidebar-layout-top));
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: var(--spacing-3) var(--spacing-5) var(--spacing-6);
@@ -42,7 +72,7 @@
     padding-inline: var(--spacing-2);
   }
 
-  /* The fold button sits at the panel's top end corner, beside the results. */
+  /* The fold button sits at the panel's top end corner, beside the page. */
   .toggle {
     display: flex;
     justify-content: flex-end;

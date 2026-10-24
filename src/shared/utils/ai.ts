@@ -1,12 +1,16 @@
 import {
+  aiShortcuts,
   aiGeneration,
   aiModelCredits,
   aiOutputSizes,
   aiVideoModelCredits,
   type AiGraphicKind,
   type AiModelId,
+  type AiOperation,
+  type AiShortcut,
   type AiStyle,
   type AiVideoModelId,
+  type Text,
 } from '@/shared/constants';
 import { aiCost } from './siteAi';
 import { findPlanById } from './siteSettings';
@@ -194,3 +198,8 @@ export const generatedGraphic = (request: Pick<AiRequest, 'prompt' | 'tint'> & {
         : `<rect x="${size * 0.2}" y="${size * 0.2}" width="${size * 0.6}" height="${size * 0.6}" rx="${size * 0.12}" fill="${second}"/>${glyph(size / 2, size / 2, size * 0.22)}`;
   return svgUrl(size, size, `<rect width="100%" height="100%" fill="#fff"/>${body}`);
 };
+
+const isShortcut = (operation: AiOperation): operation is AiShortcut => (aiShortcuts as readonly string[]).includes(operation);
+
+// A tool's or quick edit's name in the given language's text (the AI Studio, the admin's user page).
+export const operationName = (text: Text, operation: AiOperation) => (isShortcut(operation) ? text.ai.shortcuts[operation] : text.ai.tools[operation].name);

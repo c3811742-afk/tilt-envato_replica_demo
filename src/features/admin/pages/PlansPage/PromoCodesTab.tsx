@@ -1,33 +1,12 @@
 import { useState } from 'react';
 import { disablePromoCode, fetchPlans, fetchPromoCodes } from '@/features/admin/api';
-import { ConfirmModal, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Plan, PromoCode } from '@/features/admin/types';
-import {
-  fillText,
-  formatList,
-  fromDateKey,
-  isolate,
-  localized,
-  promoState,
-  replaceById,
-  type PromoState,
-} from '@/features/admin/utils';
-import {
-  AsyncContent,
-  type BadgeVariant,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { fromDateKey, localized, promoState, replaceById, type PromoState } from '@/features/admin/utils';
+import { AsyncContent, Badge, type BadgeVariant, Button, ConfirmModal, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatList, formatNumber, isolate } from '@/shared/utils';
 import { PromoCodeModal } from './PromoCodeModal';
 
 const stateTone: Record<PromoState, BadgeVariant> = {
@@ -166,7 +145,7 @@ export const PromoCodesTab = () => {
           confirmLabel={t.disable}
           tone="danger"
           message={t.disableMessage}
-          pending={action.pending}
+          pending={action.busy}
           error={action.error}
           onConfirm={disable}
           onClose={() => setDisabling(null)}

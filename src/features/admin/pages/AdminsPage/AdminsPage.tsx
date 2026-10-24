@@ -1,24 +1,14 @@
 import { useState } from 'react';
 import { changeAdminRole } from '@/features/admin/api';
-import { Notice, type NoticeTone, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { adminRoles } from '@/features/admin/constants';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { Admin } from '@/features/admin/types';
-import { errorMessage, fillText, isOneOf, isolate } from '@/features/admin/utils';
-import {
-  Badge,
-  Button,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Select,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { errorMessage } from '@/features/admin/utils';
+import { Badge, Button, Notice, type NoticeTone, type RecordColumn, recordRows, SectionHeader, Select, Stack, Table, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, safeAsync } from '@/shared/utils';
+import { fillText, formatDate, isolate, isOneOf, safeAsync } from '@/shared/utils';
 import { AddAdminModal } from './AddAdminModal';
 
 const Admins = () => {
@@ -32,7 +22,7 @@ const Admins = () => {
   const roleOptions = adminRoles.map((role) => ({ value: role, label: t.roles[role] }));
 
   const changeRole = async (admin: Admin, value: string) => {
-    if (!isOneOf(adminRoles, value) || value === admin.role) return;
+    if (!isOneOf(value, adminRoles) || value === admin.role) return;
     setSavingId(admin.id);
     setNotice(null);
     const result = await safeAsync(() => changeAdminRole(currentAdmin.id, admin.id, value));

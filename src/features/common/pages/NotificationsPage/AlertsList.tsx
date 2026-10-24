@@ -16,6 +16,12 @@ export const AlertsList = ({ alerts, unread }: { alerts: Alert[]; unread: string
 
   if (!alerts.length) return <EmptyState title={text.notifications.tabs.alerts} message={text.alerts.empty} />;
 
+  // A rejected creator application: the admin team's reason, in the active language.
+  const applicationReason = (reason: string) => {
+    const reasons: Record<string, string> = text.admin.creators.applicationReasons;
+    return reasons[reason] ?? reasons.other;
+  };
+
   // Each kind fills its text with its own details, in the active language.
   const message = ({ kind, params }: Alert) => {
     switch (kind) {
@@ -27,6 +33,12 @@ export const AlertsList = ({ alerts, unread }: { alerts: Alert[]; unread: string
         });
       case 'licenseRevoked':
         return fillText(text.alerts.licenseRevoked, { title: params.title, reason: isRevokeReason(params.reason) ? text.revokeReasons[params.reason] : '' });
+      case 'reportAnswered': {
+        const outcomes: Record<string, string> = text.alerts.reportOutcomes;
+        return fillText(text.alerts.reportAnswered, { title: params.title, outcome: outcomes[params.outcome] ?? '' });
+      }
+      case 'creatorRejected':
+        return fillText(text.alerts.creatorRejected, { reason: applicationReason(params.reason) });
       default:
         return fillText(text.alerts[kind], params);
     }

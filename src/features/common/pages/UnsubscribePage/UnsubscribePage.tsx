@@ -2,25 +2,20 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button, EmptyState, FieldMessage, IconNote, Page, Stack, Text } from '@/shared/components';
 import { accountPath, unsubscribeParam } from '@/shared/constants';
-import { useLocale, useMessages } from '@/shared/hooks';
+import { useAction, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { fillText, resourcesApi, safeAsync } from '@/shared/utils';
+import { fillText, resourcesApi } from '@/shared/utils';
 
 // The page a newsletter email's "Unsubscribe" link opens: confirm, and sign up again if it was a mistake.
 export const UnsubscribePage = () => {
   const { text } = useLocale();
-  const { requestError } = useMessages();
   const [params] = useSearchParams();
   const email = params.get(unsubscribeParam)?.trim() ?? '';
   const [subscribed, setSubscribed] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
+  const { run, busy, error } = useAction();
 
   const change = async (subscribe: boolean) => {
-    setBusy(true);
-    const result = await safeAsync(() => (subscribe ? resourcesApi.subscribe(email) : resourcesApi.unsubscribe(email)));
-    setBusy(false);
-    setError(result.ok ? undefined : requestError(result.error));
+    const result = await run(() => (subscribe ? resourcesApi.subscribe(email) : resourcesApi.unsubscribe(email)));
     if (result.ok) setSubscribed(subscribe);
   };
 

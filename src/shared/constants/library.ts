@@ -13,7 +13,7 @@ export const revokeReasons = ['rightsDispute', 'paymentReversed', 'termsBreach']
 export type RevokeReason = (typeof revokeReasons)[number];
 
 // Account notifications, newest first in the Notifications page. Their text is in text.alerts.
-// supportReply and announcement are sent by the admin team.
+// supportReply, announcement and the creator application decisions are sent by the admin team.
 export const alertKinds = [
   'renewalReminder',
   'paymentFailed',
@@ -24,6 +24,9 @@ export const alertKinds = [
   'teamRemoved',
   'supportReply',
   'announcement',
+  'creatorApproved',
+  'creatorRejected',
+  'reportAnswered',
 ] as const;
 export type AlertKind = (typeof alertKinds)[number];
 

@@ -1,22 +1,14 @@
 import { useState } from 'react';
 import { deleteFaq, fetchFaqs, moveFaq } from '@/features/admin/api';
-import { ConfirmModal, Notice, ReorderButtons } from '@/features/admin/components';
+import { ReorderButtons } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Faq, MoveDirection } from '@/features/admin/types';
-import { fillText, isolate, localized, removeById, upsertById } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { localized, removeById, upsertById } from '@/features/admin/utils';
+import { AsyncContent, Button, ConfirmModal, EmptyState, Icon, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { FaqModal } from './FaqModal';
+import { fillText, isolate } from '@/shared/utils';
 
 // Questions shown on the FAQ page, in this order.
 export const FaqsTab = () => {
@@ -73,7 +65,7 @@ export const FaqsTab = () => {
             label={fillText(text.admin.common.moveLabel, { name: isolate(localized(faq.question, locale)) })}
             canMoveUp={index > 0}
             canMoveDown={index < current.length - 1}
-            disabled={action.pending}
+            disabled={action.busy}
             onMove={(direction) => move(faq, direction)}
           />
         );
@@ -83,19 +75,22 @@ export const FaqsTab = () => {
       key: 'actions',
       label: text.admin.columns.actions,
       render: (faq) => (
-        <Stack direction="row" wrap gap={vars.spacing[2]}>
-          <Button size="sm" variant="muted" onClick={() => setEditing(faq)}>
-            {text.admin.common.edit}
+        <Stack direction="row" gap={vars.spacing[2]}>
+          <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setEditing(faq)}>
+            <Icon name="pencil" size={vars.sizes.icon.sm} />
           </Button>
           <Button
             size="sm"
             variant="danger"
+            iconOnly
+            tooltip={text.admin.common.delete}
+            tooltipAlign="end"
             onClick={() => {
               action.clearError();
               setDeleting(faq);
             }}
           >
-            {text.admin.common.delete}
+            <Icon name="trash" size={vars.sizes.icon.sm} />
           </Button>
         </Stack>
       ),
@@ -140,7 +135,7 @@ export const FaqsTab = () => {
           confirmLabel={text.admin.common.delete}
           tone="danger"
           message={t.deleteMessage}
-          pending={action.pending}
+          pending={action.busy}
           error={action.error}
           onConfirm={remove}
           onClose={() => setDeleting(null)}

@@ -1,30 +1,16 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchReviewQueue } from '@/features/admin/api';
-import { ElementSummary, FilterBar, Notice, RequirePermission } from '@/features/admin/components';
+import { ElementSummary, RequirePermission } from '@/features/admin/components';
 import { elementTypes, statusTone } from '@/features/admin/constants';
 import { useFlashNotice } from '@/features/admin/hooks';
 import type { CatalogElement, ElementType } from '@/features/admin/types';
-import { fillText, filterQueue, isOneOf, type QueueFilters } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  Checkbox,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Select,
-  Stack,
-  Table,
-  Text,
-  TextField,
-} from '@/shared/components';
+import { filterQueue, type QueueFilters } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, Checkbox, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, SectionHeader, Select, Stack, Table, Text, TextField } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate, formatNumber } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isOneOf } from '@/shared/utils';
 
 const noFilters: QueueFilters = { query: '', type: 'all', flaggedOnly: false };
 
@@ -97,7 +83,7 @@ const ReviewQueue = () => {
                   options={typeOptions}
                   value={filters.type}
                   onChange={(type) =>
-                    setFilters({ ...filters, type: isOneOf<ElementType>(elementTypes, type) ? type : 'all' })
+                    setFilters({ ...filters, type: isOneOf<ElementType>(type, elementTypes) ? type : 'all' })
                   }
                 />
                 <Checkbox

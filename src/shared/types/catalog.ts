@@ -217,6 +217,7 @@ export interface SentSearchReport extends SearchReport {
   id: string;
   reportedBy: string; // the signed-in email, or empty for a guest
   at: string; // ISO date
+  answer?: 'resolved' | 'dismissed'; // the team's answer (Admin › Search insights)
 }
 
 // A search that found nothing.

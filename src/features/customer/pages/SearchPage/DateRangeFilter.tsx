@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { FieldMessage, Grid, Stack, Text, TextField } from '@/shared/components';
+import { DateRangeField, FieldMessage, Stack, Text, TextField, type DateRange } from '@/shared/components';
 import { catalog } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { fillText, isIsoDate, keepDigits } from '@/shared/utils';
 
-export interface UploadRange {
-  from?: string; // ISO date
-  to?: string;
-}
+// The upload dates the filter covers (the shared DateRange: from / to).
+export type UploadRange = DateRange;
 
 interface DateRangeFilterProps {
   value: UploadRange;
@@ -90,10 +88,7 @@ export const DateRangeFilter = ({ value, onChange }: DateRangeFilterProps) => {
         placeholder={fillText(labels.yearPlaceholder, { year: thisYear })}
         error={yearError}
       />
-      <Grid as="div" columns={2} gap={vars.spacing[2]}>
-        <TextField label={labels.from} type="date" value={from} min={earliest} max={to || today} direction="ltr" onChange={(date) => changeDates(date, to)} />
-        <TextField label={labels.to} type="date" value={to} min={from || earliest} max={today} direction="ltr" onChange={(date) => changeDates(from, date)} />
-      </Grid>
+      <DateRangeField value={{ from, to }} min={earliest} max={today} onChange={(range) => changeDates(range.from ?? '', range.to ?? '')} />
       <FieldMessage tone="error" message={rangeError} />
     </Stack>
   );

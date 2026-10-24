@@ -1,9 +1,8 @@
 import { useState, type ReactNode } from 'react';
-import { Notice } from '@/features/admin/components';
 import type { DecisionInput } from '@/features/admin/types';
-import { isOneOf } from '@/features/admin/utils';
-import { Button, DetailList, Modal, Select, Text, TextField } from '@/shared/components';
+import { Button, DetailList, Modal, Notice, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
+import { isOneOf } from '@/shared/utils';
 
 interface DecisionModalProps<R extends string> {
   title: string;
@@ -12,7 +11,7 @@ interface DecisionModalProps<R extends string> {
   reasons: readonly R[];
   reasonLabels: Record<R, string>;
   pending: boolean;
-  error: string | null;
+  error?: string;
   onDecide: (input: DecisionInput<R>) => void;
   onClose: () => void;
 }
@@ -73,7 +72,7 @@ export const DecisionModal = <R extends string>({
             options={reasons.map((value) => ({ value, label: reasonLabels[value] }))}
             value={reason}
             onChange={(value) => {
-              if (isOneOf(reasons, value)) setReason(value);
+              if (isOneOf(value, reasons)) setReason(value);
               setReasonError(undefined);
             }}
             error={reasonError}

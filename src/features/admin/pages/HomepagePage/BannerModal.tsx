@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { saveBanner } from '@/features/admin/api';
-import { DateRangeField, LocalizedField, Notice } from '@/features/admin/components';
+import { LocalizedField } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Banner } from '@/features/admin/types';
 import { dateRangeErrors, emptyLocalized, hasErrors, isValidLink, localizedErrors } from '@/features/admin/utils';
-import { Button, Modal, TextField } from '@/shared/components';
+import { type DateRange, DateRangeField, Modal, ModalActions, Notice, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface BannerModalProps {
@@ -16,11 +16,11 @@ interface BannerModalProps {
 export const BannerModal = ({ banner, onClose, onSaved }: BannerModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.homepage.banners;
   const [message, setMessage] = useState(banner?.text ?? emptyLocalized());
   const [link, setLink] = useState(banner?.link ?? '');
-  const [dates, setDates] = useState({ start: banner?.startDate ?? '', end: banner?.endDate ?? '' });
+  const [dates, setDates] = useState<DateRange>({ from: banner?.startDate ?? '', to: banner?.endDate ?? '' });
   const [submitted, setSubmitted] = useState(false);
 
   const errors = {
@@ -33,7 +33,7 @@ export const BannerModal = ({ banner, onClose, onSaved }: BannerModalProps) => {
     event.preventDefault();
     setSubmitted(true);
     if (hasErrors(errors.text) || hasErrors(errors.dates) || errors.link) return;
-    const input = { text: message, link, startDate: dates.start, endDate: dates.end };
+    const input = { text: message, link, startDate: dates.from ?? '', endDate: dates.to ?? '' };
     const result = await run(() => saveBanner(currentAdmin.id, input, banner?.id));
     if (result.ok) onSaved(result.data);
   };
@@ -45,14 +45,7 @@ export const BannerModal = ({ banner, onClose, onSaved }: BannerModalProps) => {
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {banner ? text.common.saveChanges : t.add}
-          </Button>
-        </>
+        <ModalActions confirmLabel={banner ? text.common.saveChanges : t.add} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
@@ -72,7 +65,14 @@ export const BannerModal = ({ banner, onClose, onSaved }: BannerModalProps) => {
         error={submitted ? errors.link : undefined}
         required
       />
-      <DateRangeField value={dates} onChange={setDates} errors={submitted ? errors.dates : {}} />
+      <DateRangeField
+        value={dates}
+        onChange={setDates}
+        fromLabel={text.admin.common.startDate}
+        toLabel={text.admin.common.endDate}
+        errors={submitted ? errors.dates : {}}
+        required
+      />
     </Modal>
   );
 };

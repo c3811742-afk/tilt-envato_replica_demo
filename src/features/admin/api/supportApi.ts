@@ -118,7 +118,7 @@ export const setTicketClosed = (actorId: string, id: string, closed: boolean) =>
     return ticket;
   });
 
-// Broken downloads reported on the customer side. The admin's answer is kept here.
+// Broken downloads reported on the customer side. The admin's answer is kept on the download itself.
 const siteReportId = (accountId: string, download: Download) => `site-${accountId}-${download.id}`;
 
 const siteItemReports = (): ItemReport[] =>
@@ -133,7 +133,7 @@ const siteItemReports = (): ItemReport[] =>
               reporter: account.email,
               note: download.reportedBroken.reason,
               reportedAt: download.reportedBroken.at,
-              status: db.siteReportStatus[siteReportId(account.id, download)] ?? 'open',
+              status: download.reportedBroken.answer ?? 'open',
               source: 'site',
             },
           ]
@@ -167,7 +167,19 @@ export const resolveItemReport = (actorId: string, id: string, resolution: ItemR
     if (report.status !== 'open') throw new AdminApiError('alreadyClosed');
 
     report.status = resolution;
-    if (report.source === 'site') db.siteReportStatus[id] = resolution;
+    if (report.source === 'site') {
+      // Saved on the reporter's download, and they're told the outcome.
+      const reporter = readAccounts().find((account) => account.downloads.some((download) => siteReportId(account.id, download) === id));
+      if (reporter) {
+        const updated: StoredAccount = {
+          ...reporter,
+          downloads: reporter.downloads.map((download) =>
+            siteReportId(reporter.id, download) === id && download.reportedBroken ? { ...download, reportedBroken: { ...download.reportedBroken, answer: resolution } } : download,
+          ),
+        };
+        saveAccount(withAlert(updated, 'reportAnswered', { title: report.element.title, outcome: resolution }));
+      }
+    }
     else db.itemReports = db.itemReports.map((current) => (current.id === id ? report : current));
     if (resolution === 'removed') {
       takeElementDown(actor, report.element.id, { reason: removalReason[report.kind], note: report.note });

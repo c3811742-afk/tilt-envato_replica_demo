@@ -6,4 +6,4 @@ export { SiteTour } from './SiteTour';
 export { LegalPage } from './LegalPage';
 export { SocialSignIn, SocialAuthDialog } from './SocialSignIn';
 export type { SocialDetails } from './SocialSignIn';
-export { AiResult, GenerationQueue, drawnSource, findOutput, operationName, outputBlob, outputRef, useOutputUrl } from './AiStudio';
+export { AiResult, GenerationQueue, drawnSource, findOutput, outputBlob, outputRef, useOutputUrl } from './AiStudio';

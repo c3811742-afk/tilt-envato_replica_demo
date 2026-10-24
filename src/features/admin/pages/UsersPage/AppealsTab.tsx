@@ -1,25 +1,14 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchAppeals } from '@/features/admin/api';
-import { Notice } from '@/features/admin/components';
 import type { UserAccount } from '@/features/admin/types';
-import { fillText, isolate, removeById } from '@/features/admin/utils';
+import { removeById } from '@/features/admin/utils';
 import { AppealModal } from '@/features/admin/pages/UserPage';
-import {
-  AsyncContent,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  Stack,
-  Table,
-  Text,
-  TextLink,
-} from '@/shared/components';
+import { AsyncContent, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 
 // Appeals waiting for an answer, oldest first.
 export const AppealsTab = () => {

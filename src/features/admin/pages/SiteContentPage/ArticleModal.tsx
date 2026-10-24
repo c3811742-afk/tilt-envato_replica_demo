@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { saveArticle } from '@/features/admin/api';
-import { LocalizedField, Notice } from '@/features/admin/components';
+import { LocalizedField } from '@/features/admin/components';
 import { articleStatuses } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Article, ArticleKind, ArticleStatus } from '@/features/admin/types';
-import { emptyLocalized, hasErrors, isOneOf, localizedErrors } from '@/features/admin/utils';
-import { Button, Modal, Select } from '@/shared/components';
+import { emptyLocalized, hasErrors, localizedErrors } from '@/features/admin/utils';
+import { Modal, ModalActions, Notice, Select } from '@/shared/components';
 import { helpTopics, type HelpTopic } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
+import { isOneOf } from '@/shared/utils';
 
 interface ArticleModalProps {
   kind: ArticleKind;
@@ -22,7 +23,7 @@ interface ArticleModalProps {
 export const ArticleModal = ({ kind, article, labels, onClose, onSaved }: ArticleModalProps) => {
   const { text } = useLocale();
   const { currentAdmin } = useAdminSession();
-  const { run, pending, error } = useAdminAction();
+  const { run, busy: pending, error } = useAdminAction();
   const t = text.admin.content.article;
   const [title, setTitle] = useState(article?.title ?? emptyLocalized());
   const [body, setBody] = useState(article?.body ?? emptyLocalized());
@@ -50,14 +51,7 @@ export const ArticleModal = ({ kind, article, labels, onClose, onSaved }: Articl
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" disabled={pending}>
-            {status === 'published' ? t.saveAndPublish : t.saveDraft}
-          </Button>
-        </>
+        <ModalActions confirmLabel={status === 'published' ? t.saveAndPublish : t.saveDraft} onCancel={onClose} submit busy={pending} />
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
@@ -81,14 +75,14 @@ export const ArticleModal = ({ kind, article, labels, onClose, onSaved }: Articl
           label={t.topicLabel}
           options={helpTopics.map((value) => ({ value, label: text.help.topics[value] }))}
           value={topic}
-          onChange={(value) => isOneOf(helpTopics, value) && setTopic(value)}
+          onChange={(value) => isOneOf(value, helpTopics) && setTopic(value)}
         />
       )}
       <Select
         label={t.statusLabel}
         options={articleStatuses.map((value) => ({ value, label: t.statuses[value] }))}
         value={status}
-        onChange={(value) => isOneOf(articleStatuses, value) && setStatus(value)}
+        onChange={(value) => isOneOf(value, articleStatuses) && setStatus(value)}
       />
     </Modal>
   );

@@ -1,16 +1,15 @@
 import { useState, type FormEvent } from 'react';
-import { Field, Notice } from '@/features/admin/components';
 import { hardRejectReasons, softRejectReasons } from '@/features/admin/constants';
 import type { RejectDecision, RejectReason } from '@/features/admin/types';
 import { toggleItem } from '@/features/admin/utils';
-import { Button, Checkbox, Modal, Text, TextField } from '@/shared/components';
+import { Checkbox, FieldGroup, Modal, ModalActions, Notice, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 
 interface RejectModalProps {
   decision: RejectDecision;
   pending: boolean;
-  error: string | null;
+  error?: string;
   onClose: () => void;
   onSubmit: (reasons: RejectReason[], comment: string) => void;
 }
@@ -42,19 +41,12 @@ export const RejectModal = ({ decision, pending, error, onClose, onSubmit }: Rej
       onClose={onClose}
       onSubmit={handleSubmit}
       actions={
-        <>
-          <Button variant="muted" onClick={onClose}>
-            {text.common.cancel}
-          </Button>
-          <Button type="submit" variant={isSoft ? 'highlight' : 'danger'} disabled={pending}>
-            {title}
-          </Button>
-        </>
+        <ModalActions confirmLabel={title} onCancel={onClose} submit tone={isSoft ? 'highlight' : 'danger'} busy={pending} />
       }
     >
       <Text color={vars.colors.textMuted}>{isSoft ? t.softRejectMessage : t.hardRejectMessage}</Text>
       {error && <Notice tone="danger">{error}</Notice>}
-      <Field group label={t.reasonsLabel} error={reasonsError}>
+      <FieldGroup label={t.reasonsLabel} error={reasonsError}>
         {presetReasons.map((reason) => (
           <Checkbox
             key={reason}
@@ -63,7 +55,7 @@ export const RejectModal = ({ decision, pending, error, onClose, onSubmit }: Rej
             onChange={() => setReasons(toggleItem(reasons, reason))}
           />
         ))}
-      </Field>
+      </FieldGroup>
       <TextField rows={4}
         label={t.commentLabel}
         hint={t.commentHint}

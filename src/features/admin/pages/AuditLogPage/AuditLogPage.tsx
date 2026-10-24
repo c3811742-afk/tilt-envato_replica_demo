@@ -1,25 +1,13 @@
 import { useState } from 'react';
 import { fetchAuditLog } from '@/features/admin/api';
-import { FilterBar, RequirePermission } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { auditActions, auditActionTone } from '@/features/admin/constants';
 import type { AuditAction, AuditEntry } from '@/features/admin/types';
-import { describeAuditDetails, isOneOf, localized } from '@/features/admin/utils';
-import {
-  AsyncContent,
-  Badge,
-  Button,
-  EmptyState,
-  type RecordColumn,
-  recordRows,
-  SectionHeader,
-  Select,
-  Stack,
-  Table,
-  Text,
-} from '@/shared/components';
+import { describeAuditDetails, localized } from '@/features/admin/utils';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, type RecordColumn, recordRows, SectionHeader, Select, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, isOneOf } from '@/shared/utils';
 
 const allValues = 'all';
 const dateTime: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
@@ -107,7 +95,7 @@ const AuditLog = () => {
                     ...auditActions.map((value) => ({ value, label: t.audit.actions[value] })),
                   ]}
                   value={action}
-                  onChange={(value) => setAction(isOneOf(auditActions, value) ? value : allValues)}
+                  onChange={(value) => setAction(isOneOf(value, auditActions) ? value : allValues)}
                 />
                 <Select
                   label={t.audit.adminLabel}
