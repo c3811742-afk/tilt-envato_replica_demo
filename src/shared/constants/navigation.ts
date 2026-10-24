@@ -38,6 +38,6 @@ export const navMenus = {
   footerExplore: ['categories', 'collections', 'ai', 'howItWorks', 'pricing'],
   footerResources: ['blog', 'courses', 'learn', 'help'],
   footerCompany: ['about', 'products', 'careers', 'news', 'authors', 'partners'],
-  footerSupport: ['faq', 'support', 'licenseCheck'], // reachable from every page, with the WhatsApp contact
+  footerSupport: ['faq', 'support', 'licenseCheck'], // reachable from every page; the WhatsApp contact is in the brand column
   footerLegal: ['terms', 'privacy', 'licenseTerms', 'fairUse'],
 } as const satisfies Record<string, readonly NavKey[]>;

@@ -205,7 +205,8 @@ export type SearchSuggestion =
   | { kind: 'item'; item: Item };
 
 export interface SearchReport {
-  query: string;
+  query: string; // empty when the user only browsed or filtered
+  searchUrl: string; // the exact search (keyword, category, filters, sort), to open it again when reviewing the report
   categoryId?: CategoryId;
   reason: string;
   comment: string;

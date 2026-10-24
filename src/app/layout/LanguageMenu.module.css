@@ -1,4 +1,4 @@
-/* The language name shows on wide screens; elsewhere the globe alone, to leave the search box room. */
+/* The language code shows from tablet width up; phones show the globe alone. */
 .wideOnly {
   display: none;
 }
@@ -29,7 +29,7 @@
   background: var(--colors-surface-muted);
 }
 
-@media (--xl-up) {
+@media (--sm-up) {
   .wideOnly {
     display: inline;
   }

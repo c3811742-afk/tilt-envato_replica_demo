@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, Divider, FileInput, IconNote, Modal, Stack, Text, TextField } from '@/shared/components';
+import { Button, Divider, FileInput, Modal, Stack, Text, TextField } from '@/shared/components';
 import { catalog, searchPath } from '@/shared/constants';
 import { useLocale, type SoundSource } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -76,7 +76,6 @@ export const MusicMatchDialog = ({ open, onClose }: MusicMatchDialogProps) => {
         error={fileError}
         onSelect={upload}
       />
-      <IconNote icon="info" title={text.musicMatch.demoNote} />
     </Modal>
   );
 };

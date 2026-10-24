@@ -3,3 +3,7 @@
   grid-template-columns: var(--grid-columns);
   gap: var(--grid-gap);
 }
+
+.equalRows {
+  grid-auto-rows: 1fr;
+}

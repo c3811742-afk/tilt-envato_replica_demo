@@ -15,6 +15,7 @@ export const storageKeys = {
   currency: 'tilt.currency', // the currency prices are shown in
   gridSize: 'tilt.gridSize', // search results grid size
   pagingMode: 'tilt.pagingMode', // infinite scroll or pages
+  filtersCollapsed: 'tilt.filtersCollapsed', // the search filters panel is folded (desktop)
   fontView: 'tilt.fontView', // fonts as a grid or a list of samples
   volume: 'tilt.volume', // one volume for every preview
 } as const;

@@ -28,3 +28,66 @@
 .fullWidth {
   inline-size: 100%;
 }
+
+/* At least square, with just enough room around the icon. */
+.iconOnly {
+  gap: var(--spacing-1);
+  min-inline-size: var(--button-height);
+  padding-inline: var(--spacing-2);
+}
+
+/* No lift for a quiet button: it only darkens its icon, and turns the brand color when it's on. */
+.ghost:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  color: var(--colors-text);
+}
+
+.ghost[aria-pressed='true'] {
+  color: var(--colors-primary);
+}
+
+/* An icon button's label, under it on hover and keyboard focus. It's centered on the button
+   (wide insets with auto margins center it in both reading directions), or lined up with its end edge. */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  inset-block-start: calc(100% + var(--spacing-2));
+  inset-inline: calc(-1 * var(--sizes-container-max-width));
+  z-index: var(--z-index-dropdown);
+  inline-size: max-content;
+  margin-inline: auto;
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--colors-surface-inverse);
+  color: var(--colors-text-inverse);
+  font-family: var(--text-styles-body-sm-font-family);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--text-styles-body-sm-line-height);
+  letter-spacing: var(--letter-spacing-normal);
+  text-transform: none;
+  white-space: nowrap;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tooltipEnd::after {
+  inset-inline: auto 0;
+  margin-inline: 0;
+}
+
+.tooltip:hover::after,
+.tooltip:focus-visible::after {
+  visibility: visible;
+}
+
+/* The hover lift puts the button in its own layer, so the label's z-index alone only counts inside it:
+   the button itself comes forward too, or the fields and cards after it would cover the label. */
+.tooltip:hover,
+.tooltip:focus-visible {
+  z-index: var(--z-index-dropdown);
+}

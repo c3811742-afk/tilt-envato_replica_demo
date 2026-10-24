@@ -58,8 +58,7 @@ export const StudentVerification = ({ user }: { user: User }) => {
       {sentTo ? (
         <Stack gap={vars.spacing[3]}>
           <Text variant="bodySm">{fillText(text.planPage.studentCodeSent, { email: sentTo })}</Text>
-          {demoCode && <IconNote text={fillText(text.auth.demoCode, { code: demoCode })} />}
-          <CodeField label={text.planPage.studentCode} length={auth.codeLength} value={code} onChange={setCode} />
+          <CodeField label={text.planPage.studentCode} placeholder={demoCode} length={auth.codeLength} value={code} onChange={setCode} />
           <FieldMessage tone="error" message={error} />
           <Button disabled={busy || code.length !== auth.codeLength} onClick={() => void verify()}>
             {text.planPage.studentVerify}

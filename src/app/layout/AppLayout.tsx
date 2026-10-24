@@ -15,7 +15,7 @@ import { LanguageSuggestion } from './LanguageSuggestion';
 import styles from './AppLayout.module.css';
 
 // Every item card shows the favorite and "Save to collection" buttons.
-const itemActions = (item: Item) => <ItemSaveActions item={item} />;
+const itemActions = (item: Item) => <ItemSaveActions item={item} subtle />;
 
 // Page frame shared by every page: header, content, footer, and the phone tab bar.
 export const AppLayout = () => {

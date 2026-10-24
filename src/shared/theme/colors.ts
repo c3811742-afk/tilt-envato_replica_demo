@@ -45,6 +45,7 @@ export const colors = {
   info: palette.royalBlue,
   onInfo: palette.white,
 
+  transparent: 'transparent', // see-through backgrounds and borders (ghost buttons)
   overlay: 'rgba(0, 0, 0, 0.6)',
   shadow: palette.black, // the hard hover shadow
 } as const;

@@ -7,7 +7,7 @@
 
 .main {
   flex: 1;
-  padding-block-end: var(--spacing-8);
+  padding-block-end: var(--sizes-page-end-space);
 }
 
 @media (--md-up) {

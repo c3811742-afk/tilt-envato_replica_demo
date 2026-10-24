@@ -10,7 +10,7 @@ export const CompleteProfilePage = () => {
   if (session.status !== 'signedIn') return null; // the onboarding gate only shows this page to signed-in users
 
   return (
-    <AuthPage title={text.profile.title} subtitle={text.profile.subtitle}>
+    <AuthPage title={text.profile.title} subtitle={text.profile.subtitle} showBack={false}>
       <ProfileForm
         user={session.user}
         submitLabel={text.common.continue}

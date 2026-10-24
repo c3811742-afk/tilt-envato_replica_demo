@@ -168,18 +168,19 @@ export const filterControls: Record<FilterKey, 'chips' | 'single' | 'toggle'> = 
 export const madeInCountry = 'EG';
 
 // Filters shown for each category, in order. `all` is the search page with no category picked.
+// The local quick filters (Made in Egypt, bilingual) come first so they're seen without scrolling the panel.
 export const categoryFilters: Record<CategoryId | 'all', readonly FilterKey[]> = {
-  all: ['software', 'fileType', 'resolution', 'orientation', 'duration', 'color', 'date', 'bilingual', 'madeInEgypt'],
-  videoTemplates: ['software', 'plugins', 'resolution', 'orientation', 'duration', 'color', 'fileType', 'date', 'bilingual', 'madeInEgypt'],
-  stockVideo: ['resolution', 'orientation', 'duration', 'color', 'fileType', 'date', 'madeInEgypt'],
-  music: ['mood', 'genre', 'theme', 'length', 'tempo', 'contentId', 'fileType', 'date', 'madeInEgypt'],
-  soundEffects: ['duration', 'fileType', 'date', 'madeInEgypt'],
-  fonts: ['fontCategory', 'optimumSize', 'spacing', 'fileType', 'date', 'madeInEgypt'],
-  graphics: ['software', 'fileType', 'color', 'date', 'madeInEgypt'],
-  graphicTemplates: ['software', 'orientation', 'color', 'fileType', 'date', 'bilingual', 'madeInEgypt'],
-  photos: ['orientation', 'color', 'fileType', 'date', 'madeInEgypt'],
-  presentationTemplates: ['software', 'fileType', 'date', 'bilingual', 'madeInEgypt'],
-  webTemplates: ['software', 'fileType', 'date', 'bilingual', 'madeInEgypt'],
+  all: ['madeInEgypt', 'bilingual', 'software', 'fileType', 'resolution', 'orientation', 'duration', 'color', 'date'],
+  videoTemplates: ['madeInEgypt', 'bilingual', 'software', 'plugins', 'resolution', 'orientation', 'duration', 'color', 'fileType', 'date'],
+  stockVideo: ['madeInEgypt', 'resolution', 'orientation', 'duration', 'color', 'fileType', 'date'],
+  music: ['madeInEgypt', 'mood', 'genre', 'theme', 'length', 'tempo', 'contentId', 'fileType', 'date'],
+  soundEffects: ['madeInEgypt', 'duration', 'fileType', 'date'],
+  fonts: ['madeInEgypt', 'fontCategory', 'optimumSize', 'spacing', 'fileType', 'date'],
+  graphics: ['madeInEgypt', 'software', 'fileType', 'color', 'date'],
+  graphicTemplates: ['madeInEgypt', 'bilingual', 'software', 'orientation', 'color', 'fileType', 'date'],
+  photos: ['madeInEgypt', 'orientation', 'color', 'fileType', 'date'],
+  presentationTemplates: ['madeInEgypt', 'bilingual', 'software', 'fileType', 'date'],
+  webTemplates: ['madeInEgypt', 'bilingual', 'software', 'fileType', 'date'],
 };
 
 // Categories whose items have a tutorial and project files to look inside on the item page.

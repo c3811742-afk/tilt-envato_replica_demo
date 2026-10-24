@@ -1,0 +1,55 @@
+.rail {
+  display: none;
+}
+
+.main {
+  min-inline-size: 0;
+}
+
+@media (--lg-up) {
+  /* Reaches the footer: the space the app leaves under every page moves inside the main column. */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-layout-width) minmax(0, 1fr);
+    margin-block-end: calc(-1 * var(--sizes-page-end-space));
+    transition: grid-template-columns var(--motion-base) var(--motion-ease); /* folding slides the panel */
+  }
+
+  .main {
+    padding-block-end: var(--sizes-page-end-space);
+  }
+
+  /* The panel's background and edge, the full height of the page, so it joins the header and the footer. */
+  .rail {
+    display: block;
+    border-inline-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+    background: var(--colors-surface);
+  }
+
+  /* The panel's content: in view under the header, the height of the screen, scrolling on its own. */
+  .sidebar {
+    position: sticky;
+    inset-block-start: var(--sizes-header-total-height);
+    max-block-size: calc(var(--sizes-viewport-full-height) - var(--sizes-header-total-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--spacing-3) var(--spacing-5) var(--spacing-6);
+  }
+
+  /* Folded: only the button that opens it again, centered in the strip. */
+  .folded {
+    overflow: hidden;
+    padding-inline: var(--spacing-2);
+  }
+
+  /* The fold button sits at the panel's top end corner, beside the results. */
+  .toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-block-end: var(--spacing-2);
+  }
+
+  .folded .toggle {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,32 @@
+/* Two columns of categories once the panel is wide enough (it's at most 90% of the screen). */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
+  gap: var(--spacing-1);
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2);
+  color: var(--colors-text);
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus-visible {
+  background: var(--colors-surface-muted);
+}
+
+/* The category's accent color, as on the categories page. */
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizes-tap-target);
+  block-size: var(--sizes-tap-target);
+  background: var(--category-bg);
+  color: var(--category-color);
+}

@@ -27,6 +27,8 @@ export const CollectionPage = () => {
       {(data) =>
         data && (
           <Page
+            backTo={routes.collections}
+            backLabel={text.collections.backToCollections}
             title={data.title[locale]}
             subtitle={data.description[locale]}
             headerContent={
@@ -48,9 +50,6 @@ export const CollectionPage = () => {
             }
           >
             <ItemGrid items={data.items} label={data.title[locale]} />
-            <div>
-              <TextLink to={routes.collections}>{text.collections.backToCollections}</TextLink>
-            </div>
           </Page>
         )
       }

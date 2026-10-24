@@ -83,3 +83,7 @@
   background: var(--colors-highlight);
   color: var(--colors-on-highlight);
 }
+
+.hiddenLabel {
+  composes: offscreen from '@/shared/styles/a11y.module.css';
+}

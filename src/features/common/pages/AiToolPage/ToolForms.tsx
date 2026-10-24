@@ -29,6 +29,7 @@ import {
   editImage,
   eraseArea,
   fillText,
+  formatCount,
   fitImage,
   formatNumber,
   generatedImage,
@@ -143,7 +144,7 @@ export const ImageForm = ({ tool, allowance }: { tool: 'image' | 'graphics'; all
             options={aiModels.map((option) => ({
               value: option,
               title: option === aiModels[aiModels.length - 1] ? `${text.ai.models[option]} (${text.ai.newest})` : text.ai.models[option],
-              description: fillText(text.ai.modelCost, { credits: formatNumber(aiModelCredits[option], locale) }),
+              description: formatCount(text.ai.modelCost, aiModelCredits[option], locale),
               disabled: !allowance.models.includes(option),
               disabledReason: text.ai.modelLocked,
             }))}
@@ -465,7 +466,6 @@ export const AudioForm = ({ tool }: { tool: 'music' | 'voice' | 'soundEffect' })
           />
           <ChoiceChips label={text.ai.voiceType} value={voice} onChange={setVoice} options={aiGeneration.voiceTypes.map((option) => ({ value: option, label: text.ai.voiceTypes[option] }))} />
           {!voiceFor(language, voice) && <IconNote text={text.ai.noVoice} />}
-          <IconNote text={text.ai.speechNote} />
         </>
       )}
       <CostFooter credits={generationCost(request)} sending={sending} error={error} />

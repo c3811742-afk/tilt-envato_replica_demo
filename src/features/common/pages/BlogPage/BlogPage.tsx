@@ -73,7 +73,7 @@ export const BlogPostPage = () => {
   const post = useAsync(() => contentApi.getBlogPost(id), [id], (data) => data === null);
 
   return (
-    <Page contentMaxWidth={vars.sizes.readable.maxWidth}>
+    <Page contentMaxWidth={vars.sizes.readable.maxWidth} backTo={routes.blog} backLabel={text.blog.back}>
       <AsyncContent
         state={post}
         empty={<EmptyState title={text.blog.notFoundTitle} message={text.blog.notFoundMessage} action={<Button to={routes.blog}>{text.blog.back}</Button>} />}
@@ -81,9 +81,6 @@ export const BlogPostPage = () => {
         {(data) =>
           data && (
             <Stack gap={vars.spacing[5]}>
-              <TextLink to={routes.blog} variant="bodySm">
-                {text.blog.back}
-              </TextLink>
               <Stack gap={vars.spacing[2]}>
                 <TextLink to={blogPath(data.topic)} variant="label">
                   {text.blog.topics[data.topic]}

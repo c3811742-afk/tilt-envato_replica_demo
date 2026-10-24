@@ -3,20 +3,17 @@ import { useNavigate, useParams } from 'react-router';
 import {
   AsyncContent,
   Button,
-  ChipGroup,
   EmptyState,
   FieldMessage,
   FileInput,
   Grid,
   Icon,
-  ItemGrid,
+  ItemCard,
   Page,
-  Section,
   Select,
   Stack,
   Text,
-  TextField,
-  TextLink,
+  SearchBar,
 } from '@/shared/components';
 import {
   collectionDownloadStates,
@@ -26,15 +23,13 @@ import {
   myCollectionsPath,
   routes,
   uploadKinds,
-  uploadMaxBytes,
-  type CollectionDownloadState,
-  type CollectionSource,
 } from '@/shared/constants';
 import { useAsync, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item, UserCollection } from '@/shared/types';
-import { api, fillText, formatFileSize, libraryApi, matchesText, safeAsync } from '@/shared/utils';
+import { api, libraryApi, matchesText, safeAsync } from '@/shared/utils';
 import {
+  CollectionActions,
   CollectionNameDialog,
   DeleteCollectionsDialog,
   MoveCollectionDialog,
@@ -43,12 +38,14 @@ import {
   UserCollectionCard,
 } from '@/features/customer/components';
 import { DownloadAllDialog } from './DownloadAllDialog';
+import styles from './MyCollectionPage.module.css';
 
 type Dialog = 'newInside' | 'rename' | 'move' | 'share' | 'delete' | 'downloadAll' | null;
-const allTypes = '';
+const allOptions = ''; // the first option of each filter dropdown: no filter
+const collectionsType = 'collections'; // the type filter's option for the collections inside (no item has this type)
 
-// One of the user's collections: the collections inside it, its items and the user's own files,
-// with search and filters (type, source, downloaded), uploads, and "Download all".
+// One of the user's collections: the collections inside it, then its items and the user's own files, in one grid,
+// with a filter bar (search, type, source, downloaded) and its actions as icon buttons (upload, "Download all").
 export const MyCollectionPage = () => {
   const { text } = useLocale();
   const { session } = useSession();
@@ -80,9 +77,9 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
   const navigate = useNavigate();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [query, setQuery] = useState('');
-  const [type, setType] = useState(allTypes);
-  const [sources, setSources] = useState<CollectionSource[]>([]);
-  const [downloadStates, setDownloadStates] = useState<CollectionDownloadState[]>([]);
+  const [type, setType] = useState(allOptions);
+  const [source, setSource] = useState(allOptions);
+  const [downloadState, setDownloadState] = useState(allOptions);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string>();
   const items = useAsync(() => api.getItemsByIds(collection.itemIds), [collection.itemIds.join()], () => false);
@@ -109,157 +106,147 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
   // An item matches when it passes every filter that is set.
   const showItem = (item: Item) =>
     (!type || type === item.categoryId) &&
-    (!sources.length || sources.includes('library')) &&
-    (!downloadStates.length || downloadStates.includes(downloadedIds.has(item.id) ? 'downloaded' : 'notDownloaded')) &&
+    (!source || source === 'library') &&
+    (!downloadState || downloadState === (downloadedIds.has(item.id) ? 'downloaded' : 'notDownloaded')) &&
     matchesText(query, item.title[locale], item.creator.name, ...item.tags);
   // Uploads are never "downloaded": they are the user's own files.
   const shownUploads = collection.uploads.filter(
     (file) =>
       (!type || type === file.kind) &&
-      (!sources.length || sources.includes('upload')) &&
-      (!downloadStates.length || downloadStates.includes('notDownloaded')) &&
+      (!source || source === 'upload') &&
+      (!downloadState || downloadState === 'notDownloaded') &&
       matchesText(query, file.name),
   );
 
-  return (
-    <Page title={collection.name} gap={vars.spacing[6]}>
-      <TextLink to={parent ? myCollectionPath(parent.id) : myCollectionsPath(scope)} variant="bodySm">
-        {parent ? parent.name : scope === 'team' ? text.myCollections.scopes.team : text.myCollections.back}
-      </TextLink>
+  // Collections inside are listed with the items, first, like folders before files. Only the search narrows them:
+  // the other filters are about items.
+  const itemFiltersSet = Boolean((type && type !== collectionsType) || source || downloadState);
+  const shownChildren = itemFiltersSet ? [] : children.filter((child) => matchesText(query, child.name));
 
-      <Stack direction="row" wrap gap={vars.spacing[2]}>
-        <Button size="sm" onClick={() => setDialog('downloadAll')} disabled={collection.itemIds.length === 0}>
-          <Icon name="download" size={vars.sizes.icon.sm} />
-          {text.myCollections.downloadAll}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => void run(() => libraryApi.setPinned(collection.id, !collection.pinned))} pressed={collection.pinned}>
-          <Icon name="pin" size={vars.sizes.icon.sm} />
-          {collection.pinned ? text.myCollections.unpin : text.myCollections.pin}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setDialog('share')}>
-          <Icon name="share" size={vars.sizes.icon.sm} />
-          {text.myCollections.share}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setDialog('rename')}>
-          <Icon name="pencil" size={vars.sizes.icon.sm} />
-          {text.myCollections.rename}
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setDialog('move')}>
-          <Icon name="folder" size={vars.sizes.icon.sm} />
-          {text.myCollections.move}
-        </Button>
-        <Button variant="danger" size="sm" onClick={() => setDialog('delete')}>
-          <Icon name="trash" size={vars.sizes.icon.sm} />
-          {text.myCollections.delete}
-        </Button>
+  return (
+    <Page
+      title={collection.name}
+      gap={vars.spacing[5]}
+      backTo={parent ? myCollectionPath(parent.id) : myCollectionsPath(scope)}
+      backLabel={parent ? parent.name : scope === 'team' ? text.myCollections.scopes.team : text.myCollections.back}
+    >
+      {/* The main actions as icon buttons on the end, the rest in the "⋯" menu. */}
+      <Stack direction="row" wrap align="center" justify="flex-end" gap={vars.spacing[3]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
+          <Button size="sm" iconOnly tooltip={text.myCollections.downloadAll} onClick={() => setDialog('downloadAll')} disabled={collection.itemIds.length === 0}>
+            <Icon name="download" size={vars.sizes.icon.sm} />
+          </Button>
+          <FileInput
+            label={text.myCollections.upload}
+            accept={uploadKinds.map((kind) => `${kind}/*`).join(',')}
+            icon="upload"
+            size="sm"
+            iconOnly
+            busy={uploading ? text.myCollections.uploading : undefined}
+            onSelect={(file) => void upload(file)}
+          />
+          {/* Share stays in view; New collection inside, Rename, Move, Pin and Delete are in the "⋯" menu. */}
+          <CollectionActions
+            pinned={collection.pinned}
+            extraItems={
+              depth < collectionMaxDepth ? [{ key: 'newInside', icon: 'plus', label: text.myCollections.newInside, onSelect: () => setDialog('newInside') }] : []
+            }
+            onAction={(action) => (action === 'pin' ? void run(() => libraryApi.setPinned(collection.id, !collection.pinned)) : setDialog(action))}
+          />
+        </Stack>
       </Stack>
       <FieldMessage tone="error" message={error} />
 
-      <Section title={text.myCollections.inside} variant="h3">
-        {children.length > 0 && (
-          <Grid minColumnWidth={vars.sizes.itemCard.minWidth.medium} gap={vars.spacing[4]} ariaLabel={text.myCollections.inside}>
-            {children.map((child) => (
-              <UserCollectionCard
-                key={child.id}
-                collection={child}
-                to={myCollectionPath(child.id)}
-                childCount={collections.filter((other) => other.parentId === child.id).length}
-              />
-            ))}
-          </Grid>
-        )}
-        {depth < collectionMaxDepth && (
-          <div>
-            <Button variant="outline" size="sm" onClick={() => setDialog('newInside')}>
-              <Icon name="plus" size={vars.sizes.icon.sm} />
-              {text.myCollections.newInside}
-            </Button>
-          </div>
-        )}
-      </Section>
-
-      <Section title={text.myCollections.contents} variant="h3" gap={vars.spacing[4]}>
-        <FileInput
-          label={text.myCollections.upload}
-          accept={uploadKinds.map((kind) => `${kind}/*`).join(',')}
-          icon="upload"
-          variant="secondary"
-          hint={fillText(text.myCollections.uploadHint, { size: formatFileSize(uploadMaxBytes, locale) })}
-          busy={uploading ? text.myCollections.uploading : undefined}
-          onSelect={(file) => void upload(file)}
+      {/* One row: the site's search bar (without the catalog's extra tools), then three dropdowns whose
+          first option ("All types"…) says what each one filters. */}
+      <div className={styles.filters} role="group" aria-label={text.filters.title}>
+        <SearchBar
+          suggest={false}
+          label={text.myCollections.searchInside}
+          placeholder={text.myCollections.searchInside}
+          onChange={setQuery}
+          onSearch={setQuery}
         />
+        <Select
+          label={text.myCollections.filterType}
+          hideLabel
+          value={type}
+          onChange={setType}
+          options={[
+            { value: allOptions, label: text.myCollections.allTypes },
+            ...(children.length > 0 ? [{ value: collectionsType, label: text.myCollections.typeCollections }] : []),
+            ...[...new Set(loadedItems.map((item) => item.categoryId))].map((categoryId) => ({ value: categoryId, label: text.categories[categoryId].name })),
+            ...[...new Set(collection.uploads.map((file) => file.kind))].map((kind) => ({ value: kind, label: text.myCollections.uploadKinds[kind] })),
+          ]}
+        />
+        <Select
+          label={text.myCollections.filterSource}
+          hideLabel
+          value={source}
+          onChange={setSource}
+          options={[
+            { value: allOptions, label: text.myCollections.allSources },
+            ...collectionSources.map((value) => ({ value, label: text.myCollections.sources[value] })),
+          ]}
+        />
+        <Select
+          label={text.myCollections.filterDownloaded}
+          hideLabel
+          value={downloadState}
+          onChange={setDownloadState}
+          options={[
+            { value: allOptions, label: text.myCollections.anyDownloadStatus },
+            ...collectionDownloadStates.map((value) => ({ value, label: text.myCollections.downloadStates[value] })),
+          ]}
+        />
+      </div>
 
-        <Stack direction="row" wrap align="flex-end" gap={vars.spacing[4]}>
-          <Stack grow>
-            <TextField label={text.myCollections.searchInside} value={query} onChange={setQuery} />
-          </Stack>
-          <Select
-            label={text.myCollections.filterType}
-            value={type}
-            onChange={setType}
-            options={[
-              { value: allTypes, label: text.myCollections.allTypes },
-              ...[...new Set(loadedItems.map((item) => item.categoryId))].map((categoryId) => ({ value: categoryId, label: text.categories[categoryId].name })),
-              ...[...new Set(collection.uploads.map((file) => file.kind))].map((kind) => ({ value: kind, label: text.myCollections.uploadKinds[kind] })),
-            ]}
-          />
-        </Stack>
-        <Stack direction="row" wrap gap={vars.spacing[5]}>
-          <ChipGroup
-            label={text.myCollections.filterSource}
-            multiple
-            value={sources}
-            onChange={setSources}
-            options={collectionSources.map((source) => ({ value: source, label: text.myCollections.sources[source] }))}
-          />
-          <ChipGroup
-            label={text.myCollections.filterDownloaded}
-            multiple
-            value={downloadStates}
-            onChange={setDownloadStates}
-            options={collectionDownloadStates.map((state) => ({ value: state, label: text.myCollections.downloadStates[state] }))}
-          />
-        </Stack>
-
-        <AsyncContent state={items}>
-          {(data) => {
-            const shownItems = data.filter(showItem);
-            if (data.length === 0 && collection.uploads.length === 0) {
-              return <EmptyState title={text.myCollections.emptyTitle} message={text.myCollections.emptyMessage} action={<Button to={routes.search}>{text.home.cta}</Button>} />;
-            }
-            if (shownItems.length === 0 && shownUploads.length === 0) {
-              return <Text color={vars.colors.textMuted}>{text.search.noResultsInCategory}</Text>;
-            }
-            return (
-              <Stack gap={vars.spacing[5]}>
-                {shownItems.length > 0 && (
-                  <ItemGrid
-                    items={shownItems}
-                    label={text.myCollections.contents}
-                    actionsFor={(item) => (
+      <AsyncContent state={items}>
+        {(data) => {
+          const shownItems = data.filter(showItem);
+          if (data.length === 0 && collection.uploads.length === 0 && children.length === 0) {
+            return <EmptyState title={text.myCollections.emptyTitle} message={text.myCollections.emptyMessage} action={<Button to={routes.search}>{text.home.cta}</Button>} />;
+          }
+          if (shownChildren.length === 0 && shownItems.length === 0 && shownUploads.length === 0) {
+            return <Text color={vars.colors.textMuted}>{text.search.noResultsInCategory}</Text>;
+          }
+          return (
+            <Grid minColumnWidth={vars.sizes.itemCard.minWidth.medium} gap={vars.spacing[4]} ariaLabel={text.myCollections.contents}>
+              {shownChildren.map((child) => (
+                <UserCollectionCard
+                  key={child.id}
+                  collection={child}
+                  to={myCollectionPath(child.id)}
+                  childCount={collections.filter((other) => other.parentId === child.id).length}
+                />
+              ))}
+              {shownItems.map((item) => (
+                <li key={item.id}>
+                  <ItemCard
+                    item={item}
+                    actions={
                       <Button
-                        variant="outline"
-                        size="sm"
+                        variant="ghost"
+                        size="xs"
+                        iconOnly
+                        tooltip={text.myCollections.removeFromCollection}
+                        tooltipAlign="end"
                         ariaLabel={`${text.myCollections.removeFromCollection} ${item.title[locale]}`}
                         onClick={() => void run(() => libraryApi.removeFromCollection(collection.id, { itemIds: [item.id] }))}
                       >
                         <Icon name="trash" size={vars.sizes.icon.sm} />
                       </Button>
-                    )}
+                    }
                   />
-                )}
-                {shownUploads.length > 0 && (
-                  <Grid minColumnWidth={vars.sizes.itemCard.minWidth.medium} gap={vars.spacing[4]} ariaLabel={text.myCollections.sources.upload}>
-                    {shownUploads.map((file) => (
-                      <UploadTile key={file.id} upload={file} onRemove={() => void run(() => libraryApi.removeFromCollection(collection.id, { uploadIds: [file.id] }))} />
-                    ))}
-                  </Grid>
-                )}
-              </Stack>
-            );
-          }}
-        </AsyncContent>
-      </Section>
+                </li>
+              ))}
+              {shownUploads.map((file) => (
+                <UploadTile key={file.id} upload={file} onRemove={() => void run(() => libraryApi.removeFromCollection(collection.id, { uploadIds: [file.id] }))} />
+              ))}
+            </Grid>
+          );
+        }}
+      </AsyncContent>
 
       {dialog === 'newInside' && <CollectionNameDialog parentId={collection.id} onClose={() => setDialog(null)} />}
       {dialog === 'rename' && <CollectionNameDialog collection={collection} onClose={() => setDialog(null)} />}

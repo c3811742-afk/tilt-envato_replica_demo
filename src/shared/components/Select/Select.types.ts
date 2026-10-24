@@ -5,6 +5,7 @@ export interface SelectOption {
 
 export interface SelectProps {
   label?: string;
+  hideLabel?: boolean; // the label is read by screen readers only (e.g. in a row of filters whose options say what they are)
   value?: string;
   options?: SelectOption[];
   onChange?: (value: string) => void;

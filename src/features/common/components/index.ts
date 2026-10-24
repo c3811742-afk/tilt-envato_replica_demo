@@ -3,7 +3,6 @@ export { AuthSwitch } from './AuthSwitch';
 export { CodeVerification } from './CodeVerification';
 export { ProfileForm } from './ProfileForm';
 export { SiteTour } from './SiteTour';
-export { DemoCodeNote } from './DemoCodeNote';
 export { LegalPage } from './LegalPage';
 export { SocialSignIn, SocialAuthDialog } from './SocialSignIn';
 export type { SocialDetails } from './SocialSignIn';

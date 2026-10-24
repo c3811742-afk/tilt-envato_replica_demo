@@ -79,7 +79,7 @@ export const TextField = (props: TextFieldProps) => {
             onChange={(event) => onChange?.(event.target.value)}
           />
         )}
-        {endAction}
+        {endAction && <span className={styles.endAction}>{endAction}</span>}
       </div>
       <FieldMessage id={messageId} message={message} tone={error ? 'error' : 'hint'} />
     </Stack>

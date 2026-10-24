@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type PointerEvent } from 'react';
-import { Badge, Button, ChipGroup, FieldMessage, FileInput, Slider, Stack, Text } from '@/shared/components';
+import { Button, ChipGroup, FieldMessage, FileInput, Slider, Stack, Text } from '@/shared/components';
 import { aiGeneration } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -258,9 +258,9 @@ export const CostFooter = ({ credits, sending, error }: { credits: number; sendi
         <Button type="submit" disabled={sending || tooMany}>
           {sending ? text.ai.generating : text.ai.generate}
         </Button>
-        <Badge variant={tooMany ? 'neutral' : 'info'}>
+        <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
           {fillText(text.ai.costBefore, { credits: formatNumber(credits, locale), left: formatNumber(left, locale) })}
-        </Badge>
+        </Text>
       </Stack>
       {tooMany && <Text variant="bodySm">{text.apiErrors.notEnoughCredits}</Text>}
     </Stack>

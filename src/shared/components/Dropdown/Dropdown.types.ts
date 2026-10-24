@@ -6,4 +6,5 @@ export interface DropdownProps {
   children?: ReactNode | ((close: () => void) => ReactNode); // the panel; call `close` after an action
   width?: string; // of the panel
   triggerHeight?: string; // matches the buttons next to it
+  square?: boolean; // the toggle is as wide as it is tall (an icon only), like the icon buttons next to it
 }

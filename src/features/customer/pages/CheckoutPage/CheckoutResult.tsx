@@ -1,4 +1,4 @@
-import { Button, Card, CodeBadge, FormFooter, Icon, IconNote, Stack, Text } from '@/shared/components';
+import { Button, Card, CodeBadge, FormFooter, Icon, Stack, Text } from '@/shared/components';
 import { accountPath, routes } from '@/shared/constants';
 import { useForm, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -45,7 +45,6 @@ export const CheckoutResult = ({ purchase, account, onPaid }: CheckoutResultProp
           </Text>
           <CodeBadge code={subscription.fawryCode} size="lg" />
         </Stack>
-        <IconNote text={text.checkout.pendingDemoNote} />
         <Stack as="form" onSubmit={markPaid} noValidate>
           <FormFooter label={text.checkout.markPaid} submitting={form.submitting} requestError={form.requestError} />
         </Stack>

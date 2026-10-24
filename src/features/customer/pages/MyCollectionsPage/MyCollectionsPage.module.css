@@ -1,0 +1,14 @@
+/* The select-mode bar: the count and "Select all" at the start, the actions at the end. */
+.selectionBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface-muted);
+}
+
+.spacer {
+  flex: 1;
+}

@@ -21,6 +21,7 @@ export const icons = {
   close: ['M18 6L6 18', 'M6 6l12 12'],
   copy: [rect(8, 8, 14, 14), 'M4 16H2V2h14v2'],
   check: ['M20 6L9 17l-5-5'],
+  more: [circle(5, 12, 1), circle(12, 12, 1), circle(19, 12, 1)], // three dots: opens a menu of more actions
   chevronDown: ['M6 9l6 6 6-6'],
   chevronEnd: ['M9 18l6-6-6-6'], // points to the end of the line: flip in RTL
   chevronStart: ['M15 18l-6-6 6-6'], // points to the start of the line: flip in RTL

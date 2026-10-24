@@ -25,9 +25,9 @@
   text-decoration: none;
 }
 
-/* Phones search from the Search tab; the bar and the links appear from tablet width up. */
+/* Phones search and browse from the bottom tabs; the search bar and the link row appear from tablet width up. */
 .search,
-.nav,
+.navRow,
 .wideOnly {
   display: none;
 }
@@ -44,13 +44,19 @@
     flex: 1;
     min-inline-size: 0; /* shrinks before the buttons next to it do */
   }
+
+  .navRow {
+    display: block;
+    border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  }
 }
 
-@media (--lg-up) {
-  .nav {
-    display: flex;
-    gap: var(--spacing-4);
-  }
+/* The categories menu hangs from this row's bottom edge. */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-5);
+  min-block-size: var(--sizes-header-nav-height);
 }
 
 .actions {
@@ -58,6 +64,9 @@
 }
 
 .navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
   color: var(--colors-text);
   font-size: var(--text-styles-body-sm-font-size);
   font-weight: var(--font-weight-bold);

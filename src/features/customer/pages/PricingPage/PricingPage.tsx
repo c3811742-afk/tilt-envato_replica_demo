@@ -6,8 +6,6 @@ import {
   checkoutPassPath,
   checkoutPath,
   defaultPlanDuration,
-  paymentMethodIcons,
-  paymentMethods,
   planChangePath,
   planDurationDiscounts,
   planDurations,
@@ -62,7 +60,8 @@ export const PricingPage = () => {
         {(data) => (
           <Stack gap={vars.spacing[8]}>
             <Stack gap={vars.spacing[4]}>
-              <Grid stretch gap={vars.spacing[5]}>
+              {/* All four plans side by side on a laptop; they wrap on smaller screens. */}
+              <Grid stretch minColumnWidth={vars.sizes.planCard.minWidth} gap={vars.spacing[4]}>
                 {data.map((plan) => (
                   <PlanCard
                     key={plan.id}
@@ -98,24 +97,6 @@ export const PricingPage = () => {
 
       <Section title={text.pricing.faqTitle}>
         <FaqAccordion entries={text.pricing.faq} />
-      </Section>
-
-      <Section title={text.pricing.paymentTitle}>
-        <Stack as="ul" direction="row" wrap gap={vars.spacing[3]}>
-          {paymentMethods.map((method) => (
-            <Card key={method} as="li" padding={vars.spacing[3]}>
-              <Stack direction="row" align="center" gap={vars.spacing[2]}>
-                <Icon name={paymentMethodIcons[method]} />
-                <Text as="span" variant="title">
-                  {text.pricing.paymentMethods[method]}
-                </Text>
-              </Stack>
-            </Card>
-          ))}
-        </Stack>
-        <Text variant="bodySm" color={vars.colors.textMuted}>
-          {text.pricing.prepaidNote}
-        </Text>
       </Section>
     </Page>
   );

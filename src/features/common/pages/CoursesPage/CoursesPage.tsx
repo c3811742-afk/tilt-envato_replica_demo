@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router';
-import { AsyncContent, Badge, Button, Card, EmptyState, Grid, Page, SegmentedControl, Stack, Text, TextLink } from '@/shared/components';
+import { AsyncContent, Badge, Button, Card, EmptyState, Grid, Page, SegmentedControl, Stack, Text } from '@/shared/components';
 import { courseLevels, coursePath, routes, type CourseLevel } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -77,7 +77,7 @@ export const CoursePage = () => {
   const course = useAsync(() => contentApi.getCourse(id), [id], (data) => data === null);
 
   return (
-    <Page contentMaxWidth={vars.sizes.readable.maxWidth}>
+    <Page contentMaxWidth={vars.sizes.readable.maxWidth} backTo={routes.courses} backLabel={text.courses.back}>
       <AsyncContent
         state={course}
         empty={<EmptyState title={text.courses.notFoundTitle} message={text.courses.notFoundMessage} action={<Button to={routes.courses}>{text.courses.back}</Button>} />}
@@ -85,9 +85,6 @@ export const CoursePage = () => {
         {(data) =>
           data && (
             <Stack gap={vars.spacing[5]}>
-              <TextLink to={routes.courses} variant="bodySm">
-                {text.courses.back}
-              </TextLink>
               <Stack gap={vars.spacing[2]}>
                 <Stack direction="row" wrap gap={vars.spacing[2]}>
                   <Badge variant="info">{text.courses.kinds[data.kind]}</Badge>

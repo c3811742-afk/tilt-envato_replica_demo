@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import { AsyncContent, Button, Card, EmptyState, Grid, Page, Stack, Text, TextLink } from '@/shared/components';
+import { AsyncContent, Button, Card, EmptyState, Grid, Page, Stack, Text } from '@/shared/components';
 import { learnGuidePath, routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -43,7 +43,7 @@ export const LearnGuidePage = () => {
   const guide = useAsync(() => contentApi.getLearnGuide(id), [id], (data) => data === null);
 
   return (
-    <Page contentMaxWidth={vars.sizes.readable.maxWidth}>
+    <Page contentMaxWidth={vars.sizes.readable.maxWidth} backTo={routes.learn} backLabel={text.learn.back}>
       <AsyncContent
         state={guide}
         empty={<EmptyState title={text.learn.notFoundTitle} message={text.learn.notFoundMessage} action={<Button to={routes.learn}>{text.learn.back}</Button>} />}
@@ -51,9 +51,6 @@ export const LearnGuidePage = () => {
         {(data) =>
           data && (
             <Stack gap={vars.spacing[5]}>
-              <TextLink to={routes.learn} variant="bodySm">
-                {text.learn.back}
-              </TextLink>
               <Stack gap={vars.spacing[2]}>
                 <Text as="h1" variant="h1">
                   {data.title[locale]}

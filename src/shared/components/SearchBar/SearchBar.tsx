@@ -14,7 +14,7 @@ const noSuggestions: SearchSuggestion[] = [];
 
 // The site search box, with suggestions while typing. An empty search opens the full catalog.
 export const SearchBar = (props: SearchBarProps) => {
-  const { defaultValue, size, placeholder, label, onSearch, autoFocus, suggest, actions } = withDefaults(searchBarDefaults, props);
+  const { defaultValue, size, placeholder, label, onSearch, onChange, autoFocus, suggest, actions } = withDefaults(searchBarDefaults, props);
   const { text, locale } = useLocale();
   const navigate = useNavigate();
   const [query, setQuery] = useState(defaultValue);
@@ -77,6 +77,7 @@ export const SearchBar = (props: SearchBarProps) => {
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
+          onChange?.(event.target.value);
           setOpen(true);
           setActive(-1);
         }}

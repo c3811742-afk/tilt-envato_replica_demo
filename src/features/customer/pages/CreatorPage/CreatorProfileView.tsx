@@ -1,4 +1,4 @@
-import { AsyncContent, Avatar, ItemGrid, Section, Stack, stateMessageHeights, Text } from '@/shared/components';
+import { AsyncContent, Avatar, BackLink, ItemGrid, Section, Stack, stateMessageHeights, Text } from '@/shared/components';
 import { useLocale, usePagedAsync } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { CreatorProfile, Item } from '@/shared/types';
@@ -15,6 +15,7 @@ export const CreatorProfileView = ({ profile }: { profile: CreatorProfile }) => 
   return (
     <div className={styles.page}>
       <Stack gap={vars.spacing[7]}>
+        <BackLink />
         <Stack direction="row" wrap align="center" gap={vars.spacing[5]}>
           <Avatar name={creator.name} accent={creator.accent} size="xl" />
           <Stack gap={vars.spacing[2]}>

@@ -11,7 +11,7 @@ import styles from './Select.module.css';
 // A labelled dropdown in the brand's style (a styled list instead of the browser's own).
 // Keyboard: arrows, Home / End and a typed letter move; Enter or Space picks; Esc closes.
 export const Select = (props: SelectProps) => {
-  const { label, value, options, onChange, id, disabled, listMaxHeight } = withDefaults(selectDefaults, props);
+  const { label, hideLabel, value, options, onChange, id, disabled, listMaxHeight } = withDefaults(selectDefaults, props);
   const generatedId = useId();
   const buttonId = id ?? generatedId;
   const labelId = `${buttonId}-label`;
@@ -91,9 +91,11 @@ export const Select = (props: SelectProps) => {
   return (
     <Stack gap={vars.spacing[2]}>
       {label && (
-        <Text as="label" id={labelId} htmlFor={buttonId} variant="title">
-          {label}
-        </Text>
+        <span className={cx(hideLabel && styles.hiddenLabel)}>
+          <Text as="label" id={labelId} htmlFor={buttonId} variant="title">
+            {label}
+          </Text>
+        </span>
       )}
       <div ref={rootRef} className={styles.control} style={{ '--select-list-max-height': listMaxHeight } as CSSProperties}>
         <button

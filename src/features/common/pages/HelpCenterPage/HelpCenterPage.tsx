@@ -42,18 +42,16 @@ export const HelpCenterPage = () => {
               })}
               {!query.trim() && (
                 <Section title={text.learn.title} subtitle={text.learn.subtitle} actionLabel={text.learn.viewAll} actionTo={routes.learn}>
-                  <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} ariaLabel={text.learn.title}>
+                  <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} equalRows ariaLabel={text.learn.title}>
                     {guides.map((guide) => (
-                      <li key={guide.id}>
-                        <Card to={learnGuidePath(guide.id)} gap={vars.spacing[2]}>
-                          <Text as="h3" variant="h4">
-                            {guide.title[locale]}
-                          </Text>
-                          <Text variant="bodySm" color={vars.colors.textMuted}>
-                            {fillText(text.learn.minutes, { count: formatNumber(guide.minutes, locale) })}
-                          </Text>
-                        </Card>
-                      </li>
+                      <Card key={guide.id} as="li" to={learnGuidePath(guide.id)} gap={vars.spacing[2]}>
+                        <Text as="h3" variant="h4">
+                          {guide.title[locale]}
+                        </Text>
+                        <Text variant="bodySm" color={vars.colors.textMuted}>
+                          {fillText(text.learn.minutes, { count: formatNumber(guide.minutes, locale) })}
+                        </Text>
+                      </Card>
                     ))}
                   </Grid>
                 </Section>

@@ -15,15 +15,21 @@
   cursor: pointer;
 }
 
+.square {
+  justify-content: center;
+  inline-size: var(--dropdown-trigger-height);
+  padding-inline: 0;
+}
+
 /* Opens under the button, lined up with its end edge (mirrors in Arabic). */
 .panel {
-  position: absolute;
+  composes: popover from '@/shared/styles/surfaces.module.css';
   inset-block-start: calc(100% + var(--spacing-2));
   inset-inline-end: 0;
-  z-index: var(--z-index-dropdown);
   inline-size: var(--dropdown-width);
-  padding: var(--spacing-4);
-  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-  background: var(--colors-surface);
-  box-shadow: var(--shadows-hard);
+}
+
+/* Opens toward the end side instead, when the start side has no room (set by the component). */
+.flipped {
+  inset-inline: 0 auto;
 }

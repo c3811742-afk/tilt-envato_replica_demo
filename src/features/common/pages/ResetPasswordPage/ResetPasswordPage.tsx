@@ -10,7 +10,7 @@ import {
   validatePassword,
   validatePasswordConfirmation,
 } from '@/shared/utils';
-import { AuthPage, AuthSwitch, DemoCodeNote } from '@/features/common/components';
+import { AuthPage, AuthSwitch } from '@/features/common/components';
 import type { SignInRouteState } from '../SignInPage';
 
 export interface ResetPasswordRouteState {
@@ -42,9 +42,9 @@ export const ResetPasswordPage = () => {
   return (
     <AuthPage title={text.auth.reset.title}>
       <Text>{fillText(text.auth.reset.message, { email })}</Text>
-      <DemoCodeNote code={authApi.demoCode('resetPassword', email)} />
       <Stack as="form" gap={vars.spacing[4]} onSubmit={submit} noValidate>
-        <CodeField label={text.auth.reset.codeLabel} autoFocus {...form.field('code')} />
+        {/* No email is sent in the demo: the code to type is shown as the placeholder. */}
+        <CodeField label={text.auth.reset.codeLabel} placeholder={authApi.demoCode('resetPassword', email)} autoFocus {...form.field('code')} />
         <PasswordField
           label={text.auth.newPassword}
           autoComplete="new-password"

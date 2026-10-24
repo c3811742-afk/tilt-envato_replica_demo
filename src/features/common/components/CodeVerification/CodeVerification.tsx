@@ -5,7 +5,6 @@ import { useAuthFlow, useForm, useLocale, useMessages } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { authApi, fillText, formatNumber, safeAsync, validateCode, type SessionAccount } from '@/shared/utils';
 import { AuthPage } from '../AuthPage';
-import { DemoCodeNote } from '../DemoCodeNote';
 
 const secondMs = 1000;
 
@@ -46,11 +45,11 @@ export const CodeVerification = ({ purpose, title, message, verify }: CodeVerifi
   const submit = form.submit(async ({ code }) => continueWith(await verify(code)));
 
   return (
-    <AuthPage title={title}>
+    <AuthPage title={title} showBack={false}>
       <Text>{message}</Text>
-      <DemoCodeNote code={demoCode} channel={purpose === 'verifyPhone' ? 'sms' : 'email'} />
       <Stack as="form" gap={vars.spacing[4]} onSubmit={submit} noValidate>
-        <CodeField label={text.auth.verify.codeLabel} autoFocus {...form.field('code')} />
+        {/* No email or SMS is sent in the demo: the code to type is shown as the placeholder. */}
+        <CodeField label={text.auth.verify.codeLabel} placeholder={demoCode} autoFocus {...form.field('code')} />
         <FormFooter label={text.auth.verify.submit} submitting={form.submitting} requestError={form.requestError} />
       </Stack>
       <Stack align="center" gap={vars.spacing[2]}>

@@ -14,7 +14,8 @@ export const Meter = (props: MeterProps) => {
   const total = Math.max(max, 0);
   const share = total > 0 ? Math.min(1, Math.max(0, value / total)) : 0;
   const style = {
-    '--meter-fill': `${share * 100}%`,
+    // Any use shows at least a square of fill: 5 of 500 credits is under 1%, too thin to see otherwise.
+    '--meter-fill': share > 0 ? `max(${share * 100}%, ${height})` : '0%',
     '--meter-color': color,
     '--meter-track': trackColor,
     '--meter-height': height,

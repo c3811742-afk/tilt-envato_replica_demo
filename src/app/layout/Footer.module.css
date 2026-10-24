@@ -19,6 +19,11 @@
   border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-text-muted);
 }
 
+/* The WhatsApp button stays on one line; its column widens to fit it. */
+.oneLine {
+  white-space: nowrap;
+}
+
 .social {
   display: inline-flex;
   align-items: center;
@@ -40,6 +45,6 @@
 
 @media (--lg-up) {
   .columns {
-    grid-template-columns: 2fr repeat(5, 1fr);
+    grid-template-columns: minmax(min-content, 2fr) repeat(5, 1fr); /* the brand column is never narrower than its WhatsApp button */
   }
 }

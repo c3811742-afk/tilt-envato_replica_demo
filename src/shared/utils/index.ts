@@ -6,6 +6,7 @@ export { safeAsync, isEmptyData } from './safeAsync';
 export type { Result } from './safeAsync';
 export {
   formatNumber,
+  formatCount,
   formatCompactNumber,
   formatPercent,
   formatPrice,
@@ -16,6 +17,7 @@ export {
   formatLanguageName,
   formatDuration,
 } from './format';
+export type { CountForms } from './format';
 export { detectCountry, suggestLocale, suggestCurrency, isDisplayCurrency, convertPrice } from './region';
 export { createStoredValue } from './storedValue';
 export type { StoredValue } from './storedValue';

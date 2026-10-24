@@ -17,9 +17,9 @@ export const LanguageMenu = () => {
       trigger={
         <>
           <Icon name="globe" size={vars.sizes.icon.sm} />
-          {/* Phones show the globe only, so the signed-in actions fit beside the logo. */}
-          <span className={styles.wideOnly} lang={locale}>
-            {text.languageNames[locale]}
+          {/* The two-letter code, not the full name, to leave the search box room. Phones show the globe only. */}
+          <span className={styles.wideOnly} lang="en">
+            {text.languageCodes[locale]}
           </span>
         </>
       }

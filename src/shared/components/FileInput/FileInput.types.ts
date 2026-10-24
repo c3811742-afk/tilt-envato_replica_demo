@@ -1,5 +1,5 @@
 import type { IconName } from '@/shared/assets';
-import type { ButtonVariant } from '../Button';
+import type { ButtonSize, ButtonVariant } from '../Button';
 
 export interface FileInputProps {
   label?: string; // the button text, e.g. "Upload an image"
@@ -10,5 +10,7 @@ export interface FileInputProps {
   busy?: string; // while the file is read: shown on the button, which is disabled
   icon?: IconName;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   disabled?: boolean;
+  iconOnly?: boolean; // just the icon, its label shown on hover (in a row of icon buttons); the hint isn't shown
 }

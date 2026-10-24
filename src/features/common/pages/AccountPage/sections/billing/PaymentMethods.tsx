@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Badge, Button, Card, Checkbox, FieldMessage, Icon, IconNote, Modal, PhoneField, Section, Select, Stack, Text, TextField } from '@/shared/components';
+import { Badge, Button, Card, Checkbox, FieldMessage, Icon, Modal, PhoneField, Section, Select, Stack, Text, TextField } from '@/shared/components';
 import { card, paymentMethodIcons, savedPaymentKinds, type SavedPaymentKind } from '@/shared/constants';
 import { useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -185,12 +185,13 @@ const MethodDialog = ({ method, onClose }: { method: SavedPaymentMethod | null; 
           <>
             {adding && (
               <>
-                <IconNote icon="card" text={fillText(text.checkout.cardDemo, { number: card.demoNumber, declined: card.declinedNumber })} />
                 <TextField
                   label={text.checkout.cardNumber}
                   inputMode="numeric"
                   direction="ltr"
                   autoComplete="cc-number"
+                  placeholder={card.demoNumber}
+                  hint={fillText(text.checkout.testCards, { number: card.demoNumber, declined: card.declinedNumber })}
                   {...form.field('cardNumber')}
                   onChange={(value) => form.setValue('cardNumber', formatCardNumber(value))}
                 />

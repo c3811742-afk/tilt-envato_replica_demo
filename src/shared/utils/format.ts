@@ -1,9 +1,17 @@
 import { locales, type Locale } from '@/shared/theme';
 import { currency, displayCurrencies, type DisplayCurrency } from '@/shared/constants';
+import { fillText } from './fillText';
 
 const intlTag = (locale: Locale) => locales[locale].intl;
 
 export const formatNumber = (value: number, locale: Locale) => new Intl.NumberFormat(intlTag(locale)).format(value);
+
+// A count in words, in the language's plural form: { one: '{count} item', other: '{count} items' } -> "1 item", "3 items".
+// Text files give 'other' and any forms the language needs; a missing form falls back to 'other'.
+export type CountForms = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
+
+export const formatCount = (forms: CountForms, count: number, locale: Locale) =>
+  fillText(forms[new Intl.PluralRules(intlTag(locale)).select(count)] ?? forms.other, { count: formatNumber(count, locale) });
 
 // 12500 -> "13K" / "13 ألف"
 export const formatCompactNumber = (value: number, locale: Locale) =>

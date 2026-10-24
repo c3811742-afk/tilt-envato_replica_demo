@@ -12,44 +12,52 @@ interface SaveToCollectionProps {
   itemId: string;
   size?: ButtonSize;
   iconOnly?: boolean; // a folder icon only, e.g. on a card
+  subtle?: boolean; // a small borderless folder, for inside a card
   fullWidth?: boolean;
 }
 
 // "Save to collection": opens a side panel listing the user's collections (nested ones indented),
 // where the item is added to or removed from each, or saved to a new collection.
-export const SaveToCollection = ({ itemId, size = 'md', iconOnly = false, fullWidth = false }: SaveToCollectionProps) => {
+export const SaveToCollection = ({ itemId, size = 'md', iconOnly = false, subtle = false, fullWidth = false }: SaveToCollectionProps) => {
   const { text, locale } = useLocale();
   const { session } = useSession();
   const { pathname, search } = useLocation();
   const [open, setOpen] = useState(false);
 
+  const signedIn = session.status === 'signedIn';
+  const teamCollections = (signedIn && session.team?.collections) || [];
+  const savedIn = signedIn
+    ? [...session.user.collections, ...teamCollections].filter((collection) => collection.itemIds.includes(itemId)).length
+    : 0;
+
+  const quiet = subtle ? ({ variant: 'ghost', size: 'xs', iconOnly: true } as const) : { size, iconOnly };
   const content = (
     <>
-      <Icon name="folder" size={vars.sizes.icon.sm} />
-      {!iconOnly && text.myCollections.saveTo}
+      {/* The quiet version has no dark background when saved, so the folder fills in instead. */}
+      <Icon name="folder" size={vars.sizes.icon.sm} filled={subtle && savedIn > 0} />
+      {!quiet.iconOnly && text.myCollections.saveTo}
     </>
   );
 
-  if (session.status !== 'signedIn') {
+  if (!signedIn) {
     return (
-      <Button variant="outline" size={size} fullWidth={fullWidth} to={withReturnTo(routes.signIn, `${pathname}${search}`)} ariaLabel={text.myCollections.signIn}>
+      <Button variant="outline" {...quiet} fullWidth={fullWidth} to={withReturnTo(routes.signIn, `${pathname}${search}`)} ariaLabel={text.myCollections.signIn} tooltip={quiet.iconOnly ? text.myCollections.signIn : undefined} tooltipAlign="end">
         {content}
       </Button>
     );
   }
 
-  const teamCollections = session.team?.collections ?? [];
-  const savedIn = [...session.user.collections, ...teamCollections].filter((collection) => collection.itemIds.includes(itemId)).length;
-
   return (
     <>
       <Button
         variant={savedIn > 0 ? 'secondary' : 'outline'}
-        size={size}
+        {...quiet}
         fullWidth={fullWidth}
         onClick={() => setOpen(true)}
         pressed={savedIn > 0}
-        ariaLabel={iconOnly ? text.myCollections.saveTo : undefined}
+        ariaLabel={quiet.iconOnly ? text.myCollections.saveTo : undefined}
+        tooltip={quiet.iconOnly ? text.myCollections.saveTo : undefined}
+        tooltipAlign="end" // the last button on a card: the name lines up with the card's edge
       >
         {content}
       </Button>

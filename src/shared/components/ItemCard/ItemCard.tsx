@@ -4,7 +4,7 @@ import { categoryIcons, fontSpecimen, itemPath, previewKinds } from '@/shared/co
 import { useItemActions, useLocale, usePlayback, useStopOnUnmount } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item } from '@/shared/types';
-import { fillText, formatCompactNumber, formatNumber, previewSource, withDefaults } from '@/shared/utils';
+import { cx, fillText, formatCompactNumber, formatNumber, previewSource, withDefaults } from '@/shared/utils';
 import { Icon } from '../Icon';
 import { ItemCover } from '../ItemCover';
 import { PlayButton } from '../PlayButton';
@@ -15,9 +15,9 @@ import type { ItemCardProps } from './ItemCard.types';
 import styles from './ItemCard.module.css';
 
 // One item in a grid or row. The picture takes most of the card (at least 70% of its height);
-// under it, one line for the title and one for the creator, rating and downloads. Opens the item page.
+// under it, a line each for the title, the creator, and the rating and downloads. Opens the item page.
 // Videos preview on hover; music and sound effects have a play button on the cover. The app's item actions
-// (favorite, save to collection) sit on the cover's bottom corner, outside the link.
+// (favorite, save to collection) sit at the end of the rating line, outside the link, so the picture stays clear.
 export const ItemCard = (props: ItemCardProps) => {
   const { item, headingLevel, showCategory, preview } = withDefaults(itemCardDefaults, props);
   const appActions = useItemActions();
@@ -43,16 +43,14 @@ export const ItemCard = (props: ItemCardProps) => {
             <TierBadge tier={item.tier} />
           </span>
         </div>
-        <div className={styles.body}>
+        <div className={cx(styles.body, actions != null && styles.withActions)}>
           <Text as={headingLevel} variant="title" maxLines={1} autoDirection>
             {title}
           </Text>
+          <Text variant="bodySm" color={vars.colors.textMuted} maxLines={1}>
+            {showCategory ? text.categories[item.categoryId].name : fillText(text.item.by, { creator: item.creator.name })}
+          </Text>
           <div className={styles.meta}>
-            <span className={styles.creator}>
-              <Text as="span" variant="bodySm" color={vars.colors.textMuted} maxLines={1}>
-                {showCategory ? text.categories[item.categoryId].name : fillText(text.item.by, { creator: item.creator.name })}
-              </Text>
-            </span>
             <span className={styles.stat}>
               <Icon name="star" filled size={vars.sizes.icon.sm} label={text.item.rating} />
               <Text as="span" variant="bodySm">

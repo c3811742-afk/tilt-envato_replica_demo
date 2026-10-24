@@ -100,17 +100,57 @@ const cutOut = (canvas: HTMLCanvasElement) => {
 
 export const removeBackground = async (source: string | Blob) => canvasBlob(cutOut(await imageCanvas(source)));
 
-// Erase: the marked area is filled from a blurred copy of what's around it.
+// Erase: the marked area is filled only from the pixels around it, never from what was marked.
+// The area is cut out of the image, then the image is blurred at growing sizes: at a cut-out pixel, a blur's color
+// is the average of the unmarked pixels within its reach. Going from the largest blur to the smallest, each one is
+// mixed in as far as it reaches unmarked pixels, so the edge of the area keeps the detail next to it, the middle
+// gets the smoother color from further out, and there are no hard lines between the two.
+const eraseGrowPx = 4; // the marked area is grown this much, so a brush stroke's soft edge is erased too
+const eraseBlurPx = [3, 6, 12, 24, 48, 96]; // blur sizes, smallest first (the image's own size is added as the last one)
+const eraseFullCoverage = 160; // of 255: a blur that gets this much from unmarked pixels is used as it is
+
 export const eraseArea = async (source: string | Blob, mask: HTMLCanvasElement) => {
   const canvas = await imageCanvas(source);
-  const patch = blankCanvas(canvas.width, canvas.height);
-  const patchCtx = context(patch);
-  patchCtx.filter = 'blur(18px)';
-  patchCtx.drawImage(canvas, 0, 0);
-  patchCtx.filter = 'none';
-  patchCtx.globalCompositeOperation = 'destination-in';
-  patchCtx.drawImage(mask, 0, 0, canvas.width, canvas.height);
-  context(canvas).drawImage(patch, 0, 0);
+  const { width, height } = canvas;
+  const ctx = context(canvas);
+
+  // The marked area at the image's size, grown a little, as an all-or-nothing mask.
+  const area = blankCanvas(width, height);
+  const areaCtx = context(area);
+  areaCtx.filter = `blur(${eraseGrowPx}px)`;
+  areaCtx.drawImage(mask, 0, 0, width, height);
+  const areaPixels = areaCtx.getImageData(0, 0, width, height);
+  for (let index = 3; index < areaPixels.data.length; index += 4) areaPixels.data[index] = areaPixels.data[index] > 0 ? 255 : 0;
+  areaCtx.putImageData(areaPixels, 0, 0);
+
+  // The image with the area cut out, and its blurs. getImageData returns colors without the transparency mixed in,
+  // so a partly transparent blurred pixel holds exactly the average of the unmarked pixels around it.
+  const holed = blankCanvas(width, height);
+  const holedCtx = context(holed);
+  holedCtx.drawImage(canvas, 0, 0);
+  holedCtx.globalCompositeOperation = 'destination-out';
+  holedCtx.drawImage(area, 0, 0);
+  const fills = [...eraseBlurPx, Math.max(width, height)].map((blur) => {
+    const layer = blankCanvas(width, height);
+    const layerCtx = context(layer);
+    layerCtx.filter = `blur(${blur}px)`;
+    layerCtx.drawImage(holed, 0, 0);
+    return layerCtx.getImageData(0, 0, width, height).data;
+  });
+
+  const result = ctx.getImageData(0, 0, width, height);
+  for (let index = 0; index < result.data.length; index += 4) {
+    if (!areaPixels.data[index + 3]) continue;
+    const color = [0, 1, 2].map((channel) => fills[fills.length - 1][index + channel]);
+    for (let level = fills.length - 2; level >= 0; level -= 1) {
+      const share = Math.min(1, fills[level][index + 3] / eraseFullCoverage);
+      for (let channel = 0; channel < 3; channel += 1) color[channel] += (fills[level][index + channel] - color[channel]) * share;
+    }
+    result.data[index] = color[0];
+    result.data[index + 1] = color[1];
+    result.data[index + 2] = color[2];
+  }
+  ctx.putImageData(result, 0, 0);
   return canvasBlob(canvas);
 };
 

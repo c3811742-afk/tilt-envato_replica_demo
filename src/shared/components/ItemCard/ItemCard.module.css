@@ -3,21 +3,14 @@
   block-size: 100%;
 }
 
-/* The picture takes most of the card; the text under it only what it needs. */
+/* The shared card shape (also used by collection cards, so the two line up in one grid):
+   the picture takes most of the card; the text under it only what it needs. */
 .link {
-  composes: lift from '@/shared/styles/interactions.module.css';
-  display: flex;
-  flex-direction: column;
-  block-size: 100%;
-  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-  background: var(--colors-surface);
-  color: var(--colors-text);
-  text-decoration: none;
+  composes: tile from '@/shared/styles/cards.module.css';
 }
 
 .cover {
-  position: relative;
-  aspect-ratio: var(--sizes-item-card-cover-ratio);
+  composes: cover from '@/shared/styles/cards.module.css';
 }
 
 /* "Free" or "Premium" sits on the picture's top end corner. */
@@ -28,23 +21,17 @@
 }
 
 .body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: var(--spacing-1);
-  padding: var(--spacing-3) var(--spacing-4);
-  border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  composes: body from '@/shared/styles/cards.module.css';
 }
 
+/* As tall as the action buttons beside it, so they line up. */
 .meta {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
+  composes: meta from '@/shared/styles/cards.module.css';
 }
 
-.creator {
-  flex: 1;
-  min-inline-size: 0;
+/* Leaves room at the end of the rating line for the two action buttons. */
+.withActions .meta {
+  padding-inline-end: calc(2 * var(--sizes-button-height-xs) + var(--spacing-1));
 }
 
 .stat {
@@ -61,21 +48,12 @@
   inset-inline-start: var(--spacing-3);
 }
 
-/* Favorite and "Save to collection" sit on the cover's bottom end corner, outside the link:
-   a layer the size of the cover that only its buttons catch clicks on. */
+/* Favorite and "Save to collection" sit at the end of the rating line, outside the link
+   (a button can't be inside a link). Lined up with the body's padding and the link's border. */
 .actions {
   position: absolute;
-  inset-block-start: 0;
-  inset-inline: 0;
+  inset-block-end: calc(var(--spacing-3) + var(--borders-width-thin));
+  inset-inline-end: calc(var(--spacing-2) + var(--borders-width-thin));
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: var(--spacing-2);
-  aspect-ratio: var(--sizes-item-card-cover-ratio);
-  padding: var(--spacing-3);
-  pointer-events: none;
-}
-
-.actions > * {
-  pointer-events: auto;
+  gap: var(--spacing-1);
 }

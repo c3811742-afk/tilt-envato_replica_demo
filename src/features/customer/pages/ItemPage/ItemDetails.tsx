@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   Avatar,
+  BackLink,
   Button,
   Chip,
   Grid,
@@ -38,14 +39,18 @@ export const ItemDetails = ({ item }: { item: Item }) => {
   return (
     <div className={styles.page}>
       <Stack gap={vars.spacing[7]}>
-        <Stack as="nav" direction="row" wrap align="center" gap={vars.spacing[2]} ariaLabel={text.nav.breadcrumb}>
-          <TextLink to={routes.home} variant="bodySm">
-            {text.nav.home}
-          </TextLink>
-          <Icon name="chevronEnd" size={vars.sizes.icon.sm} />
-          <TextLink to={searchPath({ category: item.categoryId })} variant="bodySm">
-            {category.name}
-          </TextLink>
+        {/* Back, then where the item sits: Home › its category. */}
+        <Stack gap={vars.spacing[3]}>
+          <BackLink />
+          <Stack as="nav" direction="row" wrap align="center" gap={vars.spacing[2]} ariaLabel={text.nav.breadcrumb}>
+            <TextLink to={routes.home} variant="bodySm">
+              {text.nav.home}
+            </TextLink>
+            <Icon name="chevronEnd" size={vars.sizes.icon.sm} />
+            <TextLink to={searchPath({ category: item.categoryId })} variant="bodySm">
+              {category.name}
+            </TextLink>
+          </Stack>
         </Stack>
 
         <SplitLayout

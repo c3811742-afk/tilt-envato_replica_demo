@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Button, EmptyState, FieldMessage, Grid, Icon, Page, SegmentedControl, Stack, Text, TextField } from '@/shared/components';
+import { Button, EmptyState, FieldMessage, Grid, Icon, Page, SearchBar, SegmentedControl, Stack, Text, TextLink } from '@/shared/components';
 import { collectionScopeParam, myCollectionPath } from '@/shared/constants';
 import { useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { collectionTree, fillText, formatNumber, libraryApi, matchesText, safeAsync } from '@/shared/utils';
 import {
+  CollectionActions,
   CollectionNameDialog,
   DeleteCollectionsDialog,
   ImportDialog,
@@ -13,6 +14,7 @@ import {
   ShareCollectionDialog,
   UserCollectionCard,
 } from '@/features/customer/components';
+import styles from './MyCollectionsPage.module.css';
 
 type Dialog = 'new' | 'import' | 'rename' | 'move' | 'share' | 'delete' | null;
 
@@ -74,57 +76,54 @@ export const MyCollectionsPage = () => {
           options={(['own', 'team'] as const).map((key) => ({ value: key, label: text.myCollections.scopes[key] }))}
         />
       )}
-      <Stack direction="row" wrap align="flex-end" gap={vars.spacing[3]}>
+      {/* The site's search bar (without the catalog's extra tools), then the page's actions as icon buttons. */}
+      <Stack direction="row" align="center" gap={vars.spacing[2]}>
         <Stack grow>
-          <TextField label={text.myCollections.search} value={query} onChange={setQuery} />
+          <SearchBar suggest={false} label={text.myCollections.search} placeholder={text.myCollections.search} onChange={setQuery} onSearch={setQuery} />
         </Stack>
-        <Button onClick={() => setDialog('new')}>
-          <Icon name="plus" size={vars.sizes.icon.sm} />
-          {text.myCollections.new}
+        <Button iconOnly tooltip={text.myCollections.new} onClick={() => setDialog('new')}>
+          <Icon name="plus" size={vars.sizes.icon.md} />
         </Button>
         {scope === 'own' && (
-          <Button variant="outline" onClick={() => setDialog('import')}>
-            <Icon name="upload" size={vars.sizes.icon.sm} />
-            {text.myCollections.import}
+          <Button variant="outline" iconOnly tooltip={text.myCollections.import} tooltipAlign={collections.length > 0 ? 'center' : 'end'} onClick={() => setDialog('import')}>
+            <Icon name="upload" size={vars.sizes.icon.md} />
           </Button>
         )}
         {collections.length > 0 && (
-          <Button variant="outline" onClick={() => (selecting ? stopSelecting() : setSelecting(true))} pressed={selecting}>
-            <Icon name="check" size={vars.sizes.icon.sm} />
-            {selecting ? text.myCollections.cancelSelect : text.myCollections.select}
+          <Button
+            variant="outline"
+            iconOnly
+            tooltip={selecting ? text.myCollections.cancelSelect : text.myCollections.select}
+            tooltipAlign="end"
+            pressed={selecting}
+            onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
+          >
+            <Icon name="check" size={vars.sizes.icon.md} />
           </Button>
         )}
       </Stack>
 
+      {/* Select mode: one bar with the count, "Select all" and what can be done with the selection. */}
       {selecting && (
-        <Stack direction="row" wrap align="center" gap={vars.spacing[2]}>
+        <div className={styles.selectionBar}>
           <Text as="span" variant="title">
             {fillText(text.myCollections.selectedCount, { count: formatNumber(selected.length, locale) })}
           </Text>
-          <Button variant="outline" size="sm" onClick={() => setSelected(shown.map(({ collection }) => collection.id))}>
+          <TextLink variant="bodySm" onClick={() => setSelected(shown.map(({ collection }) => collection.id))}>
             {text.myCollections.selectAll}
+          </TextLink>
+          <span className={styles.spacer} />
+          <CollectionActions
+            shown={['share', 'delete']}
+            pinned={allPinned}
+            canEditOne={single !== undefined}
+            canEditAny={selected.length > 0}
+            onAction={(action) => (action === 'pin' ? void pinSelected() : setDialog(action))}
+          />
+          <Button variant="ghost" size="sm" iconOnly tooltip={text.myCollections.cancelSelect} tooltipAlign="end" onClick={stopSelecting}>
+            <Icon name="close" size={vars.sizes.icon.sm} />
           </Button>
-          <Button variant="outline" size="sm" disabled={!single} onClick={() => setDialog('rename')}>
-            <Icon name="pencil" size={vars.sizes.icon.sm} />
-            {text.myCollections.rename}
-          </Button>
-          <Button variant="outline" size="sm" disabled={!single} onClick={() => setDialog('move')}>
-            <Icon name="folder" size={vars.sizes.icon.sm} />
-            {text.myCollections.move}
-          </Button>
-          <Button variant="outline" size="sm" disabled={!single} onClick={() => setDialog('share')}>
-            <Icon name="share" size={vars.sizes.icon.sm} />
-            {text.myCollections.share}
-          </Button>
-          <Button variant="outline" size="sm" disabled={selected.length === 0} onClick={() => void pinSelected()}>
-            <Icon name="pin" size={vars.sizes.icon.sm} />
-            {allPinned ? text.myCollections.unpin : text.myCollections.pin}
-          </Button>
-          <Button variant="danger" size="sm" disabled={selected.length === 0} onClick={() => setDialog('delete')}>
-            <Icon name="trash" size={vars.sizes.icon.sm} />
-            {text.myCollections.delete}
-          </Button>
-        </Stack>
+        </div>
       )}
       <FieldMessage tone="error" message={error} />
 

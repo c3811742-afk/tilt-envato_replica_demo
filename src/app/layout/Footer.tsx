@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ContactButton, Container, Icon, Stack, Text, TextLink } from '@/shared/components';
-import { navItems, navMenus, networkSites, socialLinks, socialPlatforms, type NavKey } from '@/shared/constants';
+import { navItems, navMenus, socialLinks, socialPlatforms, type NavKey } from '@/shared/constants';
 import { useCookieConsent, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { fillText } from '@/shared/utils';
@@ -14,7 +14,7 @@ export const Footer = () => {
   const { openSettings } = useCookieConsent();
 
   // A column: its title and links; `extra` adds items that aren't pages (e.g. "Cookie settings").
-  const column = (title: string, keys: readonly NavKey[], extra?: ReactNode, after?: ReactNode) => (
+  const column = (title: string, keys: readonly NavKey[], extra?: ReactNode) => (
     <Stack gap={vars.spacing[3]} align="flex-start">
       <Text as="h2" variant="label" color={vars.colors.textInverse}>
         {title}
@@ -29,7 +29,6 @@ export const Footer = () => {
         ))}
         {extra}
       </Stack>
-      {after}
     </Stack>
   );
 
@@ -45,11 +44,20 @@ export const Footer = () => {
               <Text color={vars.colors.textInverse}>{text.footer.tagline}</Text>
             </Stack>
             <NewsletterForm />
+            {/* Here, not under the Support links: that column is too narrow for the button. */}
+            <Stack gap={vars.spacing[2]} align="flex-start">
+              <Text variant="bodySm" color={vars.colors.textInverse}>
+                {text.footer.helpPrompt}
+              </Text>
+              <span className={styles.oneLine}>
+                <ContactButton variant="highlight" size="sm" />
+              </span>
+            </Stack>
           </Stack>
           {column(text.footer.explore, navMenus.footerExplore)}
           {column(text.footer.resources, navMenus.footerResources)}
           {column(text.footer.company, navMenus.footerCompany)}
-          {column(text.footer.support, navMenus.footerSupport, undefined, <ContactButton variant="highlight" size="sm" />)}
+          {column(text.footer.support, navMenus.footerSupport)}
           {column(
             text.footer.legal,
             navMenus.footerLegal,
@@ -62,20 +70,6 @@ export const Footer = () => {
         </div>
 
         <div className={styles.bottom}>
-          <Stack direction="row" wrap align="center" gap={vars.spacing[4]}>
-            <Text as="span" variant="label" color={vars.colors.textInverse}>
-              {text.footer.network}
-            </Text>
-            <Stack as="ul" direction="row" wrap gap={vars.spacing[4]}>
-              {networkSites.map((site) => (
-                <li key={site.key}>
-                  <TextLink href={site.url} color={vars.colors.textInverse} underline={false}>
-                    {site.name}
-                  </TextLink>
-                </li>
-              ))}
-            </Stack>
-          </Stack>
           <Stack direction="row" wrap align="center" justify="space-between" gap={vars.spacing[4]}>
             <Stack as="ul" direction="row" wrap gap={vars.spacing[3]} ariaLabel={text.footer.followUs}>
               {socialPlatforms.map((platform) => (

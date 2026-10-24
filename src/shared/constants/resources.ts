@@ -26,14 +26,6 @@ export type PartnerAudience = (typeof partnerAudiences)[number];
 export const licenseTermsUpdatedAt = '2026-10-01';
 export const fairUseUpdatedAt = '2026-10-01';
 
-// Other sites in the network, linked from the footer. Their names are brand names: never translated.
-export const networkSites = [
-  { key: 'market', name: 'Envato Market', url: 'https://market.envato.com' },
-  { key: 'tuts', name: 'Tuts+', url: 'https://tutsplus.com' },
-  { key: 'placeit', name: 'Placeit', url: 'https://placeit.net' },
-  { key: 'mixkit', name: 'Mixkit', url: 'https://mixkit.co' },
-] as const;
-
 // The brand's social media pages. Replace `socialHandle` with the brand's handle on each platform.
 const socialHandle = '';
 export const socialPlatforms = ['instagram', 'facebook', 'youtube', 'tiktok', 'linkedin', 'x'] as const;

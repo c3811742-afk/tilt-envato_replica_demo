@@ -260,6 +260,7 @@ export const CheckoutForm = ({ purchase, onPaid }: CheckoutFormProps) => {
             ) : (
               <TextField
                 label={text.checkout.promoLabel}
+                placeholder={text.checkout.promoPlaceholder}
                 direction="ltr"
                 value={promoInput}
                 onChange={setPromoInput}

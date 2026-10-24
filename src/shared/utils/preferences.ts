@@ -13,6 +13,7 @@ export const preferences = {
   fontView: createStoredValue(storageKeys.fontView, (value) => isOneOf(value, resultViews), () => defaultBrowsePreferences.fontView),
   volume: createStoredValue(storageKeys.volume, isVolume, () => defaultBrowsePreferences.volume),
   currency: createStoredValue(storageKeys.currency, isDisplayCurrency, suggestCurrency),
+  filtersCollapsed: createStoredValue(storageKeys.filtersCollapsed, isBoolean, () => false),
   localeChosen: createStoredValue(storageKeys.localeChosen, isBoolean, () => false),
   languageSuggestionDismissed: createStoredValue(storageKeys.languageSuggestionDismissed, isBoolean, () => false),
 };

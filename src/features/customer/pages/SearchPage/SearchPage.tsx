@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, EmptyState, Icon, Page, SplitLayout, Stack, Text } from '@/shared/components';
+import { Button, EmptyState, Icon, Page, SidebarLayout, Stack, Text } from '@/shared/components';
 import { catalog, categoryFilters, searchPath } from '@/shared/constants';
 import { useLocale, usePagedAsync, useSearchFilters, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -21,6 +21,7 @@ export const SearchPage = () => {
   const navigate = useNavigate();
   const search = useSearchFilters();
   const [pagingMode] = useStoredValue(preferences.pagingMode);
+  const [filtersCollapsed, setFiltersCollapsed] = useStoredValue(preferences.filtersCollapsed);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const title = useSearchTitle(search);
 
@@ -42,7 +43,7 @@ export const SearchPage = () => {
   const total = results.state.status === 'success' ? results.state.data.total : 0;
   const filterKeys = categoryFilters[search.categoryId ?? 'all'];
   const selectedFilters = countSelectedFilters(search.filters);
-  // Sort, view and filters: a side panel that stays in place on desktop, a dialog on phones.
+  // Sort, view and filters: a panel docked to the side of the screen on desktop, a dialog on phones and tablets.
   const optionsPanel = (
     <Stack gap={vars.spacing[6]}>
       <ResultOptions search={search} />
@@ -78,96 +79,97 @@ export const SearchPage = () => {
   );
 
   return (
-    <Page
-      title={title}
-      gap={vars.spacing[5]}
-      headerContent={
-        results.state.status === 'success' && (
-          <Text color={vars.colors.textMuted}>
-            {fillText(text.search.resultCount, { count: formatNumber(total, locale) })}
-          </Text>
-        )
+    <SidebarLayout
+      label={text.filters.title}
+      collapsed={filtersCollapsed}
+      onCollapsedChange={setFiltersCollapsed}
+      collapseLabel={text.filters.hide}
+      expandLabel={text.filters.show}
+      sidebar={
+        <div data-tour="filters">
+          {optionsPanel}
+        </div>
       }
     >
-      {/* Phones have no search bar in the header, so the page shows its own. */}
-      <div className={styles.phoneOnly}>
-        <SearchBox
-          key={search.query}
-          defaultValue={search.query}
-          autoFocus={search.isEmpty}
-          onSearch={(value) => navigate(search.pathWith({ query: value }))}
-        />
-      </div>
-
-      <div className={styles.phoneFilters} data-tour="filtersButton">
-        <Button variant="outline" onClick={() => setFiltersOpen(true)}>
-          <Icon name="filter" size={vars.sizes.icon.sm} />
-          {selectedFilters
-            ? fillText(text.filters.titleWithCount, { count: formatNumber(selectedFilters, locale) })
-            : text.filters.title}
-        </Button>
-      </div>
-
-      {search.categoryId && !search.query && (
-        <Stack gap={vars.spacing[2]}>
-          <Text as="h2" variant="label" color={vars.colors.textMuted}>
-            {text.search.topSearches}
-          </Text>
-          <ChipLinks
-            label={text.search.topSearches}
-            links={text.search.topTerms[search.categoryId].map((term) => ({
-              key: term,
-              label: term,
-              to: searchPath({ category: search.categoryId, query: term }),
-            }))}
+      <Page
+        title={title}
+        gap={vars.spacing[5]}
+        headerContent={
+          results.state.status === 'success' && (
+            <Text color={vars.colors.textMuted}>
+              {fillText(text.search.resultCount, { count: formatNumber(total, locale) })}
+            </Text>
+          )
+        }
+      >
+        {/* Phones have no search bar in the header, so the page shows its own. */}
+        <div className={styles.phoneOnly}>
+          <SearchBox
+            key={search.query}
+            defaultValue={search.query}
+            autoFocus={search.isEmpty}
+            onSearch={(value) => navigate(search.pathWith({ query: value }))}
           />
-        </Stack>
-      )}
+        </div>
 
-      <ActiveFilters search={search} />
+        <div className={styles.phoneFilters} data-tour="filtersButton">
+          <Button variant="outline" onClick={() => setFiltersOpen(true)}>
+            <Icon name="filter" size={vars.sizes.icon.sm} />
+            {selectedFilters
+              ? fillText(text.filters.titleWithCount, { count: formatNumber(selectedFilters, locale) })
+              : text.filters.title}
+          </Button>
+        </div>
 
-      <SplitLayout
-        asideAt="start"
-        stickyAside={false}
-        columns={`${vars.sizes.sidebar.width} minmax(0, 1fr)`}
-        aside={
-          <div className={styles.sidebar} data-tour="filters">
-            {optionsPanel}
-          </div>
-        }
-        main={
-          <Stack gap={vars.spacing[6]}>
-            <SearchResultsView
-              search={search}
-              results={results}
-              title={title}
-              empty={
-                <EmptyState
-                  title={text.search.noResultsTitle}
-                  message={
-                    search.query
-                      ? fillText(text.search.noResultsMessage, { query: search.query })
-                      : text.search.noResultsInCategory
-                  }
-                  action={
-                    !search.isEmpty && (
-                      <Button variant="secondary" onClick={() => navigate(searchPath())}>
-                        {text.search.clearFilters}
-                      </Button>
-                    )
-                  }
-                />
-              }
+        {search.categoryId && !search.query && (
+          <Stack gap={vars.spacing[2]}>
+            <Text as="h2" variant="label" color={vars.colors.textMuted}>
+              {text.search.topSearches}
+            </Text>
+            <ChipLinks
+              label={text.search.topSearches}
+              links={text.search.topTerms[search.categoryId].map((term) => ({
+                key: term,
+                label: term,
+                to: searchPath({ category: search.categoryId, query: term }),
+              }))}
             />
-            {search.query && <ReportResults query={search.query} categoryId={search.categoryId} />}
           </Stack>
-        }
-      />
+        )}
 
-      <FilterDialog open={filtersOpen} count={total} onClose={() => setFiltersOpen(false)}>
-        {optionsPanel}
-      </FilterDialog>
-    </Page>
+        <ActiveFilters search={search} />
+
+        <Stack gap={vars.spacing[6]}>
+          <SearchResultsView
+            search={search}
+            results={results}
+            title={title}
+            empty={
+              <EmptyState
+                title={text.search.noResultsTitle}
+                message={
+                  search.query
+                    ? fillText(text.search.noResultsMessage, { query: search.query })
+                    : text.search.noResultsInCategory
+                }
+                action={
+                  !search.isEmpty && (
+                    <Button variant="secondary" onClick={() => navigate(searchPath())}>
+                      {text.search.clearFilters}
+                    </Button>
+                  )
+                }
+              />
+            }
+          />
+          <ReportResults query={search.query} categoryId={search.categoryId} />
+        </Stack>
+
+        <FilterDialog open={filtersOpen} count={total} onClose={() => setFiltersOpen(false)}>
+          {optionsPanel}
+        </FilterDialog>
+      </Page>
+    </SidebarLayout>
   );
 };
 

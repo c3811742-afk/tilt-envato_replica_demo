@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Badge, Button, Card, FieldMessage, Grid, Icon, IconNote, Modal, Select, Stack, Text } from '@/shared/components';
+import { useNavigate } from 'react-router';
+import { Badge, Button, Card, FieldMessage, Grid, Icon, IconNote, Menu, Modal, Select, Stack, Text } from '@/shared/components';
 import { aiShortcuts, aiToolPath, type AiOperation } from '@/shared/constants';
 import { useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -10,6 +11,7 @@ import {
   downloadFile,
   downloadTextFile,
   fillText,
+  formatCount,
   formatDate,
   formatNumber,
   libraryApi,
@@ -25,7 +27,7 @@ import styles from './AiStudio.module.css';
 const dateTimeFormat: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
 const statusBadges = { queued: 'neutral', running: 'highlight', done: 'free' } as const;
 
-// Tools that can take an image result as their input, offered under "Use in".
+// Tools that can take an image result as their input, offered under "Use in" in the result's "⋯" menu.
 const imageNextSteps: AiOperation[] = ['edit', 'backgroundRemove', 'erase', 'upscale', 'mockup', 'video'];
 
 interface AiResultProps {
@@ -64,7 +66,7 @@ export const AiResult = ({ generation, status }: AiResultProps) => {
           <Text variant="bodySm" color={vars.colors.textMuted}>
             {[
               generation.model ? text.ai.models[generation.model] : null,
-              fillText(text.ai.cost, { credits: formatNumber(generation.credits, locale) }),
+              formatCount(text.ai.cost, generation.credits, locale),
               formatDate(generation.createdAt, locale, dateTimeFormat),
             ]
               .filter(Boolean)
@@ -133,54 +135,51 @@ const OutputTile = ({ generation, output, index }: { generation: Generation; out
             <Icon name={speaking ? 'pause' : 'play'} size={vars.sizes.icon.sm} />
             {speaking ? text.ai.stop : text.ai.play}
           </Button>
-          <IconNote text={text.ai.speechNote} />
         </Stack>
       )}
 
+      {/* Two actions in view; for images, the quick edits and the other tools are in one "⋯" menu. */}
       {output.kind !== 'speech' && (
-        <Stack direction="row" wrap gap={vars.spacing[2]}>
-          <Button variant="outline" size="sm" onClick={() => void download()} ariaLabel={`${text.ai.download} ${label}`}>
+        <Stack direction="row" gap={vars.spacing[2]}>
+          <Button variant="outline" size="sm" iconOnly tooltip={text.ai.download} ariaLabel={`${text.ai.download} ${label}`} onClick={() => void download()}>
             <Icon name="download" size={vars.sizes.icon.sm} />
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setSaving(true)} ariaLabel={`${text.ai.saveToCollection} ${label}`}>
+          <Button variant="outline" size="sm" iconOnly tooltip={text.ai.saveToCollection} ariaLabel={`${text.ai.saveToCollection} ${label}`} onClick={() => setSaving(true)}>
             <Icon name="folder" size={vars.sizes.icon.sm} />
           </Button>
+          {output.kind === 'image' && <NextSteps generation={generation} index={index} />}
         </Stack>
       )}
-      {output.kind === 'image' && <NextSteps generation={generation} index={index} />}
       <FieldMessage tone="error" message={error} />
       {saving && <SaveDialog generation={generation} index={index} onClose={() => setSaving(false)} />}
     </Stack>
   );
 };
 
-// The quick edits and the tools an image result can go into.
+// The "⋯" menu of an image result: its quick edits, then the tools it can go into.
 const NextSteps = ({ generation, index }: { generation: Generation; index: number }) => {
   const { text } = useLocale();
+  const navigate = useNavigate();
   const ref = outputRef(generation, index);
   return (
-    <Stack gap={vars.spacing[1]}>
-      <Text as="span" variant="label" color={vars.colors.textMuted}>
-        {text.ai.shortcutsTitle}
-      </Text>
-      <Stack direction="row" wrap gap={vars.spacing[1]}>
-        {aiShortcuts.map((shortcut) => (
-          <Button key={shortcut} variant="muted" size="sm" to={aiToolPath(shortcut, ref)}>
-            {text.ai.shortcuts[shortcut]}
-          </Button>
-        ))}
-      </Stack>
-      <Text as="span" variant="label" color={vars.colors.textMuted}>
-        {text.ai.useIn}
-      </Text>
-      <Stack direction="row" wrap gap={vars.spacing[1]}>
-        {imageNextSteps.map((tool) => (
-          <Button key={tool} variant="muted" size="sm" to={aiToolPath(tool, ref)}>
-            {operationName(text, tool)}
-          </Button>
-        ))}
-      </Stack>
-    </Stack>
+    <Menu
+      label={text.common.moreActions}
+      columns
+      items={[
+        ...aiShortcuts.map((shortcut) => ({
+          key: shortcut,
+          label: text.ai.shortcuts[shortcut],
+          section: text.ai.shortcutsTitle,
+          onSelect: () => navigate(aiToolPath(shortcut, ref)),
+        })),
+        ...imageNextSteps.map((tool) => ({
+          key: tool,
+          label: operationName(text, tool),
+          section: text.ai.useIn,
+          onSelect: () => navigate(aiToolPath(tool, ref)),
+        })),
+      ]}
+    />
   );
 };
 

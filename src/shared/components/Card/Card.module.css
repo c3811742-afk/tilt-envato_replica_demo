@@ -10,8 +10,10 @@
   color: var(--card-color);
 }
 
+/* A linked card's wrapper fills its grid cell, so the cards in a row are the same height. */
 .item {
   display: block;
+  block-size: 100%;
 }
 
 .link {

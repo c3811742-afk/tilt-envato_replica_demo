@@ -1,20 +1,12 @@
-/* Phones search from the page (the header has no search bar) and open the filters in a dialog;
-   from desktop width the filters sit in a side panel. */
+/* Phones search from the page (the header has no search bar). Phones and tablets open the filters in a dialog;
+   from desktop width they're in the panel docked to the side of the screen. */
 @media (--md-up) {
   .phoneOnly {
     display: none;
   }
 }
 
-.sidebar {
-  display: none;
-}
-
 @media (--lg-up) {
-  .sidebar {
-    display: block;
-  }
-
   .phoneFilters {
     display: none;
   }

@@ -1,0 +1,55 @@
+/* The shared card shape, so a collection is the same size as the item cards next to it. */
+.tile {
+  composes: tile from '@/shared/styles/cards.module.css';
+}
+
+.cover {
+  composes: cover from '@/shared/styles/cards.module.css';
+}
+
+.body {
+  composes: body from '@/shared/styles/cards.module.css';
+}
+
+.meta {
+  composes: meta from '@/shared/styles/cards.module.css';
+}
+
+/* Selected in select mode: the brand color around the card. */
+.selected {
+  outline: var(--borders-width-thick) var(--borders-style) var(--colors-primary);
+  outline-offset: calc(-1 * var(--borders-width-thick));
+}
+
+/* The cover's items: one fills it; two to four share it in a 2 x 2 grid. */
+.mosaic {
+  display: grid;
+  block-size: 100%;
+}
+
+.mosaicGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--borders-width-thin);
+  background: var(--colors-border);
+}
+
+/* Select mode: a checkbox on the cover's top end corner (the generated cover draws its icon on the start corner). */
+.check {
+  position: absolute;
+  inset-block-start: var(--spacing-3);
+  inset-inline-end: var(--spacing-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizes-icon-md);
+  block-size: var(--sizes-icon-md);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+.checked {
+  border-color: var(--colors-primary);
+  background: var(--colors-primary);
+  color: var(--colors-on-primary);
+}

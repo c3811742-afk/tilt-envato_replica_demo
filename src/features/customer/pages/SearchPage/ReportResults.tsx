@@ -12,7 +12,8 @@ interface ReportResultsProps {
   categoryId?: CategoryId;
 }
 
-// "Results not what you expected?": signed-in users can report a search whose results don't match.
+// "Results not what you expected?": signed-in users can report any set of results that doesn't match,
+// with or without a keyword, filtered or not, including no results.
 export const ReportResults = ({ query, categoryId }: ReportResultsProps) => {
   const { text } = useLocale();
   const { session } = useSession();
@@ -42,6 +43,7 @@ export const ReportResults = ({ query, categoryId }: ReportResultsProps) => {
 
 const ReportForm = ({ query, categoryId, onDone }: ReportResultsProps & { onDone: () => void }) => {
   const { text } = useLocale();
+  const { pathname, search } = useLocation();
   const [reason, setReason] = useState<SearchReportReason | null>(null);
   const [comment, setComment] = useState('');
   const [reasonError, setReasonError] = useState(false);
@@ -52,7 +54,7 @@ const ReportForm = ({ query, categoryId, onDone }: ReportResultsProps & { onDone
     event.preventDefault();
     if (!reason) return setReasonError(true);
     setSending(true);
-    const result = await safeAsync(() => api.reportSearch({ query, categoryId, reason, comment: comment.trim() }));
+    const result = await safeAsync(() => api.reportSearch({ query, searchUrl: `${pathname}${search}`, categoryId, reason, comment: comment.trim() }));
     setSending(false);
     setStatus(result.ok ? 'sent' : 'failed');
   };

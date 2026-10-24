@@ -1,0 +1,42 @@
+/* The shape every card in a grid shares (items, collections), so cards side by side are the same size:
+   a square picture, then the text under it. Use them from a CSS module with `composes`, never copy them. */
+
+/* The whole card: bordered, full height of its grid cell, lifts on hover. */
+.tile {
+  composes: lift from '@/shared/styles/interactions.module.css';
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  block-size: 100%;
+  padding: 0;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: var(--sizes-item-card-cover-ratio);
+  overflow: hidden;
+}
+
+/* The text under the picture: a title line, a muted line, then a row as tall as a small icon button. */
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-block-size: var(--sizes-button-height-xs);
+}

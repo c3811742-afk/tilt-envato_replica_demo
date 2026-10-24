@@ -10,15 +10,22 @@ import type { FileInputProps } from './FileInput.types';
 
 // A button that opens the device's file picker (an image to search with, an audio file to match).
 export const FileInput = (props: FileInputProps) => {
-  const { label, accept, onSelect, hint, error, busy, icon, variant, disabled } = withDefaults(fileInputDefaults, props);
+  const { label, accept, onSelect, hint, error, busy, icon, variant, size, disabled, iconOnly } = withDefaults(fileInputDefaults, props);
   const inputRef = useRef<HTMLInputElement>(null);
   const messageId = useId();
 
   return (
     <Stack gap={vars.spacing[1]} align="flex-start">
-      <Button variant={variant} disabled={disabled || Boolean(busy)} onClick={() => inputRef.current?.click()}>
+      <Button
+        variant={variant}
+        size={size}
+        iconOnly={iconOnly}
+        tooltip={iconOnly ? (busy ?? label) : undefined}
+        disabled={disabled || Boolean(busy)}
+        onClick={() => inputRef.current?.click()}
+      >
         <Icon name={icon} size={vars.sizes.icon.sm} />
-        {busy ?? label}
+        {!iconOnly && (busy ?? label)}
       </Button>
       <input
         ref={inputRef}
@@ -32,7 +39,7 @@ export const FileInput = (props: FileInputProps) => {
           if (file) onSelect?.(file);
         }}
       />
-      <FieldMessage id={messageId} tone={error ? 'error' : 'hint'} message={error ?? hint} />
+      <FieldMessage id={messageId} tone={error ? 'error' : 'hint'} message={error ?? (iconOnly ? undefined : hint)} />
     </Stack>
   );
 };

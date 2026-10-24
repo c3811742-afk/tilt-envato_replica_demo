@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
-import { Button, Card, EmptyState, IconNote, Meter, Page, Section, SplitLayout, Stack, Text, TextLink } from '@/shared/components';
+import { Button, Card, EmptyState, Meter, Page, Section, SplitLayout, Stack, Text, TextLink } from '@/shared/components';
 import { aiShortcuts, aiSourceParam, aiTools, routes, withReturnTo, type AiOperation } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Session } from '@/shared/types';
-import { accountCredits, fillText, formatNumber, planUsage } from '@/shared/utils';
+import { accountCredits, fillText, formatCount, formatNumber, planUsage } from '@/shared/utils';
 import { findOutput, GenerationQueue, operationName } from '@/features/common/components';
 import { AudioForm, EditForm, ImageForm, MockupForm, VideoForm } from './ToolForms';
 import type { ImageSource } from './imageSource';
@@ -31,10 +31,7 @@ export const AiToolPage = () => {
   const credits = session.status === 'signedIn' ? accountCredits(session) : null;
 
   return (
-    <Page title={operationName(text, tool)} subtitle={description} gap={vars.spacing[7]}>
-      <TextLink to={routes.ai} variant="bodySm">
-        {text.ai.title}
-      </TextLink>
+    <Page title={operationName(text, tool)} subtitle={description} gap={vars.spacing[7]} backTo={routes.ai} backLabel={text.ai.title}>
       {session.status !== 'signedIn' ? (
         <EmptyState
           title={text.ai.noAccessTitle}
@@ -85,6 +82,10 @@ const ToolWorkspace = ({ tool, session }: { tool: AiOperation; session: Extract<
         main={form}
         aside={
           <Card gap={vars.spacing[3]}>
+            {/* What's left, large: it changes with every generation, while the bar barely moves on a big allowance. */}
+            <Text as="p" variant="h3">
+              {formatCount(text.ai.creditsLeft, credits.remaining, locale)}
+            </Text>
             <Meter
               label={text.planPage.creditsTitle}
               value={credits.used}
@@ -94,7 +95,6 @@ const ToolWorkspace = ({ tool, session }: { tool: AiOperation; session: Extract<
             <Text variant="bodySm" color={vars.colors.textMuted}>
               {fillText(text.ai.concurrentNote, { count: formatNumber(credits.concurrent, locale) })}
             </Text>
-            <IconNote text={text.ai.demoNote} />
             <TextLink to={routes.aiHistory} variant="bodySm">
               {text.ai.history}
             </TextLink>

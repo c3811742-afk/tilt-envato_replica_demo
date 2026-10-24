@@ -1,0 +1,60 @@
+/* The groups sit in the dropdown panel, edge to edge: one under the other, or side by side. */
+.groups {
+  display: flex;
+  flex-direction: column;
+  margin: calc(-1 * var(--spacing-2));
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* A group heading, e.g. "Quick edits". */
+.section {
+  padding: var(--spacing-3) var(--spacing-3) var(--spacing-1);
+  color: var(--colors-text-muted);
+  font-family: var(--text-styles-label-font-family);
+  font-size: var(--text-styles-label-font-size);
+  font-weight: var(--text-styles-label-font-weight);
+  letter-spacing: var(--text-styles-label-letter-spacing);
+  text-transform: var(--text-styles-label-text-transform);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  inline-size: 100%;
+  min-block-size: var(--sizes-tap-target);
+  padding-inline: var(--spacing-3);
+  border: 0;
+  background: transparent;
+  color: var(--colors-text);
+  font-family: var(--text-styles-body-font-family);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  text-align: start;
+  cursor: pointer;
+}
+
+.item:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+.danger {
+  color: var(--colors-danger);
+}
+
+/* Last, so it wins over the rules above. */
+.item:focus-visible,
+.item:hover:not(:disabled) {
+  background: var(--colors-surface-muted);
+}

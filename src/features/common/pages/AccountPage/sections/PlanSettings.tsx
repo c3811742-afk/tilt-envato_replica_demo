@@ -190,7 +190,6 @@ const PendingPlan = ({ subscription }: { subscription: Subscription }) => {
         {text.checkout.fawryCode}
       </Text>
       <CodeBadge code={subscription.fawryCode} />
-      <IconNote text={text.checkout.pendingDemoNote} />
       <FieldMessage tone="error" message={error} />
       <div>
         <Button disabled={busy} onClick={() => void run(billingApi.confirmFawryPayment)}>

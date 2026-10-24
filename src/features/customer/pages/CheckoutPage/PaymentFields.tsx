@@ -1,4 +1,4 @@
-import { IconNote, PhoneField, Stack, Text, TextField } from '@/shared/components';
+import { PhoneField, Stack, Text, TextField } from '@/shared/components';
 import { card, cardPaymentMethods, fawry, type PaymentMethod } from '@/shared/constants';
 import { useLocale, type useForm } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -34,12 +34,13 @@ export const PaymentFields = ({ method, form }: PaymentFieldsProps) => {
   if (cardPaymentMethods.includes(method)) {
     return (
       <Stack gap={vars.spacing[4]}>
-        <IconNote icon="card" text={fillText(text.checkout.cardDemo, { number: card.demoNumber, declined: card.declinedNumber })} />
         <TextField
           label={text.checkout.cardNumber}
           inputMode="numeric"
           direction="ltr"
           autoComplete="cc-number"
+          placeholder={card.demoNumber}
+          hint={fillText(text.checkout.testCards, { number: card.demoNumber, declined: card.declinedNumber })}
           {...form.field('cardNumber')}
           onChange={(value) => form.setValue('cardNumber', formatCardNumber(value))}
         />

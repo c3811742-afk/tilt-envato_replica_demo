@@ -1,4 +1,4 @@
-import { EmailField, FormFooter, IconNote, Modal, Stack, TextField } from '@/shared/components';
+import { EmailField, FormFooter, Modal, Stack, TextField } from '@/shared/components';
 import type { SocialProvider } from '@/shared/constants';
 import { useForm, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -25,7 +25,6 @@ export const SocialAuthDialog = ({ provider, askName, onContinue, onClose }: Soc
   return (
     <Modal open onClose={onClose} title={fillText(text.auth.continueWith, { provider: providerName })}>
       <Stack as="form" gap={vars.spacing[4]} onSubmit={form.submit(onContinue)} noValidate>
-        <IconNote icon="info" text={fillText(text.auth.social.demoNote, { provider: providerName })} />
         {askName && <TextField label={text.auth.social.name} autoComplete="name" autoFocus {...form.field('name')} />}
         <EmailField autoFocus={!askName} {...form.field('email')} />
         <FormFooter label={text.common.continue} submitting={form.submitting} requestError={form.requestError} />

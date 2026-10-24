@@ -13,7 +13,7 @@ export const HelpArticlePage = () => {
   const content = useAsync(async () => ({ article: await contentApi.getHelpArticle(id), all: await contentApi.getHelpArticles() }), [id], ({ article }) => article === null);
 
   return (
-    <Page contentMaxWidth={vars.sizes.readable.maxWidth}>
+    <Page contentMaxWidth={vars.sizes.readable.maxWidth} backTo={routes.help} backLabel={text.help.back}>
       <AsyncContent
         state={content}
         empty={<EmptyState title={text.help.notFoundTitle} message={text.help.notFoundMessage} action={<Button to={routes.help}>{text.help.back}</Button>} />}
@@ -21,9 +21,6 @@ export const HelpArticlePage = () => {
         {({ article, all }) =>
           article && (
             <Stack gap={vars.spacing[6]}>
-              <TextLink to={routes.help} variant="bodySm">
-                {text.help.back}
-              </TextLink>
               <Stack gap={vars.spacing[3]}>
                 <Text as="h1" variant="h1">
                   {article.title[locale]}

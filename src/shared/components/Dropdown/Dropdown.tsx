@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { useLocation } from 'react-router';
-import { withDefaults } from '@/shared/utils';
+import { cx, withDefaults } from '@/shared/utils';
 import { dropdownDefaults } from './Dropdown.defaults';
 import type { DropdownProps } from './Dropdown.types';
 import styles from './Dropdown.module.css';
@@ -8,7 +8,7 @@ import styles from './Dropdown.module.css';
 // A button that opens a small panel under it (e.g. the account menu).
 // The panel closes on Esc, on a click outside, and when the page changes.
 export const Dropdown = (props: DropdownProps) => {
-  const { trigger, label, children, width, triggerHeight } = withDefaults(dropdownDefaults, props);
+  const { trigger, label, children, width, triggerHeight, square } = withDefaults(dropdownDefaults, props);
   const { pathname } = useLocation();
   // The page the panel was opened on: it's only open on that page, so it closes when the page changes.
   const [openOn, setOpenOn] = useState<string | null>(null);
@@ -16,6 +16,14 @@ export const Dropdown = (props: DropdownProps) => {
   const setOpen = (next: boolean) => setOpenOn(next ? pathname : null);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
+
+  // The panel opens toward the start side of the button. If that would take it off the screen (a button near
+  // the screen's start edge, a wide panel), it opens toward the end side instead.
+  const keepOnScreen = (panel: HTMLDivElement | null) => {
+    if (!panel) return;
+    const { left, right } = panel.getBoundingClientRect();
+    if (left < 0 || right > document.documentElement.clientWidth) panel.classList.add(styles.flipped);
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -40,7 +48,7 @@ export const Dropdown = (props: DropdownProps) => {
     <div ref={rootRef} className={styles.dropdown} style={style}>
       <button
         type="button"
-        className={styles.trigger}
+        className={cx(styles.trigger, square && styles.square)}
         aria-label={label}
         aria-expanded={open}
         aria-controls={panelId}
@@ -49,7 +57,7 @@ export const Dropdown = (props: DropdownProps) => {
         {trigger}
       </button>
       {open && (
-        <div id={panelId} className={styles.panel}>
+        <div ref={keepOnScreen} id={panelId} className={styles.panel}>
           {typeof children === 'function' ? children(close) : children}
         </div>
       )}

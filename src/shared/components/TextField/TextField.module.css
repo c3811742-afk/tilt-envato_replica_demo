@@ -47,3 +47,10 @@
 .invalid {
   border-color: var(--colors-danger);
 }
+
+/* A button inside the field (e.g. "Apply", "Show password"): kept off the field's border. */
+.endAction {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-inline-end: var(--spacing-1);
+}

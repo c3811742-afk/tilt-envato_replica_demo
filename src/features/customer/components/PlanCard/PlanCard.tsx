@@ -33,21 +33,24 @@ export const PlanCard = ({ plan, duration, current, hasPlan, student, creditTier
   return (
     <Card
       as="li"
-      gap={vars.spacing[4]}
+      gap={vars.spacing[3]}
+      padding={vars.sizes.planCard.padding}
       borderColor={plan.featured ? vars.colors.primary : vars.colors.border}
       background={plan.featured ? vars.colors.surfaceMuted : vars.colors.surface}
     >
       <Stack direction="row" wrap align="center" justify="space-between" gap={vars.spacing[2]}>
-        <Text as="h2" variant="h3">
+        <Text as="h2" variant="h4">
           {copy.name}
         </Text>
         {plan.featured && <Badge variant="info">{text.pricing.popular}</Badge>}
       </Stack>
-      <Text color={vars.colors.textMuted}>{copy.description}</Text>
+      <Text variant="bodySm" color={vars.colors.textMuted}>
+        {copy.description}
+      </Text>
 
       {priced ? (
         <Stack direction="row" wrap align="baseline" gap={vars.spacing[2]}>
-          <Text as="span" variant="h1">
+          <Text as="span" variant="h2">
             {showPrice(price.perMonth)}
           </Text>
           <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
@@ -55,7 +58,7 @@ export const PlanCard = ({ plan, duration, current, hasPlan, student, creditTier
           </Text>
         </Stack>
       ) : (
-        <Text as="span" variant="h2">
+        <Text as="span" variant="h3">
           {text.pricing.priceOnRequest}
         </Text>
       )}
