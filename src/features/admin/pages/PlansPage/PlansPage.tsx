@@ -1,10 +1,11 @@
-import { PageHeader, RequirePermission, Stack, Tabs } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { planTabs } from '@/features/admin/constants';
 import { useTabParam } from '@/features/admin/hooks';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { PlansTab } from './PlansTab';
 import { PromoCodesTab } from './PromoCodesTab';
+import { SectionHeader, Stack, Tabs } from '@/shared/components';
 
 const tabContent = { plans: PlansTab, promoCodes: PromoCodesTab };
 
@@ -16,7 +17,7 @@ const Plans = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.pageDescription} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.pageDescription} />
       <Tabs
         label={t.tabsLabel}
         tabs={planTabs.map((value) => ({ value, label: t.tabs[value] }))}

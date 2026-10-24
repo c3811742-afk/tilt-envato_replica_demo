@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchLanguages } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  Notice,
-  PageHeader,
-  RequirePermission,
-  Stack,
-  TextLink,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { Notice, RequirePermission } from '@/features/admin/components';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage } from '@/features/admin/types';
 import { fillText, isolate } from '@/features/admin/utils';
-import { AsyncContent, Button, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+  TextLink,
+} from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -38,10 +40,10 @@ const Languages = () => {
     });
   };
 
-  const columns: DataTableColumn<SiteLanguage>[] = [
+  const columns: RecordColumn<SiteLanguage>[] = [
     {
       key: 'language',
-      header: text.admin.columns.language,
+      label: text.admin.columns.language,
       render: (language) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span">{language.name}</Text>
@@ -53,34 +55,34 @@ const Languages = () => {
     },
     {
       key: 'code',
-      header: text.admin.columns.code,
+      label: text.admin.columns.code,
       render: (language) => (
         <Text as="span">
           <bdi>{language.code}</bdi>
         </Text>
       ),
     },
-    { key: 'direction', header: text.admin.columns.direction, render: (language) => t.directions[language.direction] },
+    { key: 'direction', label: text.admin.columns.direction, render: (language) => t.directions[language.direction] },
     {
       key: 'progress',
-      header: text.admin.columns.progress,
+      label: text.admin.columns.progress,
       render: (language) =>
         language.isSource ? (
-          <Badge tone="primary">{t.source}</Badge>
+          <Badge variant="info">{t.source}</Badge>
         ) : (
-          <Stack gap={vars.spacing[1]} align="start">
+          <Stack gap={vars.spacing[1]} align="flex-start">
             <Text as="span">{progress(language)}</Text>
             {language.translated === language.total ? (
-              <Badge tone="success">{t.complete}</Badge>
+              <Badge variant="success">{t.complete}</Badge>
             ) : (
-              <Badge tone="warning">{t.incomplete}</Badge>
+              <Badge variant="warning">{t.incomplete}</Badge>
             )}
           </Stack>
         ),
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (language) =>
         !language.isSource && (
           <TextLink to={generatePath(routes.adminTranslations, { languageCode: language.code })}>
@@ -92,9 +94,9 @@ const Languages = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={t.title}
-        description={t.description}
+        subtitle={t.description}
         actions={can('addLanguages') && <Button onClick={() => setAdding(true)}>{t.add}</Button>}
       />
       {notice && (
@@ -105,7 +107,7 @@ const Languages = () => {
       <AsyncContent state={languages}>
         {(list) => (
           <>
-            <DataTable label={t.title} columns={columns} rows={list} getRowKey={(language) => language.code} />
+            <Table label={t.title} columns={columns} rows={recordRows(list, (language) => language.code, columns)} stackOnMobile />
             {adding && (
               <AddLanguageModal
                 onClose={() => setAdding(false)}

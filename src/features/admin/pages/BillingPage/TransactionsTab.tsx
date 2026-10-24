@@ -1,22 +1,25 @@
 import { useState } from 'react';
 import { fetchTransactions } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  FilterBar,
-  Notice,
-  SelectField,
-  Stack,
-  TextField,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { FilterBar, Notice } from '@/features/admin/components';
 import { transactionStatuses, transactionStatusTone } from '@/features/admin/constants';
 import type { Transaction, TransactionStatus } from '@/features/admin/types';
-import { fillText, formatMoney, isOneOf, isolate, matchesQuery, refundable, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import { fillText, isOneOf, isolate, matchesQuery, refundable, replaceById } from '@/features/admin/utils';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextField,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatPrice } from '@/shared/utils';
 import { RefundModal } from './RefundModal';
 
 const allStatuses = 'all';
@@ -32,11 +35,11 @@ export const TransactionsTab = () => {
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.billing;
 
-  const columns: DataTableColumn<Transaction>[] = [
-    { key: 'date', header: text.admin.columns.date, render: (row) => formatDate(row.at, locale, dateTime) },
+  const columns: RecordColumn<Transaction>[] = [
+    { key: 'date', label: text.admin.columns.date, render: (row) => formatDate(row.at, locale, dateTime) },
     {
       key: 'customer',
-      header: text.admin.columns.customer,
+      label: text.admin.columns.customer,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -48,17 +51,17 @@ export const TransactionsTab = () => {
         </Stack>
       ),
     },
-    { key: 'plan', header: text.admin.columns.plan, render: (row) => row.planName },
-    { key: 'method', header: text.admin.columns.method, render: (row) => text.admin.methods[row.method] },
+    { key: 'plan', label: text.admin.columns.plan, render: (row) => row.planName },
+    { key: 'method', label: text.admin.columns.method, render: (row) => text.admin.methods[row.method] },
     {
       key: 'amount',
-      header: text.admin.columns.amount,
+      label: text.admin.columns.amount,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
-          <Text as="span">{formatMoney(row.amount, locale)}</Text>
+          <Text as="span">{formatPrice(row.amount, locale)}</Text>
           {row.refunded > 0 && (
             <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
-              {fillText(t.refundedAmount, { amount: formatMoney(row.refunded, locale) })}
+              {fillText(t.refundedAmount, { amount: formatPrice(row.refunded, locale) })}
             </Text>
           )}
         </Stack>
@@ -66,12 +69,12 @@ export const TransactionsTab = () => {
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (row) => <Badge tone={transactionStatusTone[row.status]}>{t.statuses[row.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (row) => <Badge variant={transactionStatusTone[row.status]}>{t.statuses[row.status]}</Badge>,
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (row) =>
         refundable(row) > 0 && (
@@ -105,9 +108,8 @@ export const TransactionsTab = () => {
                   placeholder={t.searchPlaceholder}
                   value={query}
                   onChange={setQuery}
-                  autoDirection
                 />
-                <SelectField
+                <Select
                   label={text.admin.columns.status}
                   options={[
                     { value: allStatuses, label: t.allStatuses },
@@ -118,7 +120,7 @@ export const TransactionsTab = () => {
                 />
               </FilterBar>
               {visible.length > 0 ? (
-                <DataTable label={t.tabs.transactions} columns={columns} rows={visible} getRowKey={(row) => row.id} />
+                <Table label={t.tabs.transactions} columns={columns} rows={recordRows(visible, (row) => row.id, columns)} stackOnMobile />
               ) : (
                 <EmptyState
                   title={text.admin.common.noMatchesTitle}
@@ -144,7 +146,7 @@ export const TransactionsTab = () => {
                     setRefunding(null);
                     setNotice(
                       fillText(t.refund.done, {
-                        amount: formatMoney(amount, locale),
+                        amount: formatPrice(amount, locale),
                         name: isolate(saved.customer.name),
                       }),
                     );

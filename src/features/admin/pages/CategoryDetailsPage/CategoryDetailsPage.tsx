@@ -1,23 +1,24 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { fetchCategory, moveAttribute, removeAttribute } from '@/features/admin/api';
-import {
-  Badge,
-  ConfirmModal,
-  DataTable,
-  Notice,
-  PageHeader,
-  Panel,
-  ReorderButtons,
-  RequirePermission,
-  Stack,
-  TextLink,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ConfirmModal, Notice, ReorderButtons, RequirePermission } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Category, CategoryAttribute, MoveDirection } from '@/features/admin/types';
 import { fillText, formatList, isolate, localized } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+  TextLink,
+} from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -60,20 +61,20 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
   };
 
   const count = category.attributes.length;
-  const columns: DataTableColumn<CategoryAttribute>[] = [
+  const columns: RecordColumn<CategoryAttribute>[] = [
     {
       key: 'name',
-      header: text.admin.columns.name,
+      label: text.admin.columns.name,
       render: (attribute) => (
         <Text as="span" autoDirection>
           {localized(attribute.name, locale)}
         </Text>
       ),
     },
-    { key: 'type', header: text.admin.columns.type, render: (attribute) => text.admin.attributeTypes[attribute.type] },
+    { key: 'type', label: text.admin.columns.type, render: (attribute) => text.admin.attributeTypes[attribute.type] },
     {
       key: 'options',
-      header: text.admin.columns.options,
+      label: text.admin.columns.options,
       render: (attribute) =>
         attribute.options.length > 0 ? (
           <Text as="span" autoDirection>
@@ -87,13 +88,13 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
     },
     {
       key: 'filter',
-      header: text.admin.columns.filter,
+      label: text.admin.columns.filter,
       render: (attribute) =>
-        attribute.isFilter ? <Badge tone="info">{t.filterYes}</Badge> : <Badge>{t.filterNo}</Badge>,
+        attribute.isFilter ? <Badge variant="info">{t.filterYes}</Badge> : <Badge>{t.filterNo}</Badge>,
     },
     {
       key: 'order',
-      header: text.admin.columns.order,
+      label: text.admin.columns.order,
       render: (attribute) => {
         const index = category.attributes.indexOf(attribute);
         return (
@@ -109,9 +110,9 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (attribute) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
           <Button size="sm" variant="muted" onClick={() => setEditing(attribute)}>
             {text.admin.common.edit}
           </Button>
@@ -134,9 +135,9 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={localized(category.name, locale)}
-        description={t.description}
+        subtitle={t.description}
         autoDirection
         actions={category.hidden && <Badge>{text.admin.categoryList.hidden}</Badge>}
       />
@@ -150,29 +151,29 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
           {action.error}
         </Notice>
       )}
-      <Panel title={t.namesTitle}>
+      <Card title={t.namesTitle}>
         <Stack gap={vars.spacing[2]}>
           <Text>{fillText(t.nameIn, { language: text.admin.languageNames.en, name: isolate(category.name.en) })}</Text>
           <Text>{fillText(t.nameIn, { language: text.admin.languageNames.ar, name: isolate(category.name.ar) })}</Text>
         </Stack>
-      </Panel>
-      <Panel title={t.attributesTitle}>
+      </Card>
+      <Card title={t.attributesTitle}>
         {count > 0 ? (
           <Stack>
-            <Stack direction="row" align="center">
+            <Stack direction="row" wrap align="center">
               {addButton}
             </Stack>
-            <DataTable
+            <Table
               label={t.attributesTitle}
-              columns={columns}
-              rows={category.attributes}
-              getRowKey={(attribute) => attribute.id}
+              columns={columns} rows={recordRows(category.attributes, (attribute) => attribute.id, columns)} stackOnMobile
+             
+             
             />
           </Stack>
         ) : (
           <EmptyState title={t.noAttributesTitle} message={t.noAttributesMessage} action={addButton} />
         )}
-      </Panel>
+      </Card>
       {editing && (
         <AttributeModal
           categoryId={category.id}

@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { closeSearchReport, fetchSearchReports } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  FilterBar,
-  Notice,
-  SelectField,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { FilterBar, Notice } from '@/features/admin/components';
 import { reportStatuses, reportStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { ReportResolution, ReportStatus, SearchReport } from '@/features/admin/types';
 import { fillText, isOneOf, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Select,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -35,14 +38,14 @@ export const ReportsTab = () => {
     const result = await action.run(() => closeSearchReport(currentAdmin.id, report.id, resolution));
     if (!result.ok) return;
     reports.update(replaceById(list, result.data));
-    const values = { title: isolate(report.element.title), term: isolate(report.term) };
+    const values = { title: isolate(report.element?.title ?? report.term), term: isolate(report.term) };
     setNotice(fillText(resolution === 'resolved' ? t.resolvedNotice : t.dismissedNotice, values));
   };
 
-  const columns = (list: SearchReport[]): DataTableColumn<SearchReport>[] => [
+  const columns = (list: SearchReport[]): RecordColumn<SearchReport>[] => [
     {
       key: 'term',
-      header: text.admin.columns.term,
+      label: text.admin.columns.term,
       render: (report) => (
         <Text as="span" autoDirection>
           {report.term}
@@ -51,21 +54,24 @@ export const ReportsTab = () => {
     },
     {
       key: 'element',
-      header: text.admin.columns.element,
+      label: text.admin.columns.element,
       render: (report) => (
         <Text as="span" autoDirection>
-          {report.element.title}
+          {report.element?.title ?? t.allResults}
         </Text>
       ),
     },
     {
       key: 'report',
-      header: text.admin.columns.report,
+      label: text.admin.columns.report,
       render: (report) => (
         <Stack gap={vars.spacing[1]}>
-          <Text as="span" autoDirection>
-            {report.note}
-          </Text>
+          {report.reason && <Text as="span">{text.searchReport.reasons[report.reason]}</Text>}
+          {report.note && (
+            <Text as="span" autoDirection>
+              {report.note}
+            </Text>
+          )}
           <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
             {fillText(t.reportedBy, { name: isolate(report.reportedBy), date: formatDate(report.reportedAt, locale) })}
           </Text>
@@ -74,15 +80,15 @@ export const ReportsTab = () => {
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (report) => <Badge tone={reportStatusTone[report.status]}>{t.statuses[report.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (report) => <Badge variant={reportStatusTone[report.status]}>{t.statuses[report.status]}</Badge>,
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (report) =>
         report.status === 'open' && (
-          <Stack direction="row" gap={vars.spacing[2]}>
+          <Stack direction="row" wrap gap={vars.spacing[2]}>
             <Button size="sm" disabled={action.pending} onClick={() => close(list, report, 'resolved')}>
               {t.resolve}
             </Button>
@@ -113,7 +119,7 @@ export const ReportsTab = () => {
           return (
             <Stack>
               <FilterBar>
-                <SelectField
+                <Select
                   label={t.statusLabel}
                   options={[
                     { value: allStatuses, label: t.allStatuses },
@@ -124,7 +130,7 @@ export const ReportsTab = () => {
                 />
               </FilterBar>
               {visible.length > 0 ? (
-                <DataTable label={t.tableLabel} columns={columns(list)} rows={visible} getRowKey={(report) => report.id} />
+                <Table label={t.tableLabel} columns={columns(list)} rows={recordRows(visible, (report) => report.id, columns(list))} stackOnMobile />
               ) : (
                 <EmptyState
                   title={t.noneTitle}

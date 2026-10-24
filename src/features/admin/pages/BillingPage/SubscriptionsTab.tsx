@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { fetchSubscriptions } from '@/features/admin/api';
-import { Badge, DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { subscriptionStatusTone } from '@/features/admin/constants';
 import type { Subscription } from '@/features/admin/types';
 import { fillText, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -21,10 +31,10 @@ export const SubscriptionsTab = () => {
   const renewal = (row: Subscription) =>
     fillText(t.renewal[row.status], { date: formatDate(row.renewsAt, locale) });
 
-  const columns: DataTableColumn<Subscription>[] = [
+  const columns: RecordColumn<Subscription>[] = [
     {
       key: 'customer',
-      header: text.admin.columns.customer,
+      label: text.admin.columns.customer,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -38,7 +48,7 @@ export const SubscriptionsTab = () => {
     },
     {
       key: 'plan',
-      header: text.admin.columns.plan,
+      label: text.admin.columns.plan,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span">{row.planName}</Text>
@@ -48,16 +58,16 @@ export const SubscriptionsTab = () => {
         </Stack>
       ),
     },
-    { key: 'started', header: text.admin.columns.started, render: (row) => formatDate(row.startedAt, locale) },
-    { key: 'renewal', header: text.admin.columns.renewal, render: renewal },
+    { key: 'started', label: text.admin.columns.started, render: (row) => formatDate(row.startedAt, locale) },
+    { key: 'renewal', label: text.admin.columns.renewal, render: renewal },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (row) => <Badge tone={subscriptionStatusTone[row.status]}>{t.subscriptionStatuses[row.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (row) => <Badge variant={subscriptionStatusTone[row.status]}>{t.subscriptionStatuses[row.status]}</Badge>,
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (row) =>
         row.status !== 'canceled' && (
@@ -81,7 +91,7 @@ export const SubscriptionsTab = () => {
       >
         {(list) => (
           <>
-            <DataTable label={t.tabs.subscriptions} columns={columns} rows={list} getRowKey={(row) => row.id} />
+            <Table label={t.tabs.subscriptions} columns={columns} rows={recordRows(list, (row) => row.id, columns)} stackOnMobile />
             {canceling && (
               <CancelSubscriptionModal
                 subscription={canceling}

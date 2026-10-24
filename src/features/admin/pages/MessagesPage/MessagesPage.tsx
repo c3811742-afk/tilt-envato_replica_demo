@@ -1,10 +1,11 @@
-import { Notice, PageHeader, RequirePermission, Stack, Tabs } from '@/features/admin/components';
+import { Notice, RequirePermission } from '@/features/admin/components';
 import { messageTabs } from '@/features/admin/constants';
 import { useTabParam } from '@/features/admin/hooks';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { AnnouncementsTab } from './AnnouncementsTab';
 import { NewslettersTab } from './NewslettersTab';
+import { SectionHeader, Stack, Tabs } from '@/shared/components';
 
 const tabContent = { announcements: AnnouncementsTab, newsletters: NewslettersTab };
 
@@ -16,7 +17,7 @@ const Messages = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} />
       <Notice tone="info">{t.demoNote}</Notice>
       <Tabs
         label={t.tabsLabel}

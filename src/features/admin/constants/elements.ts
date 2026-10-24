@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/features/admin/components/Badge';
+
 import type {
   AuditAction,
   ElementStatus,
@@ -10,6 +10,7 @@ import type {
   SoftRejectReason,
   UnpublishReason,
 } from '@/features/admin/types';
+import { type BadgeVariant } from '@/shared/components';
 
 export const elementTypes: readonly ElementType[] = [
   'photo',
@@ -91,6 +92,13 @@ export const auditActions: readonly AuditAction[] = [
   'ticketUpdated',
   'itemReportResolved',
   'aiSettingsSaved',
+  'userSuspended',
+  'userBanned',
+  'userReactivated',
+  'appealDecided',
+  'applicationDecided',
+  'identityDecided',
+  'downloadAlertDismissed',
 ];
 
 export const decisionStatus: Record<ReviewDecision, ElementStatus> = {
@@ -105,7 +113,7 @@ export const decisionAuditAction: Record<ReviewDecision, AuditAction> = {
   hardRejected: 'elementHardRejected',
 };
 
-export const statusTone: Record<ElementStatus, BadgeTone> = {
+export const statusTone: Record<ElementStatus, BadgeVariant> = {
   pending: 'info',
   live: 'success',
   softRejected: 'warning',
@@ -114,16 +122,16 @@ export const statusTone: Record<ElementStatus, BadgeTone> = {
   deprecated: 'neutral',
 };
 
-export const auditActionTone: Record<AuditAction, BadgeTone> = {
+export const auditActionTone: Record<AuditAction, BadgeVariant> = {
   elementAccepted: 'success',
   elementSoftRejected: 'warning',
   elementHardRejected: 'danger',
   elementFlagged: 'danger',
   elementUnpublished: 'neutral',
   elementDeprecated: 'neutral',
-  adminCreated: 'primary',
-  adminRoleChanged: 'primary',
-  categoryCreated: 'primary',
+  adminCreated: 'info',
+  adminRoleChanged: 'info',
+  categoryCreated: 'info',
   categoryUpdated: 'info',
   tagRenamed: 'info',
   tagsMerged: 'info',
@@ -133,14 +141,14 @@ export const auditActionTone: Record<AuditAction, BadgeTone> = {
   searchReportClosed: 'success',
   contentSaved: 'info',
   contentDeleted: 'danger',
-  languageAdded: 'primary',
+  languageAdded: 'info',
   translationUpdated: 'info',
   messageSent: 'success',
   messageScheduled: 'info',
   messageCanceled: 'neutral',
-  programSaved: 'primary',
-  planSaved: 'primary',
-  promoCodeSaved: 'primary',
+  programSaved: 'info',
+  planSaved: 'info',
+  promoCodeSaved: 'info',
   promoCodeDisabled: 'neutral',
   refundIssued: 'warning',
   subscriptionCanceled: 'warning',
@@ -154,4 +162,11 @@ export const auditActionTone: Record<AuditAction, BadgeTone> = {
   ticketUpdated: 'info',
   itemReportResolved: 'success',
   aiSettingsSaved: 'info',
+  userSuspended: 'warning',
+  userBanned: 'danger',
+  userReactivated: 'success',
+  appealDecided: 'info',
+  applicationDecided: 'info',
+  identityDecided: 'info',
+  downloadAlertDismissed: 'neutral',
 };

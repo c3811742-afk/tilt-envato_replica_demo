@@ -18,7 +18,9 @@ export type AdminErrorCode =
   | 'payoutChanged'
   | 'invoiceExists'
   | 'alreadyRevoked'
-  | 'ticketClosed';
+  | 'ticketClosed'
+  | 'sameStatus'
+  | 'alreadyDecided';
 
 // An expected failure (e.g. "already reviewed"). Pages show the matching text from text.admin.errors.
 export class AdminApiError extends Error {

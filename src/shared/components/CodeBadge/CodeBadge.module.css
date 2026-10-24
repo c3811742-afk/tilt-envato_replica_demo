@@ -1,0 +1,10 @@
+.code {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--code-badge-background);
+  color: var(--code-badge-color);
+  font-family: var(--font-family-mono);
+  font-size: var(--code-badge-size);
+  font-weight: var(--font-weight-bold);
+  user-select: all;
+}

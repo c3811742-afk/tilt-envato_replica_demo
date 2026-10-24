@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { fetchAuditLog } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  FilterBar,
-  PageHeader,
-  RequirePermission,
-  SelectField,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { FilterBar, RequirePermission } from '@/features/admin/components';
 import { auditActions, auditActionTone } from '@/features/admin/constants';
 import type { AuditAction, AuditEntry } from '@/features/admin/types';
 import { describeAuditDetails, isOneOf, localized } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Select,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -40,11 +43,11 @@ const AuditLog = () => {
     setActorId(allValues);
   };
 
-  const columns: DataTableColumn<AuditEntry>[] = [
-    { key: 'time', header: t.columns.time, render: (entry) => formatDate(entry.at, locale, dateTime) },
+  const columns: RecordColumn<AuditEntry>[] = [
+    { key: 'time', label: t.columns.time, render: (entry) => formatDate(entry.at, locale, dateTime) },
     {
       key: 'admin',
-      header: t.columns.admin,
+      label: t.columns.admin,
       render: (entry) => (
         <Text as="span" autoDirection>
           {entry.actorName}
@@ -53,12 +56,12 @@ const AuditLog = () => {
     },
     {
       key: 'action',
-      header: t.columns.action,
-      render: (entry) => <Badge tone={auditActionTone[entry.action]}>{t.audit.actions[entry.action]}</Badge>,
+      label: t.columns.action,
+      render: (entry) => <Badge variant={auditActionTone[entry.action]}>{t.audit.actions[entry.action]}</Badge>,
     },
     {
       key: 'target',
-      header: t.columns.target,
+      label: t.columns.target,
       render: (entry) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -72,7 +75,7 @@ const AuditLog = () => {
     },
     {
       key: 'details',
-      header: t.columns.details,
+      label: t.columns.details,
       render: (entry) => (
         <Stack gap={vars.spacing[1]}>
           {describeAuditDetails(entry, text, locale).map((line) => (
@@ -87,7 +90,7 @@ const AuditLog = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.audit.title} description={t.audit.description} />
+      <SectionHeader as="h1" title={t.audit.title} subtitle={t.audit.description} />
       <AsyncContent state={log} empty={<EmptyState title={t.audit.emptyTitle} message={t.audit.emptyMessage} />}>
         {(entries) => {
           const visible = entries.filter(
@@ -97,7 +100,7 @@ const AuditLog = () => {
           return (
             <Stack>
               <FilterBar>
-                <SelectField
+                <Select
                   label={t.audit.actionLabel}
                   options={[
                     { value: allValues, label: t.audit.allActions },
@@ -106,7 +109,7 @@ const AuditLog = () => {
                   value={action}
                   onChange={(value) => setAction(isOneOf(auditActions, value) ? value : allValues)}
                 />
-                <SelectField
+                <Select
                   label={t.audit.adminLabel}
                   options={[{ value: allValues, label: t.audit.allAdmins }, ...actorsIn(entries)]}
                   value={actorId}
@@ -114,7 +117,7 @@ const AuditLog = () => {
                 />
               </FilterBar>
               {visible.length > 0 ? (
-                <DataTable label={t.audit.tableLabel} columns={columns} rows={visible} getRowKey={(entry) => entry.id} />
+                <Table label={t.audit.tableLabel} columns={columns} rows={recordRows(visible, (entry) => entry.id, columns)} stackOnMobile />
               ) : (
                 <EmptyState
                   title={t.common.noMatchesTitle}

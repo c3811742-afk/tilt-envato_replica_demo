@@ -23,7 +23,7 @@ export {
 } from './validation';
 export { elementMatchesQuery, filterQueue, previewKind, totalFileSize } from './elements';
 export type { QueueFilters } from './elements';
-export { fromDateKey, isBetween, monthsBefore, toDateKey, toDateTimeKey, toMonthKey } from './dates';
+export { fromDateKey, monthsBefore, toDateKey, toDateTimeKey, toMonthKey } from './dates';
 export {
   categoryTree,
   dateRangeErrors,
@@ -38,7 +38,7 @@ export {
   scheduleStatus,
 } from './catalog';
 export type { CategoryBranch } from './catalog';
-export { downloadFile, formatMoney, isValidTaxId, metricChange, promoState, refundable, toCsv } from './business';
+export { downloadFile, isValidTaxId, metricChange, promoState, refundable, toCsv } from './business';
 export type { PromoState } from './business';
 export { hasPermission } from './permissions';
 export { describeAuditDetails, errorMessage } from './messages';

@@ -4,6 +4,8 @@ import type { DeprecateReason, LocalizedText } from './catalog';
 import type { CancelReason, RefundReason } from './billing';
 import type { ReportKind } from './finance';
 import type { RevokeReason } from './licensing';
+import type { ApplicationRejectReason, IdRejectReason } from './users';
+import type { SuspensionReason } from '@/shared/constants';
 
 export type AuditAction =
   | 'elementAccepted'
@@ -44,7 +46,14 @@ export type AuditAction =
   | 'ticketReplied'
   | 'ticketUpdated'
   | 'itemReportResolved'
-  | 'aiSettingsSaved';
+  | 'aiSettingsSaved'
+  | 'userSuspended'
+  | 'userBanned'
+  | 'userReactivated'
+  | 'appealDecided'
+  | 'applicationDecided'
+  | 'identityDecided'
+  | 'downloadAlertDismissed';
 
 export type AuditTargetKind =
   | 'element'
@@ -69,7 +78,10 @@ export type AuditTargetKind =
   | 'claim'
   | 'ticket'
   | 'itemReport'
-  | 'ai';
+  | 'ai'
+  | 'user'
+  | 'application'
+  | 'identityCheck';
 
 export interface AuditTarget {
   kind: AuditTargetKind;
@@ -137,6 +149,9 @@ export interface AuditDetails {
   cancelReason?: CancelReason;
   revokeReason?: RevokeReason;
   reportKind?: ReportKind;
+  suspensionReason?: SuspensionReason;
+  applicationReason?: ApplicationRejectReason;
+  idReason?: IdRejectReason;
   note?: string;
 }
 

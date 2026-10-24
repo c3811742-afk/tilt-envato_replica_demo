@@ -1,15 +1,6 @@
 import { useState } from 'react';
 import { deleteOccasion, fetchOccasions } from '@/features/admin/api';
-import {
-  Badge,
-  ConfirmModal,
-  DataTable,
-  Notice,
-  Panel,
-  Stack,
-  TextField,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { scheduleStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Occasion } from '@/features/admin/types';
@@ -25,7 +16,19 @@ import {
   toDateKey,
   upsertById,
 } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+  TextField,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -57,10 +60,10 @@ export const OccasionsTab = () => {
     setDeleting(null);
   };
 
-  const columns: DataTableColumn<Occasion>[] = [
+  const columns: RecordColumn<Occasion>[] = [
     {
       key: 'occasion',
-      header: text.admin.columns.occasion,
+      label: text.admin.columns.occasion,
       render: (occasion) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -74,23 +77,23 @@ export const OccasionsTab = () => {
     },
     {
       key: 'dates',
-      header: text.admin.columns.dates,
+      label: text.admin.columns.dates,
       render: (occasion) =>
         fillText(text.admin.common.dateRange, { start: day(occasion.startDate), end: day(occasion.endDate) }),
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (occasion) => {
         const status = scheduleStatus(occasion, today);
-        return <Badge tone={scheduleStatusTone[status]}>{text.admin.schedule[status]}</Badge>;
+        return <Badge variant={scheduleStatusTone[status]}>{text.admin.schedule[status]}</Badge>;
       },
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (occasion) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
           <Button size="sm" variant="muted" onClick={() => setEditing(occasion)}>
             {text.admin.common.edit}
           </Button>
@@ -117,7 +120,7 @@ export const OccasionsTab = () => {
 
   return (
     <Stack>
-      <Stack direction="row" align="center">
+      <Stack direction="row" wrap align="center">
         <Text color={vars.colors.textMuted}>{t.description}</Text>
         {current.length > 0 && addButton}
       </Stack>
@@ -134,7 +137,7 @@ export const OccasionsTab = () => {
           const next = nextOccasion(list, today);
           return (
             <Stack>
-              <Panel title={t.todayTitle}>
+              <Card title={t.todayTitle}>
                 <Text>{showing(occasionOn(list, today))}</Text>
                 {next && (
                   <Text color={vars.colors.textMuted}>
@@ -143,8 +146,8 @@ export const OccasionsTab = () => {
                 )}
                 <TextField type="date" label={t.checkDateLabel} value={checkDate} onChange={setCheckDate} />
                 {checkDate && <Text>{showing(occasionOn(list, checkDate))}</Text>}
-              </Panel>
-              <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(occasion) => occasion.id} />
+              </Card>
+              <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (occasion) => occasion.id, columns)} stackOnMobile />
             </Stack>
           );
         }}

@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { fetchGenerationCosts, saveGenerationCosts } from '@/features/admin/api';
-import { Notice, Panel, Stack, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { GenerationCost, GenerationType } from '@/features/admin/types';
 import { isWholeNumber, toNumber } from '@/features/admin/utils';
-import { AsyncContent, Button, Text } from '@/shared/components';
+import { AsyncContent, Button, Card, Stack, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import styles from './AiPage.module.css';
@@ -44,7 +44,7 @@ const CostsForm = ({ initialCosts }: CostsFormProps) => {
           </Notice>
         )}
         {error && <Notice tone="danger">{error}</Notice>}
-        <Panel>
+        <Card>
           <div className={styles.costs}>
             {initialCosts.map((cost) => (
               <TextField
@@ -60,10 +60,10 @@ const CostsForm = ({ initialCosts }: CostsFormProps) => {
               />
             ))}
           </div>
-        </Panel>
-        <Stack direction="row">
+        </Card>
+        <Stack direction="row" wrap>
           <Button type="submit" disabled={pending}>
-            {text.admin.common.save}
+            {text.common.saveChanges}
           </Button>
         </Stack>
       </Stack>

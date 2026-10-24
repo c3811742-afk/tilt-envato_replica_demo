@@ -1,88 +1,58 @@
-import { NavLink, Outlet, useLocation } from 'react-router';
-import { fetchAdmins } from '@/features/admin/api';
-import { SelectField } from '@/features/admin/components';
-import { adminNavGroups } from '@/features/admin/constants';
-import { useAdminSession } from '@/features/admin/hooks';
-import { fillText, isolate } from '@/features/admin/utils';
-import { AsyncContent, Button, Container, ErrorBoundary, Text } from '@/shared/components';
-import { useAsync, useLocale } from '@/shared/hooks';
-import { vars } from '@/shared/theme';
-import { cx } from '@/shared/utils';
+import { useEffect, useState } from 'react';
+import { Outlet, useLocation } from 'react-router';
+import { fetchAdminAlerts, fetchAdmins, onAdminChange } from '@/features/admin/api';
+import { AsyncContent, Container, ErrorBoundary, PageBackground } from '@/shared/components';
+import type { AdminAlerts } from '@/features/admin/types';
+import { useAsync } from '@/shared/hooks';
+import { safeAsync } from '@/shared/utils';
 import { AdminSessionProvider } from './AdminSessionProvider';
+import { AdminSidebar } from './AdminSidebar';
+import { AdminTopBar } from './AdminTopBar';
 import styles from './AdminLayout.module.css';
 
 const AdminShell = () => {
-  const { text, switchLocale } = useLocale();
-  const { admins, currentAdmin, switchAdmin, can } = useAdminSession();
-  const { pathname } = useLocation();
-  const groups = adminNavGroups
-    .map((group) => ({ key: group.key, items: group.items.filter((item) => can(item.permission)) }))
-    .filter((group) => group.items.length > 0);
+  const { pathname, search } = useLocation();
+  const [changes, setChanges] = useState(0);
+  const [counts, setCounts] = useState<AdminAlerts | null>(null);
+  useEffect(() => onAdminChange(() => setChanges((count) => count + 1)), []);
 
-  const adminOptions = admins.map((admin) => ({
-    value: admin.id,
-    label: fillText(text.admin.layout.adminOption, { name: isolate(admin.name), role: text.admin.roles[admin.role] }),
-  }));
+  // Counted again after every admin action and page change, so the top bar and sidebar stay current.
+  // The counts are a help: the last ones stay while new ones load, and none are shown if they fail.
+  useEffect(() => {
+    let active = true;
+    safeAsync(fetchAdminAlerts).then((result) => {
+      if (active) setCounts(result.ok ? result.data : null);
+    });
+    return () => {
+      active = false;
+    };
+  }, [pathname, search, changes]);
 
-  const nav = (
-    <nav aria-label={text.admin.layout.navLabel} className={styles.nav}>
-      {groups.map((group) => (
-        <div key={group.key} className={styles.navGroup}>
-          <Text as="span" variant="label" color={vars.colors.textMuted}>
-            {text.admin.navGroups[group.key]}
-          </Text>
-          <ul className={styles.navList}>
-            {group.items.map((item) => (
-              <li key={item.key}>
-                <NavLink to={item.to} className={({ isActive }) => cx(styles.navLink, isActive && styles.active)}>
-                  {text.admin.nav[item.key]}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </nav>
-  );
+  // A new page starts at the top, like a normal page load.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [pathname]);
 
   return (
     <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <Text as="span" variant="h3">
-          {text.admin.layout.title}
-        </Text>
-        {/* Phones and tablets: the links fold away behind "Menu". key: it closes again after each page change. */}
-        <details key={pathname} className={styles.menu}>
-          <summary className={styles.menuToggle}>{text.admin.layout.menu}</summary>
-          {nav}
-        </details>
-        <div className={styles.desktopNav}>{nav}</div>
-        <div className={styles.session}>
-          <SelectField
-            label={text.admin.layout.signedInAs}
-            hint={text.admin.layout.demoHint}
-            value={currentAdmin.id}
-            options={adminOptions}
-            onChange={switchAdmin}
-          />
-          <Button variant="secondary" size="sm" onClick={switchLocale}>
-            {text.common.switchLanguage}
-          </Button>
-        </div>
-      </aside>
-      <main className={styles.main}>
-        <Container>
-          {/* A crash inside one page keeps the sidebar working; it clears when the admin navigates. */}
-          <ErrorBoundary resetKey={pathname}>
-            <Outlet />
-          </ErrorBoundary>
-        </Container>
-      </main>
+      <PageBackground />
+      <AdminTopBar alerts={counts} />
+      <div className={styles.body}>
+        <AdminSidebar alerts={counts} />
+        <main className={styles.main}>
+          <Container>
+            {/* A crash inside one page keeps the top bar and sidebar working; it clears when the admin navigates. */}
+            <ErrorBoundary resetKey={pathname}>
+              <Outlet />
+            </ErrorBoundary>
+          </Container>
+        </main>
+      </div>
     </div>
   );
 };
 
-// Sidebar + page area for every /admin page. Loads the admin list first, for the session.
+// Top bar, sidebar and page area for every /admin page. Loads the admin list first, for the session.
 export const AdminLayout = () => {
   const admins = useAsync(fetchAdmins, []);
 

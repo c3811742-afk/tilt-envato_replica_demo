@@ -1,21 +1,23 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchCategories, moveCategory, setCategoryHidden } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  Notice,
-  PageHeader,
-  ReorderButtons,
-  RequirePermission,
-  Stack,
-  TextLink,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { Notice, ReorderButtons, RequirePermission } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Category, MoveDirection } from '@/features/admin/types';
 import { categoryTree, fillText, isolate, localized, replaceById, upsertById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+  TextLink,
+} from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -53,14 +55,14 @@ const Categories = () => {
     setNotice(fillText(isNew ? t.created : t.saved, { name: nameOf(category) }));
   };
 
-  const columns = (list: Category[]): DataTableColumn<Category>[] => {
+  const columns = (list: Category[]): RecordColumn<Category>[] => {
     const parentOf = (category: Category) => list.find((current) => current.id === category.parentId);
     const siblings = (category: Category) => list.filter((current) => current.parentId === category.parentId);
 
     return [
       {
         key: 'name',
-        header: text.admin.columns.name,
+        label: text.admin.columns.name,
         render: (category) => {
           const parent = parentOf(category);
           return (
@@ -77,21 +79,21 @@ const Categories = () => {
       },
       {
         key: 'attributes',
-        header: text.admin.columns.attributes,
+        label: text.admin.columns.attributes,
         render: (category) => formatNumber(category.attributes.length, locale),
       },
       {
         key: 'status',
-        header: text.admin.columns.status,
+        label: text.admin.columns.status,
         render: (category) => {
-          if (category.hidden) return <Badge tone="neutral">{t.hidden}</Badge>;
-          if (parentOf(category)?.hidden) return <Badge tone="warning">{t.parentHidden}</Badge>;
-          return <Badge tone="success">{t.visible}</Badge>;
+          if (category.hidden) return <Badge variant="neutral">{t.hidden}</Badge>;
+          if (parentOf(category)?.hidden) return <Badge variant="warning">{t.parentHidden}</Badge>;
+          return <Badge variant="success">{t.visible}</Badge>;
         },
       },
       {
         key: 'order',
-        header: text.admin.columns.order,
+        label: text.admin.columns.order,
         render: (category) => {
           const group = siblings(category);
           const index = group.indexOf(category);
@@ -108,9 +110,9 @@ const Categories = () => {
       },
       {
         key: 'actions',
-        header: text.admin.columns.actions,
+        label: text.admin.columns.actions,
         render: (category) => (
-          <Stack direction="row" gap={vars.spacing[2]}>
+          <Stack direction="row" wrap gap={vars.spacing[2]}>
             <Button size="sm" variant="muted" onClick={() => setModal({ kind: 'edit', category })}>
               {text.admin.common.edit}
             </Button>
@@ -130,10 +132,10 @@ const Categories = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={t.title}
-        description={t.description}
-        actions={<Button onClick={() => setModal({ kind: 'new', parentId: null })}>{t.add}</Button>}
+        subtitle={t.description}
+        actions={<Button onClick={() => setModal({ kind: 'new', parentId: null })}>{t.addSub}</Button>}
       />
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
@@ -151,7 +153,7 @@ const Categories = () => {
           const rows = categoryTree(list).flatMap(({ category, children }) => [category, ...children]);
           return (
             <>
-              <DataTable label={t.tableLabel} columns={columns(list)} rows={rows} getRowKey={(row) => row.id} />
+              <Table label={t.tableLabel} columns={columns(list)} rows={recordRows(rows, (row) => row.id, columns(list))} stackOnMobile />
               {modal && (
                 <CategoryModal
                   mode={modal}

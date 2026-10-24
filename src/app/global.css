@@ -36,6 +36,26 @@ textarea {
   color: inherit;
 }
 
+/* One focus ring for every interactive element: keyboard users always see where they are. */
+:focus-visible {
+  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
+  outline-offset: 0;
+}
+
+/* Lists and definition lists styled by a component start without browser spacing or bullets. */
+ul[class],
+ol[class],
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+ul[class],
+ol[class] {
+  list-style: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

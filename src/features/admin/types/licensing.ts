@@ -1,5 +1,8 @@
 export type LicenseStatus = 'valid' | 'revoked';
-export type RevokeReason = 'fraud' | 'chargeback' | 'stolenAccount' | 'termsBreach';
+import type { RevokeReason } from '@/shared/constants';
+
+// The same reasons the customer sees on the license check page.
+export type { RevokeReason };
 
 // The license a customer gets for one project when downloading an element.
 export interface License {
@@ -10,7 +13,8 @@ export interface License {
   project: string;
   issuedAt: string;
   status: LicenseStatus;
-  revoke?: { reason: RevokeReason; note: string; adminId: string; at: string };
+  revoke?: { reason: RevokeReason; note: string; at: string };
+  source: 'demo' | 'site'; // site: issued on the customer side in this browser (the license server)
 }
 
 export interface RevokeInput {
@@ -31,4 +35,6 @@ export interface CopyrightClaim {
   receivedAt: string;
   status: ClaimStatus;
   decisionNote?: string;
+  reference?: string; // what the reporter was given, e.g. CR-104822 (site reports)
+  source?: 'demo' | 'site'; // site: sent with the copyright report form on an item page
 }

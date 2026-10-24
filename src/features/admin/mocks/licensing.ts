@@ -9,6 +9,7 @@ export const seedLicenses: License[] = [
     project: 'Rana and Karim wedding cards',
     issuedAt: '2026-10-02T12:00:00Z',
     status: 'valid',
+    source: 'demo',
   },
   {
     id: 'lic-2',
@@ -18,6 +19,7 @@ export const seedLicenses: License[] = [
     project: 'مطعم أبو طارق',
     issuedAt: '2026-10-08T15:20:00Z',
     status: 'valid',
+    source: 'demo',
   },
   {
     id: 'lic-3',
@@ -27,6 +29,7 @@ export const seedLicenses: License[] = [
     project: 'Tourism ad for a Nile cruise',
     issuedAt: '2026-10-12T10:45:00Z',
     status: 'valid',
+    source: 'demo',
   },
   {
     id: 'lic-4',
@@ -36,6 +39,7 @@ export const seedLicenses: License[] = [
     project: 'Company Eid posts',
     issuedAt: '2026-09-20T09:00:00Z',
     status: 'valid',
+    source: 'demo',
   },
   {
     id: 'lic-5',
@@ -45,7 +49,8 @@ export const seedLicenses: License[] = [
     project: 'Resale bundle',
     issuedAt: '2026-08-30T22:10:00Z',
     status: 'revoked',
-    revoke: { reason: 'fraud', note: 'Paid with a stolen card.', adminId: 'admin-1', at: '2026-09-02T10:00:00Z' },
+    source: 'demo',
+    revoke: { reason: 'paymentReversed', note: 'Paid with a stolen card.', at: '2026-09-02T10:00:00Z' },
   },
 ];
 

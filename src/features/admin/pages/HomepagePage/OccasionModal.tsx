@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { saveOccasion } from '@/features/admin/api';
-import { DateRangeField, LocalizedField, Modal, Notice } from '@/features/admin/components';
+import { DateRangeField, LocalizedField, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Occasion } from '@/features/admin/types';
 import { dateRangeErrors, emptyLocalized, hasErrors, localizedErrors } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface OccasionModalProps {
@@ -50,7 +50,7 @@ export const OccasionModal = ({ occasion, onClose, onSaved }: OccasionModalProps
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {occasion ? text.admin.common.save : t.add}
+            {occasion ? text.common.saveChanges : t.add}
           </Button>
         </>
       }

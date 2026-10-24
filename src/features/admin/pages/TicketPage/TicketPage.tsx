@@ -1,21 +1,23 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { fetchTicket, replyToTicket, setTicketClosed } from '@/features/admin/api';
-import {
-  Badge,
-  Notice,
-  PageHeader,
-  Panel,
-  RequirePermission,
-  Stack,
-  TextField,
-  TextLink,
-} from '@/features/admin/components';
+import { Notice, RequirePermission } from '@/features/admin/components';
 import { ticketStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Ticket } from '@/features/admin/types';
 import { fillText, isBlank, isolate } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  SectionHeader,
+  Stack,
+  Text,
+  TextField,
+  TextLink,
+} from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -66,17 +68,17 @@ const TicketView = ({ ticket, onChange }: TicketViewProps) => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={ticket.subject}
         autoDirection
-        description={fillText(t.ticketLine, {
+        subtitle={fillText(t.ticketLine, {
           name: isolate(ticket.requester.name),
           kind: t.requesterKinds[ticket.requester.kind],
           topic: t.topics[ticket.topic],
         })}
         actions={
           <>
-            <Badge tone={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>
+            <Badge variant={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>
             <Button variant="muted" size="sm" disabled={status.pending} onClick={toggleClosed}>
               {closed ? t.reopen : t.close}
             </Button>
@@ -107,28 +109,26 @@ const TicketView = ({ ticket, onChange }: TicketViewProps) => {
       {closed ? (
         <Notice tone="info">{t.closedNote}</Notice>
       ) : (
-        <Panel title={t.replyTitle}>
+        <Card title={t.replyTitle}>
           <form noValidate onSubmit={send}>
             <Stack>
               {reply.error && <Notice tone="danger">{reply.error}</Notice>}
-              <TextField
-                multiline
+              <TextField rows={4}
                 label={t.replyLabel}
                 hint={fillText(t.replyHint, { email: isolate(ticket.requester.email) })}
                 value={body}
                 onChange={setBody}
                 error={bodyError}
                 required
-                autoDirection
               />
-              <Stack direction="row">
+              <Stack direction="row" wrap>
                 <Button type="submit" disabled={reply.pending}>
                   {t.send}
                 </Button>
               </Stack>
             </Stack>
           </form>
-        </Panel>
+        </Card>
       )}
     </Stack>
   );

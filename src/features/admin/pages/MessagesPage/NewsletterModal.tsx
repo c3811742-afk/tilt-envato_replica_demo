@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { sendNewsletter } from '@/features/admin/api';
-import { ConfirmModal, Modal, TextField } from '@/features/admin/components';
+import { ConfirmModal } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Newsletter } from '@/features/admin/types';
 import { fillText, hasErrors, isBlank } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { formatNumber } from '@/shared/utils';
 
@@ -65,7 +65,7 @@ export const NewsletterModal = ({ subscribers, onClose, onSent }: NewsletterModa
           <Button variant="muted" onClick={onClose}>
             {text.common.cancel}
           </Button>
-          <Button type="submit">{text.admin.common.continue}</Button>
+          <Button type="submit">{text.common.continue}</Button>
         </>
       }
     >
@@ -75,16 +75,13 @@ export const NewsletterModal = ({ subscribers, onClose, onSent }: NewsletterModa
         onChange={setSubject}
         error={submitted ? errors.subject : undefined}
         required
-        autoDirection
       />
-      <TextField
-        multiline
+      <TextField rows={4}
         label={t.bodyLabel}
         value={body}
         onChange={setBody}
         error={submitted ? errors.body : undefined}
         required
-        autoDirection
       />
     </Modal>
   );

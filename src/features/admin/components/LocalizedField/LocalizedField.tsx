@@ -2,10 +2,11 @@ import { useLocale } from '@/shared/hooks';
 import { locales, type Locale } from '@/shared/theme';
 import { withDefaults } from '@/shared/utils';
 import { Field } from '../Field';
-import { TextField } from '../TextField';
+
 import { localizedFieldDefaults } from './LocalizedField.defaults';
 import type { LocalizedFieldProps } from './LocalizedField.types';
 import styles from './LocalizedField.module.css';
+import { TextField } from '@/shared/components';
 
 const languages: Locale[] = ['en', 'ar'];
 
@@ -23,7 +24,7 @@ export const LocalizedField = (props: LocalizedFieldProps) => {
             label={text.admin.languageNames[language]}
             value={value[language]}
             onChange={(next) => onChange?.({ ...value, [language]: next })}
-            multiline={multiline}
+            rows={multiline ? 4 : 1}
             error={errors[language]}
             required={required}
             lang={locales[language].lang}

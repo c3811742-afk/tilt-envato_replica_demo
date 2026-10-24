@@ -1,0 +1,37 @@
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-4);
+}
+
+.text {
+  flex: 1 1 var(--sizes-sidebar-width);
+}
+
+.size {
+  flex: 0 1 var(--sizes-slider-volume);
+  padding-block-end: var(--spacing-3);
+}
+
+.align {
+  display: flex;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+.alignButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizes-input-height);
+  block-size: var(--sizes-input-height);
+  border: 0;
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  cursor: pointer;
+}
+
+.alignButton[aria-checked='true'] {
+  background: var(--colors-secondary);
+  color: var(--colors-on-secondary);
+}

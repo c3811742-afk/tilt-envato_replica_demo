@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { adminErrorCode, createAdmin } from '@/features/admin/api';
-import { Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { adminRoles } from '@/features/admin/constants';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { Admin, AdminRole } from '@/features/admin/types';
 import { errorMessage, isOneOf, isValidEmail } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, Select, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { safeAsync } from '@/shared/utils';
 
@@ -82,7 +82,6 @@ export const AddAdminModal = ({ onClose, onCreated }: AddAdminModalProps) => {
         error={errors.name}
         autoComplete="name"
         required
-        autoDirection
       />
       <TextField
         type="email"
@@ -93,7 +92,7 @@ export const AddAdminModal = ({ onClose, onCreated }: AddAdminModalProps) => {
         autoComplete="email"
         required
       />
-      <SelectField
+      <Select
         label={t.roleLabel}
         placeholder={t.rolePlaceholder}
         options={adminRoles.map((value) => ({ value, label: text.admin.roles[value] }))}

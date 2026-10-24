@@ -2,6 +2,7 @@ import { sourceLanguageCode } from '@/features/admin/mocks';
 import type { LanguageInput, SiteLanguage, TranslationEntry, Translations } from '@/features/admin/types';
 import { sameText } from '@/features/admin/utils/lists';
 import { texts } from '@/shared/constants';
+import { textEditStore } from '@/shared/utils';
 import { AdminApiError } from './errors';
 import { authorize, db, logAction, respond } from './mockServer';
 
@@ -17,7 +18,7 @@ const sourceTexts = flatten(texts.en);
 const shippedTranslations: Record<string, Map<string, string>> = { ar: new Map(flatten(texts.ar)) };
 
 const translationOf = (code: string, key: string) =>
-  db.translationEdits[code]?.[key] ?? shippedTranslations[code]?.get(key) ?? '';
+  textEditStore.get()[code]?.[key] ?? shippedTranslations[code]?.get(key) ?? '';
 
 const entriesFor = (code: string): TranslationEntry[] =>
   sourceTexts.map(([key, source]) => ({ key, source, value: translationOf(code, key) }));
@@ -51,7 +52,7 @@ export const fetchTranslations = (code: string) =>
     return { language: withProgress(language), entries: entriesFor(code) };
   });
 
-// Demo: corrections are kept in the mock data only. They don't change the site's text files.
+// Corrections show on the site right away (in this browser); the text files stay as they are.
 export const saveTranslation = (actorId: string, code: string, key: string, value: string) =>
   respond((): TranslationEntry => {
     const actor = authorize(actorId, 'manageTranslations');
@@ -59,7 +60,8 @@ export const saveTranslation = (actorId: string, code: string, key: string, valu
     const source = sourceTexts.find(([sourceKey]) => sourceKey === key);
     if (!language || !source) throw new AdminApiError('notFound');
 
-    db.translationEdits[code] = { ...db.translationEdits[code], [key]: value.trim() };
+    const edits = textEditStore.get();
+    textEditStore.set({ ...edits, [code]: { ...edits[code], [key]: value.trim() } });
     logAction(actor, 'translationUpdated', { kind: 'language', id: code, label: language.name }, { textKey: key });
     return { key, source: source[1], value: value.trim() };
   });

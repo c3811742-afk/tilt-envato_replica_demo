@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { mergeTags } from '@/features/admin/api';
-import { Modal, Notice, SelectField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Tag } from '@/features/admin/types';
 import { fillText, isolate } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Button, Modal, Select, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatNumber } from '@/shared/utils';
@@ -56,7 +56,7 @@ export const MergeTagModal = ({ tag, tags, onClose, onMerged }: MergeTagModalPro
       <Text color={vars.colors.textMuted}>
         {fillText(t.mergeMessage, { source: isolate(tag.name), count: formatNumber(tag.usage, locale) })}
       </Text>
-      <SelectField
+      <Select
         label={t.mergeIntoLabel}
         placeholder={t.mergeIntoPlaceholder}
         options={targets.map((other) => ({

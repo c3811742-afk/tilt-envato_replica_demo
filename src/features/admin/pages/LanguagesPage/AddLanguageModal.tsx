@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { addLanguage, adminErrorCode } from '@/features/admin/api';
-import { Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage, TextDirection } from '@/features/admin/types';
 import { hasErrors, isBlank, isOneOf, isValidLanguageCode } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, Select, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 const directions: readonly TextDirection[] = ['ltr', 'rtl'];
@@ -93,10 +93,9 @@ export const AddLanguageModal = ({ onClose, onAdded }: AddLanguageModalProps) =>
         value={nativeName}
         onChange={setNativeName}
         error={submitted ? errors.nativeName : undefined}
-        autoDirection
         required
       />
-      <SelectField
+      <Select
         label={t.directionLabel}
         options={directions.map((value) => ({ value, label: t.directions[value] }))}
         value={direction}

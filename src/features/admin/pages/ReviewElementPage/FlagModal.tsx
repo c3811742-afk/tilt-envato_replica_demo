@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { flagKinds } from '@/features/admin/constants';
 import type { FlagInput, FlagKind } from '@/features/admin/types';
 import { isOneOf, isValidLink } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Button, Modal, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 
@@ -52,7 +52,7 @@ export const FlagModal = ({ pending, error, onClose, onSubmit }: FlagModalProps)
     >
       <Text color={vars.colors.textMuted}>{t.flagMessage}</Text>
       {error && <Notice tone="danger">{error}</Notice>}
-      <SelectField
+      <Select
         label={t.flagKindLabel}
         options={flagKinds.map((value) => ({ value, label: text.admin.flagKinds[value] }))}
         value={kind}
@@ -67,7 +67,7 @@ export const FlagModal = ({ pending, error, onClose, onSubmit }: FlagModalProps)
         onChange={setOriginalLink}
         error={linkError}
       />
-      <TextField multiline label={t.noteLabel} hint={t.noteHint} value={note} onChange={setNote} autoDirection />
+      <TextField rows={4} label={t.noteLabel} hint={t.noteHint} value={note} onChange={setNote} />
     </Modal>
   );
 };

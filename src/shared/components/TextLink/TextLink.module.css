@@ -1,0 +1,32 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  color: var(--link-color);
+  font-family: var(--link-font-family);
+  font-size: var(--link-font-size);
+  font-weight: var(--link-font-weight);
+  line-height: var(--link-line-height);
+  letter-spacing: var(--link-letter-spacing);
+  text-transform: var(--link-transform);
+  text-decoration: none;
+}
+
+.underline {
+  text-decoration: underline;
+  text-decoration-thickness: var(--borders-width-thin);
+  text-underline-offset: var(--spacing-1);
+}
+
+.link:hover {
+  color: var(--colors-primary);
+}
+
+
+/* An action styled like the other links. */
+.button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}

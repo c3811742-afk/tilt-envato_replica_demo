@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from 'react-router';
 import { fetchElement } from '@/features/admin/api';
-import { Notice, RequirePermission, Stack, TextLink } from '@/features/admin/components';
+import { Notice, RequirePermission } from '@/features/admin/components';
 import { useFlashNotice } from '@/features/admin/hooks';
-import { AsyncContent, Button, EmptyState } from '@/shared/components';
+import { AsyncContent, Button, EmptyState, Stack, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { ReviewElementView } from './ReviewElementView';

@@ -1,121 +1,10 @@
-import type { Customer, FailedPayment, Plan, PromoCode, Subscription, Transaction } from '@/features/admin/types';
+import type { Customer, FailedPayment, Subscription, Transaction } from '@/features/admin/types';
+import type { PlanId } from '@/shared/types';
 
-export const seedPlans: Plan[] = [
-  {
-    id: 'plan-student',
-    name: { en: 'Student', ar: 'الطلاب' },
-    monthlyPrice: 79,
-    yearlyPrice: 790,
-    downloadLimit: 30,
-    seats: 1,
-    licenseScope: 'personal',
-    aiCredits: 100,
-    parallelGenerations: 1,
-    active: true,
-    subscribers: 210,
-  },
-  {
-    id: 'plan-starter',
-    name: { en: 'Starter', ar: 'البداية' },
-    monthlyPrice: 149,
-    yearlyPrice: 1490,
-    downloadLimit: 50,
-    seats: 1,
-    licenseScope: 'commercial',
-    aiCredits: 150,
-    parallelGenerations: 1,
-    active: true,
-    subscribers: 640,
-  },
-  {
-    id: 'plan-pro',
-    name: { en: 'Pro', ar: 'الاحترافي' },
-    monthlyPrice: 299,
-    yearlyPrice: 2990,
-    downloadLimit: null,
-    seats: 1,
-    licenseScope: 'commercial',
-    aiCredits: 500,
-    parallelGenerations: 2,
-    active: true,
-    subscribers: 455,
-  },
-  {
-    id: 'plan-team',
-    name: { en: 'Team', ar: 'الفرق' },
-    monthlyPrice: 899,
-    yearlyPrice: 8990,
-    downloadLimit: null,
-    seats: 5,
-    licenseScope: 'team',
-    aiCredits: 2000,
-    parallelGenerations: 4,
-    active: true,
-    subscribers: 95,
-  },
-  {
-    id: 'plan-basic-old',
-    name: { en: 'Basic (old)', ar: 'الأساسي (القديم)' },
-    monthlyPrice: 99,
-    yearlyPrice: 990,
-    downloadLimit: 10,
-    seats: 1,
-    licenseScope: 'personal',
-    aiCredits: 0,
-    parallelGenerations: 1,
-    active: false,
-    subscribers: 25,
-  },
-];
+// Subscribers on each site plan who aren't in this browser (the demo's other customers).
+export const planSubscribers: Record<PlanId, number> = { individual: 1210, ultimate: 384, teams: 96, enterprise: 4 };
 
-export const seedPromoCodes: PromoCode[] = [
-  {
-    id: 'promo-1',
-    code: 'RAMADAN30',
-    discountType: 'percent',
-    value: 30,
-    planIds: [],
-    expiresAt: '2027-03-09',
-    maxUses: 500,
-    uses: 0,
-    active: true,
-  },
-  {
-    id: 'promo-2',
-    code: 'WELCOME100',
-    discountType: 'fixed',
-    value: 100,
-    planIds: ['plan-pro'],
-    expiresAt: '2026-12-31',
-    maxUses: null,
-    uses: 87,
-    active: true,
-  },
-  {
-    id: 'promo-3',
-    code: 'HELWAN50',
-    discountType: 'percent',
-    value: 50,
-    planIds: ['plan-student'],
-    expiresAt: '2027-01-31',
-    maxUses: 100,
-    uses: 42,
-    active: true,
-  },
-  {
-    id: 'promo-4',
-    code: 'EID2026',
-    discountType: 'percent',
-    value: 20,
-    planIds: [],
-    expiresAt: '2026-06-10',
-    maxUses: 1000,
-    uses: 312,
-    active: true,
-  },
-];
-
-const customers: Record<string, Customer> = {
+export const seedCustomers = {
   rana: { id: 'cu-1', name: 'Rana Hamdy', email: 'rana@example.com' },
   mohamed: { id: 'cu-2', name: 'محمد سعيد', email: 'msaeed@example.com' },
   sherif: { id: 'cu-3', name: 'Sherif Nabil', email: 'sherif@example.com' },
@@ -123,7 +12,9 @@ const customers: Record<string, Customer> = {
   studio: { id: 'cu-5', name: 'Nile Studio', email: 'billing@nilestudio.example.com' },
   hoda: { id: 'cu-6', name: 'هدى إبراهيم', email: 'hoda@example.com' },
   omar: { id: 'cu-7', name: 'Omar Zaki', email: 'omar.z@example.com' },
-};
+} satisfies Record<string, Customer>;
+
+const customers = seedCustomers;
 
 export const seedTransactions: Transaction[] = [
   {

@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { changeAdminRole } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  Notice,
-  PageHeader,
-  RequirePermission,
-  SelectField,
-  Stack,
-  type DataTableColumn,
-  type NoticeTone,
-} from '@/features/admin/components';
+import { Notice, type NoticeTone, RequirePermission } from '@/features/admin/components';
 import { adminRoles } from '@/features/admin/constants';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { Admin } from '@/features/admin/types';
 import { errorMessage, fillText, isOneOf, isolate } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import {
+  Badge,
+  Button,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Select,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, safeAsync } from '@/shared/utils';
@@ -54,22 +54,22 @@ const Admins = () => {
     setNotice({ tone: 'success', message: fillText(t.admins.created, { name: isolate(admin.name), role: t.roles[admin.role] }) });
   };
 
-  const columns: DataTableColumn<Admin>[] = [
+  const columns: RecordColumn<Admin>[] = [
     {
       key: 'name',
-      header: t.columns.name,
+      label: t.columns.name,
       render: (admin) => (
-        <Stack gap={vars.spacing[1]} align="start">
+        <Stack gap={vars.spacing[1]} align="flex-start">
           <Text as="span" autoDirection>
             {admin.name}
           </Text>
-          {admin.id === currentAdmin.id && <Badge tone="primary">{t.admins.you}</Badge>}
+          {admin.id === currentAdmin.id && <Badge variant="info">{t.admins.you}</Badge>}
         </Stack>
       ),
     },
     {
       key: 'email',
-      header: t.columns.email,
+      label: t.columns.email,
       render: (admin) => (
         <Text as="span">
           <bdi>{admin.email}</bdi>
@@ -78,10 +78,10 @@ const Admins = () => {
     },
     {
       key: 'role',
-      header: t.columns.role,
+      label: t.columns.role,
       // You can't change your own role, so there is always at least one super admin.
       render: (admin) => (
-        <SelectField
+        <Select
           hideLabel
           label={fillText(t.admins.roleFor, { name: isolate(admin.name) })}
           options={roleOptions}
@@ -91,16 +91,16 @@ const Admins = () => {
         />
       ),
     },
-    { key: 'added', header: t.columns.added, render: (admin) => formatDate(admin.createdAt, locale) },
+    { key: 'added', label: t.columns.added, render: (admin) => formatDate(admin.createdAt, locale) },
   ];
 
   const sortedAdmins = [...admins].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={t.admins.title}
-        description={t.admins.description}
+        subtitle={t.admins.description}
         actions={<Button onClick={() => setAdding(true)}>{t.admins.add}</Button>}
       />
       {notice && (
@@ -108,7 +108,7 @@ const Admins = () => {
           {notice.message}
         </Notice>
       )}
-      <DataTable label={t.admins.tableLabel} columns={columns} rows={sortedAdmins} getRowKey={(admin) => admin.id} />
+      <Table label={t.admins.tableLabel} columns={columns} rows={recordRows(sortedAdmins, (admin) => admin.id, columns)} stackOnMobile />
       {adding && <AddAdminModal onClose={() => setAdding(false)} onCreated={handleCreated} />}
     </Stack>
   );

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { fetchFreeElements, fetchLiveElements, saveFreeElements } from '@/features/admin/api';
-import { ItemPicker, Notice, Stack, TextField } from '@/features/admin/components';
+import { ItemPicker, Notice } from '@/features/admin/components';
 import { maxFreeElements } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CatalogElement } from '@/features/admin/types';
 import { fillText, fromDateKey, isolate, toggleItem, toMonthKey } from '@/features/admin/utils';
-import { AsyncContent, Button, Text } from '@/shared/components';
+import { AsyncContent, Button, Stack, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
@@ -68,9 +68,9 @@ const FreeElementsForm = ({ month, elements, initialIds }: FreeElementsFormProps
         onToggle={(id) => setSelected((current) => toggleItem(current, id))}
         max={maxFreeElements}
       />
-      <Stack direction="row">
+      <Stack direction="row" wrap>
         <Button disabled={pending} onClick={save}>
-          {text.admin.common.save}
+          {text.common.saveChanges}
         </Button>
       </Stack>
     </Stack>

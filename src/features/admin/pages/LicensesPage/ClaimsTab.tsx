@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { fetchClaims } from '@/features/admin/api';
-import { Badge, DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { claimStatusTone } from '@/features/admin/constants';
 import type { CopyrightClaim } from '@/features/admin/types';
 import { fillText, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -18,10 +28,10 @@ export const ClaimsTab = () => {
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.claims;
 
-  const columns: DataTableColumn<CopyrightClaim>[] = [
+  const columns: RecordColumn<CopyrightClaim>[] = [
     {
       key: 'element',
-      header: text.admin.columns.element,
+      label: text.admin.columns.element,
       render: (claim) => (
         <Text as="span" autoDirection>
           {claim.element.title}
@@ -30,22 +40,22 @@ export const ClaimsTab = () => {
     },
     {
       key: 'claimant',
-      header: t.claimantLabel,
+      label: t.claimantLabel,
       render: (claim) => (
         <Text as="span" autoDirection>
           {claim.claimant.company ?? claim.claimant.name}
         </Text>
       ),
     },
-    { key: 'received', header: text.admin.columns.received, render: (claim) => formatDate(claim.receivedAt, locale) },
+    { key: 'received', label: text.admin.columns.received, render: (claim) => formatDate(claim.receivedAt, locale) },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (claim) => <Badge tone={claimStatusTone[claim.status]}>{t.statuses[claim.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (claim) => <Badge variant={claimStatusTone[claim.status]}>{t.statuses[claim.status]}</Badge>,
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (claim) => (
         <Button size="sm" variant="muted" onClick={() => setOpened(claim)}>
@@ -66,7 +76,7 @@ export const ClaimsTab = () => {
       <AsyncContent state={claims} empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} />}>
         {(list) => (
           <>
-            <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(claim) => claim.id} />
+            <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (claim) => claim.id, columns)} stackOnMobile />
             {opened && (
               <ClaimModal
                 claim={opened}

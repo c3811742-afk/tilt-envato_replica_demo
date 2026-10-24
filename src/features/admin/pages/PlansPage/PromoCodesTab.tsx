@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { disablePromoCode, fetchPlans, fetchPromoCodes } from '@/features/admin/api';
-import { Badge, ConfirmModal, DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Plan, PromoCode } from '@/features/admin/types';
 import {
   fillText,
   formatList,
-  formatMoney,
   fromDateKey,
   isolate,
   localized,
@@ -14,14 +13,24 @@ import {
   replaceById,
   type PromoState,
 } from '@/features/admin/utils';
-import type { BadgeTone } from '@/features/admin/components';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  type BadgeVariant,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
 import { PromoCodeModal } from './PromoCodeModal';
 
-const stateTone: Record<PromoState, BadgeTone> = {
+const stateTone: Record<PromoState, BadgeVariant> = {
   active: 'success',
   expired: 'neutral',
   usedUp: 'warning',
@@ -63,10 +72,10 @@ export const PromoCodesTab = () => {
           locale,
         );
 
-  const columns = (plans: Plan[]): DataTableColumn<PromoCode>[] => [
+  const columns = (plans: Plan[]): RecordColumn<PromoCode>[] => [
     {
       key: 'code',
-      header: text.admin.columns.code,
+      label: text.admin.columns.code,
       render: (promo) => (
         <Text as="span">
           <bdi>
@@ -77,21 +86,18 @@ export const PromoCodesTab = () => {
     },
     {
       key: 'discount',
-      header: text.admin.columns.discount,
-      render: (promo) =>
-        promo.discountType === 'percent'
-          ? fillText(t.percentOff, { value: formatNumber(promo.value, locale) })
-          : fillText(t.amountOff, { value: formatMoney(promo.value, locale) }),
+      label: text.admin.columns.discount,
+      render: (promo) => fillText(t.percentOff, { value: formatNumber(promo.percent, locale) }),
     },
-    { key: 'plans', header: text.admin.columns.plans, render: (promo) => planNames(promo, plans) },
+    { key: 'plans', label: text.admin.columns.plans, render: (promo) => planNames(promo, plans) },
     {
       key: 'expires',
-      header: text.admin.columns.expires,
+      label: text.admin.columns.expires,
       render: (promo) => formatDate(fromDateKey(promo.expiresAt), locale),
     },
     {
       key: 'uses',
-      header: text.admin.columns.uses,
+      label: text.admin.columns.uses,
       render: (promo) =>
         promo.maxUses === null
           ? formatNumber(promo.uses, locale)
@@ -99,15 +105,15 @@ export const PromoCodesTab = () => {
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (promo) => {
         const state = promoState(promo);
-        return <Badge tone={stateTone[state]}>{t.states[state]}</Badge>;
+        return <Badge variant={stateTone[state]}>{t.states[state]}</Badge>;
       },
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (promo) =>
         promo.active && (
@@ -129,7 +135,7 @@ export const PromoCodesTab = () => {
 
   return (
     <Stack>
-      <Stack direction="row" align="center">
+      <Stack direction="row" wrap align="center">
         <Text color={vars.colors.textMuted}>{t.description}</Text>
         {data.status === 'success' && addButton}
       </Stack>
@@ -140,7 +146,7 @@ export const PromoCodesTab = () => {
       )}
       <AsyncContent state={data} empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} action={addButton} />}>
         {({ promos, plans }) => (
-          <DataTable label={t.tableLabel} columns={columns(plans)} rows={promos} getRowKey={(promo) => promo.id} />
+          <Table label={t.tableLabel} columns={columns(plans)} rows={recordRows(promos, (promo) => promo.id, columns(plans))} stackOnMobile />
         )}
       </AsyncContent>
       {adding && loaded && (

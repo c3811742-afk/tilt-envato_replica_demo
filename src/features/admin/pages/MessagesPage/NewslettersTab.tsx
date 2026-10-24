@@ -1,9 +1,18 @@
 import { useState } from 'react';
 import { fetchNewsletters } from '@/features/admin/api';
-import { DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import type { Newsletter } from '@/features/admin/types';
 import { fillText, isolate } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
@@ -17,10 +26,10 @@ export const NewslettersTab = () => {
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.messages.newsletters;
 
-  const columns: DataTableColumn<Newsletter>[] = [
+  const columns: RecordColumn<Newsletter>[] = [
     {
       key: 'subject',
-      header: text.admin.columns.subject,
+      label: text.admin.columns.subject,
       render: (newsletter) => (
         <Text as="span" autoDirection>
           {newsletter.subject}
@@ -29,17 +38,17 @@ export const NewslettersTab = () => {
     },
     {
       key: 'date',
-      header: text.admin.columns.date,
+      label: text.admin.columns.date,
       render: (newsletter) => formatDate(newsletter.sentAt, locale),
     },
     {
       key: 'recipients',
-      header: text.admin.columns.recipients,
+      label: text.admin.columns.recipients,
       render: (newsletter) => formatNumber(newsletter.recipients, locale),
     },
     {
       key: 'sentBy',
-      header: text.admin.columns.sentBy,
+      label: text.admin.columns.sentBy,
       render: (newsletter) => (
         <Text as="span" autoDirection>
           {newsletter.sentBy}
@@ -58,14 +67,14 @@ export const NewslettersTab = () => {
       <AsyncContent state={overview}>
         {(data) => (
           <Stack>
-            <Stack direction="row" align="center">
+            <Stack direction="row" wrap align="center">
               <Text color={vars.colors.textMuted}>
                 {fillText(t.subscribers, { count: formatNumber(data.subscribers, locale) })}
               </Text>
               <Button onClick={() => setWriting(true)}>{t.new}</Button>
             </Stack>
             {data.sent.length > 0 ? (
-              <DataTable label={t.tableLabel} columns={columns} rows={data.sent} getRowKey={(newsletter) => newsletter.id} />
+              <Table label={t.tableLabel} columns={columns} rows={recordRows(data.sent, (newsletter) => newsletter.id, columns)} stackOnMobile />
             ) : (
               <EmptyState title={t.emptyTitle} message={t.emptyMessage} />
             )}

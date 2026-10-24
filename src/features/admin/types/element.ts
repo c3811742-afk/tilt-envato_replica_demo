@@ -1,3 +1,4 @@
+import type { CategoryId } from '@/shared/types';
 import type { DeprecateReason } from './catalog';
 
 export type ElementType =
@@ -10,15 +11,8 @@ export type ElementType =
   | 'font'
   | 'presentation';
 
-export type ElementCategory =
-  | 'weddings'
-  | 'ramadan'
-  | 'restaurants'
-  | 'realEstate'
-  | 'education'
-  | 'business'
-  | 'landmarks'
-  | 'calligraphy';
+// Elements are filed under the site's categories (video templates, music, fonts...).
+export type ElementCategory = CategoryId;
 
 export type ElementStatus = 'pending' | 'live' | 'softRejected' | 'hardRejected' | 'unpublished' | 'deprecated';
 
@@ -100,6 +94,7 @@ export interface CatalogElement {
   deprecation?: ElementDeprecation; // old element taken out of search; existing licenses stay valid
   downloads?: number; // all time, live elements only
   lastDownloadedAt?: string;
+  source?: 'demo' | 'site'; // site: an item in the customer library (taking it down removes it from the site)
 }
 
 export interface ReviewInput {

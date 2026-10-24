@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { cancelSubscription } from '@/features/admin/api';
-import { Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { cancelReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CancelReason, CancelTiming, Subscription } from '@/features/admin/types';
 import { fillText, isOneOf, isolate } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Button, Modal, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { formatDate } from '@/shared/utils';
 
@@ -60,13 +60,13 @@ export const CancelSubscriptionModal = ({ subscription, onClose, onCanceled }: C
         {fillText(t.summary, { name: isolate(subscription.customer.name), plan: isolate(subscription.planName) })}
       </Text>
       {error && <Notice tone="danger">{error}</Notice>}
-      <SelectField
+      <Select
         label={t.timingLabel}
         options={options.map((value) => ({ value, label: fillText(t.timings[value], { date: renewal }) }))}
         value={timing}
         onChange={(value) => isOneOf(timings, value) && setTiming(value)}
       />
-      <SelectField
+      <Select
         label={text.admin.live.reasonLabel}
         placeholder={text.admin.live.reasonPlaceholder}
         options={cancelReasons.map((value) => ({ value, label: text.admin.cancelReasons[value] }))}
@@ -75,13 +75,11 @@ export const CancelSubscriptionModal = ({ subscription, onClose, onCanceled }: C
         error={submitted && !reason ? text.admin.live.reasonRequired : undefined}
         required
       />
-      <TextField
-        multiline
+      <TextField rows={4}
         label={t.noteLabel}
         hint={text.admin.common.optional}
         value={note}
         onChange={setNote}
-        autoDirection
       />
     </Modal>
   );

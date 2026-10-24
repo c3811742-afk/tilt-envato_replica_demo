@@ -1,13 +1,12 @@
 import { useState, type FormEvent } from 'react';
-import { Button, Text } from '@/shared/components';
+import { Button, Modal, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { withDefaults } from '@/shared/utils';
 import { isOneOf } from '@/features/admin/utils/lists';
-import { Modal } from '../Modal';
+
 import { Notice } from '../Notice';
-import { SelectField } from '../SelectField';
-import { TextField } from '../TextField';
+
 import { reasonModalDefaults } from './ReasonModal.defaults';
 import type { ReasonModalProps } from './ReasonModal.types';
 
@@ -65,7 +64,7 @@ export const ReasonModal = <R extends string>(props: ReasonModalProps<R>) => {
       {children}
       {message && <Text color={vars.colors.textMuted}>{message}</Text>}
       {error && <Notice tone="danger">{error}</Notice>}
-      <SelectField
+      <Select
         label={reasonLabel}
         placeholder={reasonPlaceholder}
         options={reasons.map((value) => ({ value, label: reasonLabels[value] }))}
@@ -74,7 +73,7 @@ export const ReasonModal = <R extends string>(props: ReasonModalProps<R>) => {
         error={submitted && !reason ? reasonRequired : undefined}
         required
       />
-      <TextField multiline label={noteLabel} hint={noteHint} value={note} onChange={setNote} autoDirection />
+      <TextField rows={4} label={noteLabel} hint={noteHint} value={note} onChange={setNote} />
     </Modal>
   );
 };

@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { saveArticle } from '@/features/admin/api';
-import { LocalizedField, Modal, Notice, SelectField } from '@/features/admin/components';
+import { LocalizedField, Notice } from '@/features/admin/components';
 import { articleStatuses } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Article, ArticleKind, ArticleStatus } from '@/features/admin/types';
 import { emptyLocalized, hasErrors, isOneOf, localizedErrors } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, Select } from '@/shared/components';
+import { helpTopics, type HelpTopic } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 
 interface ArticleModalProps {
@@ -26,6 +27,8 @@ export const ArticleModal = ({ kind, article, labels, onClose, onSaved }: Articl
   const [title, setTitle] = useState(article?.title ?? emptyLocalized());
   const [body, setBody] = useState(article?.body ?? emptyLocalized());
   const [status, setStatus] = useState<ArticleStatus>(article?.status ?? 'draft');
+  const [topic, setTopic] = useState<HelpTopic>(article?.topic ?? helpTopics[0]);
+  const hasTopic = kind !== 'releaseNote'; // Help Center and Learn group articles by topic
   const [submitted, setSubmitted] = useState(false);
   const errors = {
     title: localizedErrors(title, text),
@@ -36,7 +39,7 @@ export const ArticleModal = ({ kind, article, labels, onClose, onSaved }: Articl
     event.preventDefault();
     setSubmitted(true);
     if (hasErrors(errors.title) || hasErrors(errors.body)) return;
-    const result = await run(() => saveArticle(currentAdmin.id, { kind, title, body, status }, article?.id));
+    const result = await run(() => saveArticle(currentAdmin.id, { kind, title, body, status, topic: hasTopic ? topic : undefined }, article?.id));
     if (result.ok) onSaved(result.data);
   };
 
@@ -67,13 +70,21 @@ export const ArticleModal = ({ kind, article, labels, onClose, onSaved }: Articl
       />
       <LocalizedField
         label={t.bodyLabel}
-        hint={t.bodyHint}
+        hint={`${t.paragraphsHint} ${t.bodyHint}`}
         value={body}
         onChange={setBody}
         multiline
         errors={submitted ? errors.body : {}}
       />
-      <SelectField
+      {hasTopic && (
+        <Select
+          label={t.topicLabel}
+          options={helpTopics.map((value) => ({ value, label: text.help.topics[value] }))}
+          value={topic}
+          onChange={(value) => isOneOf(helpTopics, value) && setTopic(value)}
+        />
+      )}
+      <Select
         label={t.statusLabel}
         options={articleStatuses.map((value) => ({ value, label: t.statuses[value] }))}
         value={status}

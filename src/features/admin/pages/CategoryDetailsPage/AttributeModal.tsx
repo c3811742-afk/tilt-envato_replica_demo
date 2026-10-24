@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { saveAttribute } from '@/features/admin/api';
-import { Checkbox, LocalizedField, Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { LocalizedField, Notice } from '@/features/admin/components';
 import { attributeTypes, typesWithOptions } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { AttributeType, Category, CategoryAttribute } from '@/features/admin/types';
 import { emptyLocalized, hasErrors, isOneOf, localizedErrors, parseOptions } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Checkbox, Modal, Select, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 // Options make sense only when there are at least two to choose from.
@@ -55,7 +55,7 @@ export const AttributeModal = ({ categoryId, attribute, onClose, onSaved }: Attr
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {attribute ? text.admin.common.save : t.addAttribute}
+            {attribute ? text.common.saveChanges : t.addAttribute}
           </Button>
         </>
       }
@@ -68,7 +68,7 @@ export const AttributeModal = ({ categoryId, attribute, onClose, onSaved }: Attr
         required
         errors={submitted ? nameErrors : {}}
       />
-      <SelectField
+      <Select
         label={t.typeLabel}
         options={attributeTypes.map((value) => ({ value, label: text.admin.attributeTypes[value] }))}
         value={type}
@@ -82,7 +82,6 @@ export const AttributeModal = ({ categoryId, attribute, onClose, onSaved }: Attr
           onChange={setOptions}
           error={submitted && optionsMissing ? t.optionsRequired : undefined}
           required
-          autoDirection
         />
       )}
       <Checkbox label={t.isFilterLabel} description={t.isFilterHint} checked={isFilter} onChange={setIsFilter} />

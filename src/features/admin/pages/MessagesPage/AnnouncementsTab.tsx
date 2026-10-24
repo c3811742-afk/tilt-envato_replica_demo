@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import { cancelAnnouncement, fetchAnnouncements } from '@/features/admin/api';
-import { Badge, ConfirmModal, DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { messageStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Announcement } from '@/features/admin/types';
 import { fillText, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
@@ -45,10 +55,10 @@ export const AnnouncementsTab = () => {
     setNotice(fillText(announcement.status === 'scheduled' ? t.scheduled : t.sent, values));
   };
 
-  const columns: DataTableColumn<Announcement>[] = [
+  const columns: RecordColumn<Announcement>[] = [
     {
       key: 'message',
-      header: text.admin.columns.message,
+      label: text.admin.columns.message,
       render: (announcement) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -62,29 +72,29 @@ export const AnnouncementsTab = () => {
     },
     {
       key: 'audience',
-      header: text.admin.columns.audience,
+      label: text.admin.columns.audience,
       render: (announcement) => t.audiences[announcement.audience],
     },
     {
       key: 'recipients',
-      header: text.admin.columns.recipients,
+      label: text.admin.columns.recipients,
       render: (announcement) => formatNumber(announcement.recipients, locale),
     },
     {
       key: 'date',
-      header: text.admin.columns.date,
+      label: text.admin.columns.date,
       render: (announcement) => formatDate(announcement.sendAt, locale, dateTime),
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (announcement) => (
-        <Badge tone={messageStatusTone[announcement.status]}>{t.statuses[announcement.status]}</Badge>
+        <Badge variant={messageStatusTone[announcement.status]}>{t.statuses[announcement.status]}</Badge>
       ),
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (announcement) =>
         announcement.status === 'scheduled' && (
           <Button
@@ -105,7 +115,7 @@ export const AnnouncementsTab = () => {
 
   return (
     <Stack>
-      <Stack direction="row" align="center">
+      <Stack direction="row" wrap align="center">
         <Text color={vars.colors.textMuted}>{t.description}</Text>
         {current.length > 0 && newButton}
       </Stack>
@@ -119,7 +129,7 @@ export const AnnouncementsTab = () => {
         empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} action={newButton} />}
       >
         {(list) => (
-          <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(announcement) => announcement.id} />
+          <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (announcement) => announcement.id, columns)} stackOnMobile />
         )}
       </AsyncContent>
       {writing && <AnnouncementModal onClose={() => setWriting(false)} onSent={handleSent} />}

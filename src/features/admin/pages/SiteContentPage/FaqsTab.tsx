@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { deleteFaq, fetchFaqs, moveFaq } from '@/features/admin/api';
-import {
-  ConfirmModal,
-  DataTable,
-  Notice,
-  ReorderButtons,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ConfirmModal, Notice, ReorderButtons } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Faq, MoveDirection } from '@/features/admin/types';
 import { fillText, isolate, localized, removeById, upsertById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { FaqModal } from './FaqModal';
@@ -43,14 +45,17 @@ export const FaqsTab = () => {
     setNotice(t.deleted);
   };
 
-  const columns: DataTableColumn<Faq>[] = [
+  const columns: RecordColumn<Faq>[] = [
     {
       key: 'question',
-      header: text.admin.columns.question,
+      label: text.admin.columns.question,
       render: (faq) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
             <strong>{localized(faq.question, locale)}</strong>
+          </Text>
+          <Text as="span" variant="bodySm" color={vars.colors.textMuted} autoDirection>
+            {localized(faq.group, locale)}
           </Text>
           <Text as="span" variant="bodySm" color={vars.colors.textMuted} autoDirection>
             {localized(faq.answer, locale)}
@@ -60,7 +65,7 @@ export const FaqsTab = () => {
     },
     {
       key: 'order',
-      header: text.admin.columns.order,
+      label: text.admin.columns.order,
       render: (faq) => {
         const index = current.indexOf(faq);
         return (
@@ -76,9 +81,9 @@ export const FaqsTab = () => {
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (faq) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
           <Button size="sm" variant="muted" onClick={() => setEditing(faq)}>
             {text.admin.common.edit}
           </Button>
@@ -101,7 +106,7 @@ export const FaqsTab = () => {
 
   return (
     <Stack>
-      <Stack direction="row" align="center">
+      <Stack direction="row" wrap align="center">
         <Text color={vars.colors.textMuted}>{t.description}</Text>
         {current.length > 0 && addButton}
       </Stack>
@@ -116,7 +121,7 @@ export const FaqsTab = () => {
         </Notice>
       )}
       <AsyncContent state={faqs} empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} action={addButton} />}>
-        {(list) => <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(faq) => faq.id} />}
+        {(list) => <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (faq) => faq.id, columns)} stackOnMobile />}
       </AsyncContent>
       {editing && (
         <FaqModal

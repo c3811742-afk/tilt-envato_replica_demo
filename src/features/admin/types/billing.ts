@@ -1,47 +1,36 @@
+import type { PlanId, PromoCode } from '@/shared/types';
 import type { LocalizedText } from './catalog';
 
-export type LicenseScope = 'personal' | 'commercial' | 'team' | 'enterprise';
-
-// A subscription plan. downloadLimit null means unlimited downloads.
+// A plan on the site, as the admin sees it. Prices and limits are saved where the pricing page and checkout read them.
 export interface Plan {
-  id: string;
-  name: LocalizedText;
-  monthlyPrice: number; // EGP
-  yearlyPrice: number; // EGP
-  downloadLimit: number | null; // per month
-  seats: number;
-  licenseScope: LicenseScope;
+  id: PlanId;
+  name: LocalizedText; // the site's plan name
+  monthlyPrice: number | null; // EGP incl. VAT (per seat on per-seat plans); null: price on request
+  yearlyPrice: number | null; // what a year costs, with the site's yearly discount
+  downloadLimit: number | null; // per month (per seat); null: unlimited
+  perMember: boolean; // priced per seat (Teams, Enterprise)
+  seats: number; // the fewest seats a per-seat plan can be bought with; 1 otherwise
   aiCredits: number; // per month
   parallelGenerations: number; // AI generations that can run at the same time
-  active: boolean; // inactive plans can't be bought; current subscribers keep them
+  active: boolean; // false: no longer sold; current subscribers keep it
   subscribers: number;
 }
 
-export type PlanInput = Omit<Plan, 'id' | 'subscribers'>;
+export type PlanInput = Pick<Plan, 'monthlyPrice' | 'downloadLimit' | 'seats' | 'aiCredits' | 'parallelGenerations' | 'active'>;
 
-export type DiscountType = 'percent' | 'fixed';
-
-export interface PromoCode {
-  id: string;
-  code: string;
-  discountType: DiscountType;
-  value: number; // percent, or EGP for a fixed discount
-  planIds: string[]; // empty: every plan
-  expiresAt: string; // YYYY-MM-DD, last day it works
-  maxUses: number | null; // null: no limit
-  uses: number;
-  active: boolean;
-}
-
+// Promo codes are the site's own: what the admin creates works at checkout.
+export type { PromoCode };
 export type PromoCodeInput = Omit<PromoCode, 'id' | 'uses' | 'active'>;
 
 export interface Customer {
-  id: string;
+  id: string; // a site account's id, or a demo customer's
   name: string;
   email: string;
 }
 
-export type PaymentMethod = 'card' | 'fawry' | 'wallet' | 'instapay';
+// The site's payment methods.
+export type { PaymentMethod } from '@/shared/constants';
+import type { PaymentMethod } from '@/shared/constants';
 export type TransactionStatus = 'paid' | 'partlyRefunded' | 'refunded';
 
 export interface Transaction {
@@ -53,6 +42,7 @@ export interface Transaction {
   refunded: number; // EGP refunded so far
   method: PaymentMethod;
   status: TransactionStatus;
+  source?: 'demo' | 'site'; // site: a payment made on the customer side in this browser
 }
 
 export type RefundReason = 'duplicate' | 'notAsDescribed' | 'accidental' | 'goodwill';
@@ -74,6 +64,7 @@ export interface FailedPayment {
   method: PaymentMethod;
   reason: FailureReason;
   attempts: number;
+  source?: 'demo' | 'site';
 }
 
 export type SubscriptionStatus = 'active' | 'canceling' | 'canceled';
@@ -87,6 +78,7 @@ export interface Subscription {
   status: SubscriptionStatus; // canceling: still active until renewsAt, then ends
   startedAt: string;
   renewsAt: string;
+  source?: 'demo' | 'site'; // site: a plan bought on the customer side in this browser
 }
 
 export type CancelTiming = 'now' | 'periodEnd';

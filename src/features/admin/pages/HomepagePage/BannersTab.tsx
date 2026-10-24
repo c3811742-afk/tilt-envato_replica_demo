@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { deleteBanner, fetchBanners } from '@/features/admin/api';
-import { Badge, ConfirmModal, DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { scheduleStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Banner } from '@/features/admin/types';
@@ -14,7 +14,17 @@ import {
   toDateKey,
   upsertById,
 } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -43,10 +53,10 @@ export const BannersTab = () => {
     setNotice(t.deleted);
   };
 
-  const columns: DataTableColumn<Banner>[] = [
+  const columns: RecordColumn<Banner>[] = [
     {
       key: 'banner',
-      header: text.admin.columns.banner,
+      label: text.admin.columns.banner,
       render: (banner) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -60,23 +70,23 @@ export const BannersTab = () => {
     },
     {
       key: 'dates',
-      header: text.admin.columns.dates,
+      label: text.admin.columns.dates,
       render: (banner) =>
         fillText(text.admin.common.dateRange, { start: day(banner.startDate), end: day(banner.endDate) }),
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (banner) => {
         const status = scheduleStatus(banner, today);
-        return <Badge tone={scheduleStatusTone[status]}>{text.admin.schedule[status]}</Badge>;
+        return <Badge variant={scheduleStatusTone[status]}>{text.admin.schedule[status]}</Badge>;
       },
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (banner) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
           <Button size="sm" variant="muted" onClick={() => setEditing(banner)}>
             {text.admin.common.edit}
           </Button>
@@ -99,7 +109,7 @@ export const BannersTab = () => {
 
   return (
     <Stack>
-      <Stack direction="row" align="center">
+      <Stack direction="row" wrap align="center">
         <Text color={vars.colors.textMuted}>{t.description}</Text>
         {current.length > 0 && addButton}
       </Stack>
@@ -112,7 +122,7 @@ export const BannersTab = () => {
         state={banners}
         empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} action={addButton} />}
       >
-        {(list) => <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(banner) => banner.id} />}
+        {(list) => <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (banner) => banner.id, columns)} stackOnMobile />}
       </AsyncContent>
       {editing && (
         <BannerModal

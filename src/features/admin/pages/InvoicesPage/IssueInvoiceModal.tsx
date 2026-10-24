@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { fetchUninvoicedTransactions, issueInvoice } from '@/features/admin/api';
-import { DetailList, Modal, Notice, SelectField, TextField } from '@/features/admin/components';
-import { invoiceKinds, vatRate } from '@/features/admin/constants';
+import { Notice } from '@/features/admin/components';
+import { invoiceKinds } from '@/features/admin/constants';
+import { vatRate } from '@/shared/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Invoice, InvoiceKind } from '@/features/admin/types';
-import { fillText, formatMoney, isOneOf, isValidTaxId, refundable } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState } from '@/shared/components';
+import { fillText, isOneOf, isValidTaxId, refundable } from '@/features/admin/utils';
+import { AsyncContent, Button, DetailList, EmptyState, Modal, Select, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatPrice } from '@/shared/utils';
 
 interface IssueInvoiceModalProps {
   onClose: () => void;
@@ -64,14 +65,14 @@ export const IssueInvoiceModal = ({ onClose, onIssued }: IssueInvoiceModalProps)
       <AsyncContent state={transactions} empty={<EmptyState title={t.nothingTitle} message={t.nothingMessage} />}>
         {(rows) => (
           <>
-            <SelectField
+            <Select
               label={t.transactionLabel}
               placeholder={t.transactionPlaceholder}
               options={rows.map((row) => ({
                 value: row.id,
                 label: fillText(t.transactionOption, {
                   name: row.customer.name,
-                  amount: formatMoney(refundable(row), locale),
+                  amount: formatPrice(refundable(row), locale),
                   date: formatDate(row.at, locale),
                 }),
               }))}
@@ -80,7 +81,7 @@ export const IssueInvoiceModal = ({ onClose, onIssued }: IssueInvoiceModalProps)
               error={submitted ? errors.transaction : undefined}
               required
             />
-            <SelectField
+            <Select
               label={t.kindLabel}
               options={invoiceKinds.map((value) => ({ value, label: t.kinds[value] }))}
               value={kind}
@@ -99,10 +100,10 @@ export const IssueInvoiceModal = ({ onClose, onIssued }: IssueInvoiceModalProps)
             )}
             {selected && (
               <DetailList
-                items={[
-                  { label: t.subtotal, value: formatMoney(amount, locale) },
-                  { label: t.vat, value: formatMoney(amount * vatRate, locale) },
-                  { label: t.total, value: formatMoney(amount * (1 + vatRate), locale) },
+                rows={[
+                  { label: t.subtotal, value: formatPrice(amount, locale) },
+                  { label: t.vat, value: formatPrice(amount * vatRate, locale) },
+                  { label: t.total, value: formatPrice(amount * (1 + vatRate), locale) },
                 ]}
               />
             )}

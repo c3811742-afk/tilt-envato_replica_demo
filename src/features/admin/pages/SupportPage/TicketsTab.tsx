@@ -1,19 +1,23 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
 import { fetchTickets } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  FilterBar,
-  SelectField,
-  Stack,
-  TextLink,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { FilterBar } from '@/features/admin/components';
 import { ticketStatuses, ticketStatusTone } from '@/features/admin/constants';
 import type { Ticket, TicketStatus } from '@/features/admin/types';
 import { isOneOf } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextLink,
+} from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -29,10 +33,10 @@ export const TicketsTab = () => {
   const [status, setStatus] = useState<TicketStatus | typeof allStatuses>(allStatuses);
   const t = text.admin.support;
 
-  const columns: DataTableColumn<Ticket>[] = [
+  const columns: RecordColumn<Ticket>[] = [
     {
       key: 'subject',
-      header: text.admin.columns.subject,
+      label: text.admin.columns.subject,
       render: (ticket) => (
         <Stack gap={vars.spacing[1]}>
           <TextLink to={generatePath(routes.adminTicket, { ticketId: ticket.id })} autoDirection>
@@ -46,7 +50,7 @@ export const TicketsTab = () => {
     },
     {
       key: 'from',
-      header: text.admin.columns.from,
+      label: text.admin.columns.from,
       render: (ticket) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -60,13 +64,13 @@ export const TicketsTab = () => {
     },
     {
       key: 'updated',
-      header: text.admin.columns.updated,
+      label: text.admin.columns.updated,
       render: (ticket) => formatDate(ticket.updatedAt, locale, dateTime),
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (ticket) => <Badge tone={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (ticket) => <Badge variant={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>,
     },
   ];
 
@@ -77,7 +81,7 @@ export const TicketsTab = () => {
         return (
           <Stack>
             <FilterBar>
-              <SelectField
+              <Select
                 label={text.admin.columns.status}
                 options={[
                   { value: allStatuses, label: t.allStatuses },
@@ -88,7 +92,7 @@ export const TicketsTab = () => {
               />
             </FilterBar>
             {visible.length > 0 ? (
-              <DataTable label={t.tabs.tickets} columns={columns} rows={visible} getRowKey={(ticket) => ticket.id} />
+              <Table label={t.tabs.tickets} columns={columns} rows={recordRows(visible, (ticket) => ticket.id, columns)} stackOnMobile />
             ) : (
               <EmptyState
                 title={t.noneTitle}

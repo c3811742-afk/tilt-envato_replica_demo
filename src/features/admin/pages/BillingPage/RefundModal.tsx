@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { refundTransaction } from '@/features/admin/api';
-import { Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { refundReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { RefundReason, Transaction } from '@/features/admin/types';
-import { fillText, formatMoney, hasErrors, isOneOf, isValidAmount, isolate, refundable, toNumber } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { fillText, hasErrors, isOneOf, isValidAmount, isolate, refundable, toNumber } from '@/features/admin/utils';
+import { Button, Modal, Select, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import { formatPrice } from '@/shared/utils';
 
 interface RefundModalProps {
   transaction: Transaction;
@@ -31,7 +32,7 @@ export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalPro
     amount:
       isValidAmount(amount) && (toNumber(amount) ?? 0) <= available
         ? undefined
-        : fillText(t.amountInvalid, { max: formatMoney(available, locale) }),
+        : fillText(t.amountInvalid, { max: formatPrice(available, locale) }),
     reason: reason ? undefined : text.admin.live.reasonRequired,
   };
 
@@ -64,7 +65,7 @@ export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalPro
       <Text>
         {fillText(t.summary, {
           name: isolate(transaction.customer.name),
-          amount: formatMoney(transaction.amount, locale),
+          amount: formatPrice(transaction.amount, locale),
           method: text.admin.methods[transaction.method],
         })}
       </Text>
@@ -73,14 +74,14 @@ export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalPro
       <TextField
         type="number"
         label={t.amountLabel}
-        hint={fillText(t.amountHint, { max: formatMoney(available, locale) })}
+        hint={fillText(t.amountHint, { max: formatPrice(available, locale) })}
         value={amount}
         onChange={setAmount}
         error={submitted ? errors.amount : undefined}
         min="0"
         required
       />
-      <SelectField
+      <Select
         label={text.admin.live.reasonLabel}
         placeholder={text.admin.live.reasonPlaceholder}
         options={refundReasons.map((value) => ({ value, label: text.admin.refundReasons[value] }))}
@@ -89,13 +90,11 @@ export const RefundModal = ({ transaction, onClose, onRefunded }: RefundModalPro
         error={submitted ? errors.reason : undefined}
         required
       />
-      <TextField
-        multiline
+      <TextField rows={4}
         label={t.noteLabel}
         hint={text.admin.common.optional}
         value={note}
         onChange={setNote}
-        autoDirection
       />
     </Modal>
   );

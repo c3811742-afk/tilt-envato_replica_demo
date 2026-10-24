@@ -1,22 +1,23 @@
 import { useState } from 'react';
 import { fetchTags, setTagBanned } from '@/features/admin/api';
-import {
-  Badge,
-  ConfirmModal,
-  DataTable,
-  FilterBar,
-  Notice,
-  PageHeader,
-  RequirePermission,
-  SelectField,
-  Stack,
-  TextField,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ConfirmModal, FilterBar, Notice, RequirePermission } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Tag } from '@/features/admin/types';
 import { fillText, isOneOf, isolate, matchesQuery } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextField,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatNumber } from '@/shared/utils';
@@ -56,30 +57,30 @@ const Tags = () => {
     setDialog(next);
   };
 
-  const columns: DataTableColumn<Tag>[] = [
+  const columns: RecordColumn<Tag>[] = [
     {
       key: 'tag',
-      header: text.admin.columns.tag,
+      label: text.admin.columns.tag,
       render: (tag) => (
-        <Stack direction="row" gap={vars.spacing[2]} align="center">
+        <Stack direction="row" wrap gap={vars.spacing[2]} align="center">
           <Text as="span" autoDirection>
             {tag.name}
           </Text>
-          {tag.banned && <Badge tone="danger">{t.bannedBadge}</Badge>}
+          {tag.banned && <Badge variant="danger">{t.bannedBadge}</Badge>}
         </Stack>
       ),
     },
-    { key: 'usage', header: text.admin.columns.usage, render: (tag) => formatNumber(tag.usage, locale) },
+    { key: 'usage', label: text.admin.columns.usage, render: (tag) => formatNumber(tag.usage, locale) },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (tag) =>
         tag.banned ? (
           <Button size="sm" variant="muted" disabled={action.pending} onClick={() => setBanned(tag, false)}>
             {t.unban}
           </Button>
         ) : (
-          <Stack direction="row" gap={vars.spacing[2]}>
+          <Stack direction="row" wrap gap={vars.spacing[2]}>
             <Button size="sm" variant="muted" onClick={() => openDialog({ kind: 'rename', tag })}>
               {t.rename}
             </Button>
@@ -101,7 +102,7 @@ const Tags = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} />
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
           {notice}
@@ -122,8 +123,8 @@ const Tags = () => {
           return (
             <Stack>
               <FilterBar>
-                <TextField type="search" label={t.searchLabel} value={query} onChange={setQuery} autoDirection />
-                <SelectField
+                <TextField type="search" label={t.searchLabel} value={query} onChange={setQuery} />
+                <Select
                   label={t.filterLabel}
                   options={tagFilters.map((value) => ({ value, label: t.filters[value] }))}
                   value={filter}
@@ -132,7 +133,7 @@ const Tags = () => {
               </FilterBar>
               <Text color={vars.colors.textMuted}>{fillText(t.count, { count: formatNumber(list.length, locale) })}</Text>
               {visible.length > 0 ? (
-                <DataTable label={t.title} columns={columns} rows={visible} getRowKey={(tag) => tag.id} />
+                <Table label={t.title} columns={columns} rows={recordRows(visible, (tag) => tag.id, columns)} stackOnMobile />
               ) : (
                 <EmptyState
                   title={text.admin.common.noMatchesTitle}

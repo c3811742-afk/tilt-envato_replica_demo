@@ -25,6 +25,8 @@ export const permissions = {
   manageLicenses: ['superAdmin', 'support'], // license lookup, revoking, copyright claims
   handleSupport: ['superAdmin', 'support'], // tickets and item reports
   manageAi: ['superAdmin', 'content'],
+  manageUsers: ['superAdmin', 'support'], // search accounts, suspend, ban, reactivate, appeals, download alerts
+  reviewCreators: ['superAdmin', 'reviewer'], // creator applications and identity checks
 } as const satisfies Record<string, readonly AdminRole[]>;
 
 export type Permission = keyof typeof permissions;

@@ -3,15 +3,13 @@ import { exportReport } from '@/features/admin/api';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Report, ReportKind } from '@/features/admin/types';
 import { downloadFile, fillText, fromDateKey, isOneOf, toCsv, toMonthKey } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Select, Stack, TextField } from '@/shared/components';
 import type { Text } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { formatDate, withDefaults } from '@/shared/utils';
 import { FilterBar } from '../FilterBar';
 import { Notice } from '../Notice';
-import { SelectField } from '../SelectField';
-import { Stack } from '../Stack';
-import { TextField } from '../TextField';
+
 import { reportExportDefaults } from './ReportExport.defaults';
 import type { ReportExportProps } from './ReportExport.types';
 
@@ -66,7 +64,7 @@ export const ReportExport = (props: ReportExportProps) => {
       )}
       {error && <Notice tone="danger">{error}</Notice>}
       <FilterBar>
-        <SelectField
+        <Select
           label={t.kindLabel}
           options={kinds.map((value) => ({ value, label: text.admin.reportKinds[value] }))}
           value={kind}
@@ -74,7 +72,7 @@ export const ReportExport = (props: ReportExportProps) => {
         />
         <TextField type="month" label={t.monthLabel} value={month} onChange={(value) => value && setMonth(value)} />
       </FilterBar>
-      <Stack direction="row">
+      <Stack direction="row" wrap>
         <Button variant="secondary" disabled={pending} onClick={download}>
           {t.download}
         </Button>

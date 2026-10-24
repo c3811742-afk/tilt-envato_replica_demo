@@ -1,5 +1,5 @@
 export type RequesterKind = 'customer' | 'creator';
-export type TicketTopic = 'billing' | 'downloads' | 'licenses' | 'account' | 'payouts' | 'review';
+export type TicketTopic = 'billing' | 'downloads' | 'licenses' | 'account' | 'payouts' | 'review' | 'ai' | 'other';
 export type TicketStatus = 'open' | 'answered' | 'closed';
 
 export interface TicketMessage {
@@ -18,6 +18,8 @@ export interface Ticket {
   status: TicketStatus; // open: waiting for support. answered: waiting for the customer or creator.
   updatedAt: string;
   messages: TicketMessage[];
+  reference?: string; // what the customer was given, e.g. SUP-482913 (site requests)
+  source?: 'demo' | 'site'; // site: sent from the contact form on the customer side in this browser
 }
 
 export type ItemReportKind = 'brokenFiles' | 'infringement' | 'wrongCategory' | 'offensive';
@@ -33,4 +35,5 @@ export interface ItemReport {
   note: string;
   reportedAt: string;
   status: ItemReportStatus;
+  source?: 'demo' | 'site'; // site: a customer reported a broken download
 }

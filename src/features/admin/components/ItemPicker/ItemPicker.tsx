@@ -1,12 +1,12 @@
 import { useState, type CSSProperties } from 'react';
-import { Text } from '@/shared/components';
+import { Checkbox, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { withDefaults } from '@/shared/utils';
 import { matchesQuery } from '@/features/admin/utils/lists';
-import { Checkbox } from '../Checkbox';
+
 import { Field } from '../Field';
-import { TextField } from '../TextField';
+
 import { itemPickerDefaults } from './ItemPicker.defaults';
 import type { ItemPickerProps } from './ItemPicker.types';
 import styles from './ItemPicker.module.css';
@@ -22,7 +22,7 @@ export const ItemPicker = (props: ItemPickerProps) => {
 
   return (
     <Field group label={label} hint={hint} error={error}>
-      <TextField type="search" label={text.admin.common.search} value={query} onChange={setQuery} autoDirection />
+      <TextField type="search" label={text.admin.common.search} value={query} onChange={setQuery} />
       {visible.length > 0 ? (
         <ul className={styles.list} style={style}>
           {visible.map((item) => {

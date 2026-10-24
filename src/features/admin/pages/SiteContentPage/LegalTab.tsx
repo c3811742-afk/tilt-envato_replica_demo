@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { fetchLegalPages, saveLegalPage } from '@/features/admin/api';
-import { LocalizedField, Modal, Notice, Panel, Stack } from '@/features/admin/components';
+import { LocalizedField, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { LegalPage } from '@/features/admin/types';
 import { fillText, hasErrors, isolate, localized, localizedErrors, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, Text } from '@/shared/components';
+import { AsyncContent, Button, Card, Modal, Stack, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -44,7 +44,7 @@ const LegalModal = ({ page, onClose, onSaved }: LegalModalProps) => {
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {text.admin.common.save}
+            {text.common.saveChanges}
           </Button>
         </>
       }
@@ -53,6 +53,7 @@ const LegalModal = ({ page, onClose, onSaved }: LegalModalProps) => {
       {error && <Notice tone="danger">{error}</Notice>}
       <LocalizedField
         label={t.bodyLabel}
+        hint={t.bodyHint}
         value={body}
         onChange={setBody}
         multiline
@@ -83,17 +84,17 @@ export const LegalTab = () => {
         {(list) => (
           <Stack>
             {list.map((page) => (
-              <Panel key={page.id} title={text.admin.content.legalPages[page.id]}>
+              <Card key={page.id} title={text.admin.content.legalPages[page.id]}>
                 <Text color={vars.colors.textMuted}>
-                  {fillText(t.updated, { date: formatDate(page.updatedAt, locale), name: isolate(page.updatedBy) })}
+                  {fillText(t.updated, { date: formatDate(page.updatedAt, locale), name: isolate(page.updatedBy ?? text.admin.content.siteTeam) })}
                 </Text>
                 <Text autoDirection>{localized(page.body, locale)}</Text>
-                <Stack direction="row">
+                <Stack direction="row" wrap>
                   <Button variant="muted" onClick={() => setEditing(page)}>
                     {text.admin.common.edit}
                   </Button>
                 </Stack>
-              </Panel>
+              </Card>
             ))}
             {editing && (
               <LegalModal

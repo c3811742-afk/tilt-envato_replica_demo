@@ -1,7 +1,29 @@
 import { audienceSizes, newsletterSubscribers } from '@/features/admin/mocks';
-import type { Announcement, AnnouncementInput, NewsletterInput, NewsletterOverview } from '@/features/admin/types';
+import type { Announcement, AnnouncementInput, Audience, NewsletterInput, NewsletterOverview } from '@/features/admin/types';
+import { storageKeys } from '@/shared/constants';
+import { readAccounts, readList, withAlert, writeAccounts } from '@/shared/utils';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, newId, now, respond } from './mockServer';
+
+// Site accounts are customers: they get announcements for customers and for everyone.
+const reachesSite = (audience: Audience) => audience !== 'creators';
+
+// The demo's audiences, plus the customers who signed up on the site in this browser.
+const reach = (): Record<Audience, number> => {
+  const site = readAccounts().length;
+  return { customers: audienceSizes.customers + site, creators: audienceSizes.creators, everyone: audienceSizes.everyone + site };
+};
+
+// Shows the announcement in each site customer's notifications (the email is the demo's pretend part).
+const deliver = (announcement: Announcement) => {
+  if (!reachesSite(announcement.audience)) return;
+  writeAccounts(
+    readAccounts().map((account) => withAlert(account, 'announcement', { title: announcement.title, message: announcement.body })),
+  );
+};
+
+// The demo's subscribers, plus the email addresses signed up from the site's newsletter form.
+const subscriberCount = () => newsletterSubscribers + readList<string>(storageKeys.newsletter).length;
 
 const messageTarget = (id: string, label: string) => ({ kind: 'message' as const, id, label });
 
@@ -9,12 +31,15 @@ const messageTarget = (id: string, label: string) => ({ kind: 'message' as const
 const markDue = () => {
   const current = now();
   db.announcements.forEach((announcement) => {
-    if (announcement.status === 'scheduled' && announcement.sendAt <= current) announcement.status = 'sent';
+    if (announcement.status === 'scheduled' && announcement.sendAt <= current) {
+      announcement.status = 'sent';
+      deliver(announcement);
+    }
   });
 };
 
 // How many people each audience reaches, shown before sending.
-export const fetchAudienceSizes = () => respond(() => audienceSizes);
+export const fetchAudienceSizes = () => respond(reach);
 
 // Newest first.
 export const fetchAnnouncements = () =>
@@ -23,7 +48,7 @@ export const fetchAnnouncements = () =>
     return [...db.announcements].sort((a, b) => b.sendAt.localeCompare(a.sendAt));
   });
 
-// Sends now, or schedules it when sendAt is in the future. Demo: nothing is really sent.
+// Sends now, or schedules it when sendAt is in the future. Site customers see it in their notifications; no email is sent.
 export const sendAnnouncement = (actorId: string, input: AnnouncementInput) =>
   respond((): Announcement => {
     const actor = authorize(actorId, 'sendMessages');
@@ -36,10 +61,11 @@ export const sendAnnouncement = (actorId: string, input: AnnouncementInput) =>
       body: input.body.trim(),
       status: scheduled ? 'scheduled' : 'sent',
       sendAt,
-      recipients: audienceSizes[input.audience],
+      recipients: reach()[input.audience],
       sentBy: actor.name,
     };
     db.announcements.push(announcement);
+    if (!scheduled) deliver(announcement);
     logAction(actor, scheduled ? 'messageScheduled' : 'messageSent', messageTarget(announcement.id, announcement.title), {
       area: 'announcements',
       recipients: announcement.recipients,
@@ -62,7 +88,7 @@ export const cancelAnnouncement = (actorId: string, id: string) =>
 export const fetchNewsletters = () =>
   respond(
     (): NewsletterOverview => ({
-      subscribers: newsletterSubscribers,
+      subscribers: subscriberCount(),
       sent: [...db.newsletters].sort((a, b) => b.sentAt.localeCompare(a.sentAt)),
     }),
   );
@@ -76,7 +102,7 @@ export const sendNewsletter = (actorId: string, input: NewsletterInput) =>
       subject: input.subject.trim(),
       body: input.body.trim(),
       sentAt: now(),
-      recipients: newsletterSubscribers,
+      recipients: subscriberCount(),
       sentBy: actor.name,
     };
     db.newsletters.push(newsletter);

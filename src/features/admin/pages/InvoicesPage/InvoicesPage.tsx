@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { fetchInvoices } from '@/features/admin/api';
-import { Badge, DataTable, Notice, PageHeader, RequirePermission, Stack, type DataTableColumn } from '@/features/admin/components';
+import { Notice, RequirePermission } from '@/features/admin/components';
 import { invoiceStatusTone } from '@/features/admin/constants';
 import type { Invoice } from '@/features/admin/types';
-import { fillText, formatMoney, isolate } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import { fillText, isolate } from '@/features/admin/utils';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatPrice } from '@/shared/utils';
 import { IssueInvoiceModal } from './IssueInvoiceModal';
 
 const Invoices = () => {
@@ -18,10 +29,10 @@ const Invoices = () => {
   const t = text.admin.invoices;
   const current = invoices.status === 'success' ? invoices.data : [];
 
-  const columns: DataTableColumn<Invoice>[] = [
+  const columns: RecordColumn<Invoice>[] = [
     {
       key: 'number',
-      header: text.admin.columns.number,
+      label: text.admin.columns.number,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span">
@@ -35,7 +46,7 @@ const Invoices = () => {
     },
     {
       key: 'customer',
-      header: text.admin.columns.customer,
+      label: text.admin.columns.customer,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -51,23 +62,23 @@ const Invoices = () => {
     },
     {
       key: 'amount',
-      header: text.admin.columns.amount,
+      label: text.admin.columns.amount,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
-          <Text as="span">{formatMoney(row.amount + row.vat, locale)}</Text>
+          <Text as="span">{formatPrice(row.amount + row.vat, locale)}</Text>
           <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
-            {fillText(t.vatLine, { vat: formatMoney(row.vat, locale) })}
+            {fillText(t.vatLine, { vat: formatPrice(row.vat, locale) })}
           </Text>
         </Stack>
       ),
     },
-    { key: 'issued', header: text.admin.columns.issued, render: (row) => formatDate(row.issuedAt, locale) },
+    { key: 'issued', label: text.admin.columns.issued, render: (row) => formatDate(row.issuedAt, locale) },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (row) => (
-        <Stack gap={vars.spacing[1]} align="start">
-          <Badge tone={invoiceStatusTone[row.status]}>{t.statuses[row.status]}</Badge>
+        <Stack gap={vars.spacing[1]} align="flex-start">
+          <Badge variant={invoiceStatusTone[row.status]}>{t.statuses[row.status]}</Badge>
           <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
             {row.etaUuid ? (
               fillText(t.uuidLine, { uuid: isolate(row.etaUuid) })
@@ -84,7 +95,7 @@ const Invoices = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} actions={current.length > 0 && issueButton} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} actions={current.length > 0 && issueButton} />
       <Notice tone="info">{t.demoNote}</Notice>
       {notice && (
         <Notice tone={notice.tone} onDismiss={() => setNotice(null)}>
@@ -95,7 +106,7 @@ const Invoices = () => {
         state={invoices}
         empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} action={issueButton} />}
       >
-        {(list) => <DataTable label={t.title} columns={columns} rows={list} getRowKey={(row) => row.id} />}
+        {(list) => <Table label={t.title} columns={columns} rows={recordRows(list, (row) => row.id, columns)} stackOnMobile />}
       </AsyncContent>
       {issuing && (
         <IssueInvoiceModal

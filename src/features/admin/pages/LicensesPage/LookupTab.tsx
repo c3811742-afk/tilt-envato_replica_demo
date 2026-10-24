@@ -1,22 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { fetchLicenses, findLicense, revokeLicense } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  DetailList,
-  Notice,
-  Panel,
-  ReasonModal,
-  Stack,
-  TextField,
-  type DataTableColumn,
-  type DetailItem,
-} from '@/features/admin/components';
+import { Notice, ReasonModal } from '@/features/admin/components';
 import { licenseStatusTone, revokeReasons } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { License, RevokeInput } from '@/features/admin/types';
 import { fillText, isBlank, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import { AsyncContent, Badge, Button, Card, DetailList, type DetailRow, EmptyState, type RecordColumn, recordRows, Stack, Table, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -31,9 +20,9 @@ const LicenseCard = ({ license, onRevoke }: LicenseCardProps) => {
   const { text, locale } = useLocale();
   const t = text.admin.licenses;
 
-  const items: DetailItem[] = [
+  const items: DetailRow[] = [
     { label: t.codeLabel, value: <bdi>{license.code}</bdi> },
-    { label: text.admin.columns.status, value: <Badge tone={licenseStatusTone[license.status]}>{t.statuses[license.status]}</Badge> },
+    { label: text.admin.columns.status, value: <Badge variant={licenseStatusTone[license.status]}>{t.statuses[license.status]}</Badge> },
     { label: text.admin.columns.element, value: <Text as="span" autoDirection>{license.element.title}</Text> },
     {
       label: text.admin.columns.customer,
@@ -60,16 +49,16 @@ const LicenseCard = ({ license, onRevoke }: LicenseCardProps) => {
   }
 
   return (
-    <Panel title={license.status === 'valid' ? t.validTitle : t.revokedTitle}>
-      <DetailList items={items} />
+    <Card title={license.status === 'valid' ? t.validTitle : t.revokedTitle}>
+      <DetailList rows={items} />
       {license.status === 'valid' && (
-        <Stack direction="row">
+        <Stack direction="row" wrap>
           <Button variant="danger" onClick={() => onRevoke(license)}>
             {t.revoke}
           </Button>
         </Stack>
       )}
-    </Panel>
+    </Card>
   );
 };
 
@@ -109,10 +98,10 @@ export const LookupTab = () => {
     if (licenses.status === 'success') licenses.update(replaceById(licenses.data, saved.data));
   };
 
-  const columns: DataTableColumn<License>[] = [
+  const columns: RecordColumn<License>[] = [
     {
       key: 'code',
-      header: t.codeLabel,
+      label: t.codeLabel,
       render: (license) => (
         <Text as="span">
           <bdi>{license.code}</bdi>
@@ -121,7 +110,7 @@ export const LookupTab = () => {
     },
     {
       key: 'element',
-      header: text.admin.columns.element,
+      label: text.admin.columns.element,
       render: (license) => (
         <Text as="span" autoDirection>
           {license.element.title}
@@ -130,22 +119,22 @@ export const LookupTab = () => {
     },
     {
       key: 'customer',
-      header: text.admin.columns.customer,
+      label: text.admin.columns.customer,
       render: (license) => (
         <Text as="span" autoDirection>
           {license.customer.name}
         </Text>
       ),
     },
-    { key: 'issued', header: text.admin.columns.issued, render: (license) => formatDate(license.issuedAt, locale) },
+    { key: 'issued', label: text.admin.columns.issued, render: (license) => formatDate(license.issuedAt, locale) },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (license) => <Badge tone={licenseStatusTone[license.status]}>{t.statuses[license.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (license) => <Badge variant={licenseStatusTone[license.status]}>{t.statuses[license.status]}</Badge>,
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (license) => (
         <Button size="sm" variant="muted" onClick={() => setResult(license)}>
@@ -174,7 +163,7 @@ export const LookupTab = () => {
             direction="ltr"
             required
           />
-          <Stack direction="row">
+          <Stack direction="row" wrap>
             <Button type="submit" disabled={lookup.pending}>
               {t.lookUp}
             </Button>
@@ -184,11 +173,11 @@ export const LookupTab = () => {
       {lookup.error && <Notice tone="danger">{lookup.error}</Notice>}
       {result === 'none' && <Notice tone="warning">{t.notFound}</Notice>}
       {result && result !== 'none' && <LicenseCard license={result} onRevoke={setRevoking} />}
-      <Panel title={t.recentTitle}>
+      <Card title={t.recentTitle}>
         <AsyncContent state={licenses} empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} />}>
-          {(list) => <DataTable label={t.recentTitle} columns={columns} rows={list} getRowKey={(row) => row.id} />}
+          {(list) => <Table label={t.recentTitle} columns={columns} rows={recordRows(list, (row) => row.id, columns)} stackOnMobile />}
         </AsyncContent>
-      </Panel>
+      </Card>
       {revoking && (
         <ReasonModal
           title={t.revokeTitle}

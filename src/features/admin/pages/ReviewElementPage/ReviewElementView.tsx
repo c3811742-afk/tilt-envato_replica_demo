@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { generatePath, useNavigate } from 'react-router';
 import { flagElement, reviewElement } from '@/features/admin/api';
-import { Badge, Checkbox, MediaPreview, Notice, PageHeader, Panel, Stack } from '@/features/admin/components';
+import { MediaPreview, Notice } from '@/features/admin/components';
 import { guidelineChecks, statusTone } from '@/features/admin/constants';
 import { flashState, useAdminSession } from '@/features/admin/hooks';
 import type {
@@ -21,7 +21,7 @@ import {
   toggleItem,
   totalFileSize,
 } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Badge, Button, Card, Checkbox, SectionHeader, Stack, Text } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -100,13 +100,13 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={element.title}
-        description={fillText(t.byCreator, { name: isolate(element.creator.name) })}
+        subtitle={fillText(t.byCreator, { name: isolate(element.creator.name) })}
         autoDirection
         actions={
           <>
-            <Badge tone={statusTone[element.status]}>{text.admin.statuses[element.status]}</Badge>
+            <Badge variant={statusTone[element.status]}>{text.admin.statuses[element.status]}</Badge>
             <Badge>{text.admin.elementTypes[element.type]}</Badge>
           </>
         }
@@ -123,12 +123,12 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
         <Stack>
           <MediaPreview kind={previewKind(element.type)} src={element.previewUrl} alt={element.title} />
 
-          <Panel title={t.details}>
+          <Card title={t.details}>
             <dl className={styles.details}>
               <Detail label={t.description}>
                 <Text autoDirection>{element.description}</Text>
               </Detail>
-              <Detail label={text.admin.columns.category}>{text.admin.categories[element.category]}</Detail>
+              <Detail label={text.admin.columns.category}>{text.categories[element.category].name}</Detail>
               <Detail label={t.software}>
                 {element.software.length ? formatList(element.software, locale) : t.noSoftware}
               </Detail>
@@ -145,9 +145,9 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
               <Detail label={text.admin.columns.submitted}>{formatDate(element.submittedAt, locale)}</Detail>
               <Detail label={t.version}>{formatNumber(element.version, locale)}</Detail>
             </dl>
-          </Panel>
+          </Card>
 
-          <Panel title={t.files}>
+          <Card title={t.files}>
             <ul className={styles.list}>
               {element.files.map((file) => (
                 <li key={file.name} className={styles.fileRow}>
@@ -163,9 +163,9 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
             <Text variant="bodySm" color={vars.colors.textMuted}>
               {fillText(t.totalSize, { size: formatFileSize(totalFileSize(element), locale) })}
             </Text>
-          </Panel>
+          </Card>
 
-          <Panel title={t.sources}>
+          <Card title={t.sources}>
             {element.sources.length ? (
               <ul className={styles.list}>
                 {element.sources.map((source) => (
@@ -183,7 +183,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
             ) : (
               <Text color={vars.colors.textMuted}>{t.noSources}</Text>
             )}
-          </Panel>
+          </Card>
         </Stack>
 
         <Stack>
@@ -195,17 +195,17 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
           )}
 
           {element.similarTo && (
-            <Panel title={t.similarTitle}>
+            <Card title={t.similarTitle}>
               <Text>{t.similarMessage}</Text>
               <Text autoDirection>
                 <strong>{element.similarTo.title}</strong>
               </Text>
-            </Panel>
+            </Card>
           )}
 
           {isPending ? (
             <>
-              <Panel title={t.guidelinesTitle}>
+              <Card title={t.guidelinesTitle}>
                 <Text variant="bodySm" color={vars.colors.textMuted}>
                   {t.guidelinesHint}
                 </Text>
@@ -217,9 +217,9 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
                     onChange={() => setChecks(toggleItem(checks, check))}
                   />
                 ))}
-              </Panel>
+              </Card>
 
-              <Panel title={t.decisionTitle}>
+              <Card title={t.decisionTitle}>
                 <div className={styles.actions}>
                   <Button disabled={!allChecked || pending} onClick={() => submitReview('accepted')}>
                     {t.accept}
@@ -236,11 +236,11 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
                     </Button>
                   )}
                 </div>
-              </Panel>
+              </Card>
             </>
           ) : (
             element.review && (
-              <Panel title={t.reviewedTitle}>
+              <Card title={t.reviewedTitle}>
                 <Text>
                   {fillText(t.reviewedBy, {
                     name: isolate(reviewer?.name ?? ''),
@@ -260,7 +260,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
                 {element.review.comment && (
                   <Text>{fillText(t.commentText, { comment: isolate(element.review.comment) })}</Text>
                 )}
-              </Panel>
+              </Card>
             )
           )}
         </Stack>

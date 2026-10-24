@@ -9,7 +9,7 @@ import type {
 } from '@/features/admin/types';
 import type { Text } from '@/shared/constants';
 import type { Locale } from '@/shared/theme';
-import { isBetween } from './dates';
+import { isShowingOn } from '@/shared/utils';
 
 // Text written in both languages, in the page's language. Falls back to the other one if it's still empty.
 export const localized = (value: LocalizedText, locale: Locale) => value[locale] || value.en || value.ar;
@@ -55,7 +55,7 @@ export const hasErrors =(errors: Record<string, string | undefined>) => Object.v
 // If two overlap, the one that started last wins, so a short occasion inside a long one still shows.
 export const occasionOn = (occasions: Occasion[], day: string) =>
   occasions
-    .filter((occasion) => isBetween(day, occasion.startDate, occasion.endDate))
+    .filter((occasion) => isShowingOn(occasion, day))
     .sort((a, b) => b.startDate.localeCompare(a.startDate))[0] ?? null;
 
 export const nextOccasion = (occasions: Occasion[], day: string) =>

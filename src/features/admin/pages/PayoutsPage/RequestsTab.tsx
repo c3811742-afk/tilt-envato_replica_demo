@@ -1,21 +1,24 @@
 import { useState } from 'react';
 import { fetchPayouts } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  FilterBar,
-  Notice,
-  SelectField,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { FilterBar, Notice } from '@/features/admin/components';
 import { payoutStatuses, payoutStatusTone } from '@/features/admin/constants';
 import type { Payout, PayoutDecision, PayoutStatus } from '@/features/admin/types';
-import { fillText, formatMoney, isOneOf, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import { fillText, isOneOf, isolate, replaceById } from '@/features/admin/utils';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Select,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatPrice } from '@/shared/utils';
 import { PayoutDecisionModal } from './PayoutDecisionModal';
 
 const allStatuses = 'all';
@@ -34,20 +37,20 @@ export const RequestsTab = () => {
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.payouts;
 
-  const columns: DataTableColumn<Payout>[] = [
+  const columns: RecordColumn<Payout>[] = [
     {
       key: 'creator',
-      header: text.admin.columns.creator,
+      label: text.admin.columns.creator,
       render: (row) => (
         <Text as="span" autoDirection>
           {row.creator.name}
         </Text>
       ),
     },
-    { key: 'amount', header: text.admin.columns.amount, render: (row) => formatMoney(row.amount, locale) },
+    { key: 'amount', label: text.admin.columns.amount, render: (row) => formatPrice(row.amount, locale) },
     {
       key: 'method',
-      header: text.admin.columns.method,
+      label: text.admin.columns.method,
       render: (row) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span">{text.admin.methods[row.method]}</Text>
@@ -57,13 +60,13 @@ export const RequestsTab = () => {
         </Stack>
       ),
     },
-    { key: 'requested', header: text.admin.columns.requested, render: (row) => formatDate(row.requestedAt, locale) },
+    { key: 'requested', label: text.admin.columns.requested, render: (row) => formatDate(row.requestedAt, locale) },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (row) => (
-        <Stack gap={vars.spacing[1]} align="start">
-          <Badge tone={payoutStatusTone[row.status]}>{text.admin.payoutStatuses[row.status]}</Badge>
+        <Stack gap={vars.spacing[1]} align="flex-start">
+          <Badge variant={payoutStatusTone[row.status]}>{text.admin.payoutStatuses[row.status]}</Badge>
           {row.note && (
             <Text as="span" variant="bodySm" color={vars.colors.textMuted} autoDirection>
               {row.note}
@@ -74,9 +77,9 @@ export const RequestsTab = () => {
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (row) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
           {(nextSteps[row.status] ?? []).map((decision) => (
             <Button
               key={decision}
@@ -106,7 +109,7 @@ export const RequestsTab = () => {
           return (
             <Stack>
               <FilterBar>
-                <SelectField
+                <Select
                   label={text.admin.columns.status}
                   options={[
                     { value: allStatuses, label: t.allStatuses },
@@ -117,7 +120,7 @@ export const RequestsTab = () => {
                 />
               </FilterBar>
               {visible.length > 0 ? (
-                <DataTable label={t.tabs.requests} columns={columns} rows={visible} getRowKey={(row) => row.id} />
+                <Table label={t.tabs.requests} columns={columns} rows={recordRows(visible, (row) => row.id, columns)} stackOnMobile />
               ) : (
                 <EmptyState
                   title={t.noneTitle}
@@ -135,7 +138,7 @@ export const RequestsTab = () => {
                     setNotice(
                       fillText(t.decisions[deciding.decision].done, {
                         name: isolate(saved.creator.name),
-                        amount: formatMoney(saved.amount, locale),
+                        amount: formatPrice(saved.amount, locale),
                       }),
                     );
                     setDeciding(null);

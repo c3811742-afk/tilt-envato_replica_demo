@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { saveProgram } from '@/features/admin/api';
-import { DateRangeField, Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { DateRangeField, Notice } from '@/features/admin/components';
 import { programKinds } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Program, ProgramKind } from '@/features/admin/types';
 import { dateRangeErrors, hasErrors, isBlank, isOneOf } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, Select, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface ProgramModalProps {
@@ -67,13 +67,13 @@ export const ProgramModal = ({ program, onClose, onSaved }: ProgramModalProps) =
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {program ? text.admin.common.save : t.add}
+            {program ? text.common.saveChanges : t.add}
           </Button>
         </>
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
-      <SelectField
+      <Select
         label={t.kindLabel}
         options={programKinds.map((value) => ({ value, label: t.kinds[value] }))}
         value={kind}
@@ -85,7 +85,6 @@ export const ProgramModal = ({ program, onClose, onSaved }: ProgramModalProps) =
         onChange={setName}
         error={submitted ? errors.name : undefined}
         required
-        autoDirection
       />
       <TextField
         label={t.universityLabel}
@@ -94,15 +93,12 @@ export const ProgramModal = ({ program, onClose, onSaved }: ProgramModalProps) =
         onChange={setUniversity}
         error={submitted ? errors.university : undefined}
         required
-        autoDirection
       />
-      <TextField
-        multiline
+      <TextField rows={4}
         label={t.descriptionLabel}
         hint={text.admin.common.optional}
         value={description}
         onChange={setDescription}
-        autoDirection
       />
       <DateRangeField
         value={dates}
@@ -126,7 +122,6 @@ export const ProgramModal = ({ program, onClose, onSaved }: ProgramModalProps) =
             hint={text.admin.common.optional}
             value={prize}
             onChange={setPrize}
-            autoDirection
           />
         </>
       )}

@@ -1,0 +1,53 @@
+import { Button, Card, FaqAccordion, Grid, Icon, Page, Section, Stack, Text } from '@/shared/components';
+import { aiToolGroupKeys, aiToolGroups, aiToolIcons, aiToolPath, routes } from '@/shared/constants';
+import { useLocale, useSession } from '@/shared/hooks';
+import { vars } from '@/shared/theme';
+import { accountCredits, isAiToolOn } from '@/shared/utils';
+
+// "AI hub": open to everyone. A page for each AI tool, grouped, then the AI FAQ and the prompt guides.
+export const AiHubPage = () => {
+  const { text } = useLocale();
+  const { session } = useSession();
+  const hasCredits = session.status === 'signedIn' && accountCredits(session).total > 0;
+
+  return (
+    <Page title={text.ai.title} subtitle={text.ai.subtitle} gap={vars.spacing[8]}>
+      <Stack direction="row" wrap gap={vars.spacing[3]}>
+        {hasCredits ? (
+          <Button to={routes.aiHistory}>
+            <Icon name="clock" size={vars.sizes.icon.sm} />
+            {text.ai.history}
+          </Button>
+        ) : (
+          <Button to={routes.pricing}>{text.common.viewPlans}</Button>
+        )}
+        <Button variant="outline" to={routes.aiGuides}>
+          <Icon name="help" size={vars.sizes.icon.sm} />
+          {text.ai.guides}
+        </Button>
+      </Stack>
+
+      {aiToolGroupKeys.map((group) => (
+        <Section key={group} title={text.ai.groups[group]}>
+          <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} ariaLabel={text.ai.groups[group]}>
+            {aiToolGroups[group].filter(isAiToolOn).map((tool) => (
+              <li key={tool}>
+                <Card to={aiToolPath(tool)} gap={vars.spacing[3]}>
+                  <Icon name={aiToolIcons[tool]} size={vars.sizes.icon.lg} color={vars.colors.primary} />
+                  <Text as="h3" variant="h4">
+                    {text.ai.tools[tool].name}
+                  </Text>
+                  <Text color={vars.colors.textMuted}>{text.ai.tools[tool].description}</Text>
+                </Card>
+              </li>
+            ))}
+          </Grid>
+        </Section>
+      ))}
+
+      <Section title={text.ai.faqTitle}>
+        <FaqAccordion entries={text.ai.faq} />
+      </Section>
+    </Page>
+  );
+};

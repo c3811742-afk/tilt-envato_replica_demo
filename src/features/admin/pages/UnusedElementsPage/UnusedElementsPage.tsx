@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { deprecateElement, fetchUnusedElements } from '@/features/admin/api';
-import {
-  DataTable,
-  ElementSummary,
-  FilterBar,
-  Notice,
-  PageHeader,
-  ReasonModal,
-  RequirePermission,
-  SelectField,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ElementSummary, FilterBar, Notice, ReasonModal, RequirePermission } from '@/features/admin/components';
 import { deprecateReasons, unusedPeriods, type UnusedPeriod } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { CatalogElement, DeprecateInput } from '@/features/admin/types';
 import { fillText, isolate, removeById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Select,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
@@ -42,26 +42,26 @@ const UnusedElements = () => {
     setNotice(fillText(t.deprecated, { title: isolate(result.data.title) }));
   };
 
-  const columns: DataTableColumn<CatalogElement>[] = [
+  const columns: RecordColumn<CatalogElement>[] = [
     {
       key: 'element',
-      header: text.admin.columns.element,
+      label: text.admin.columns.element,
       render: (element) => <ElementSummary title={element.title} creatorName={element.creator.name} />,
     },
-    { key: 'type', header: text.admin.columns.type, render: (element) => text.admin.elementTypes[element.type] },
+    { key: 'type', label: text.admin.columns.type, render: (element) => text.admin.elementTypes[element.type] },
     {
       key: 'published',
-      header: text.admin.columns.published,
+      label: text.admin.columns.published,
       render: (element) => (element.publishedAt ? formatDate(element.publishedAt, locale) : ''),
     },
     {
       key: 'downloads',
-      header: text.admin.columns.downloads,
+      label: text.admin.columns.downloads,
       render: (element) => formatNumber(element.downloads ?? 0, locale),
     },
     {
       key: 'lastDownload',
-      header: text.admin.columns.lastDownload,
+      label: text.admin.columns.lastDownload,
       render: (element) =>
         element.lastDownloadedAt ? (
           formatDate(element.lastDownloadedAt, locale)
@@ -73,7 +73,7 @@ const UnusedElements = () => {
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (element) => (
         <Button
@@ -92,14 +92,14 @@ const UnusedElements = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} />
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
           {notice}
         </Notice>
       )}
       <FilterBar>
-        <SelectField
+        <Select
           label={t.periodLabel}
           options={unusedPeriods.map((months) => ({
             value: String(months),
@@ -124,7 +124,7 @@ const UnusedElements = () => {
         {(list) => (
           <Stack>
             <Text color={vars.colors.textMuted}>{fillText(t.count, { count: formatNumber(list.length, locale) })}</Text>
-            <DataTable label={t.title} columns={columns} rows={list} getRowKey={(element) => element.id} />
+            <Table label={t.title} columns={columns} rows={recordRows(list, (element) => element.id, columns)} stackOnMobile />
             {target && (
               <ReasonModal
                 title={t.deprecateTitle}

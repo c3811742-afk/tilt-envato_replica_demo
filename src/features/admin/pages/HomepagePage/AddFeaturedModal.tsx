@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { addFeatured, fetchCollections, fetchLiveElements } from '@/features/admin/api';
-import { Modal, Notice, SelectField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { featuredKinds } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { FeaturedKind, FeaturedSlot } from '@/features/admin/types';
 import { isOneOf } from '@/features/admin/utils';
-import { AsyncContent, Button } from '@/shared/components';
+import { AsyncContent, Button, Modal, Select } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 
 const loadOptions = async () => {
@@ -62,7 +62,7 @@ export const AddFeaturedModal = ({ featured, onClose, onAdded }: AddFeaturedModa
           const items = kind === 'element' ? elements : collections;
           return (
             <>
-              <SelectField
+              <Select
                 label={t.kindLabel}
                 options={featuredKinds.map((value) => ({ value, label: text.admin.featuredKinds[value] }))}
                 value={kind}
@@ -72,7 +72,7 @@ export const AddFeaturedModal = ({ featured, onClose, onAdded }: AddFeaturedModa
                   setRefId('');
                 }}
               />
-              <SelectField
+              <Select
                 label={text.admin.featuredKinds[kind]}
                 placeholder={t.itemPlaceholder}
                 options={items

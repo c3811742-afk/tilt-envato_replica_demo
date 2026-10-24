@@ -11,6 +11,10 @@ import type {
 import { monthsBefore } from '@/features/admin/utils/dates';
 import { moveItem, sameText } from '@/features/admin/utils/lists';
 import { trimLocalized } from '@/features/admin/utils/validation';
+import { texts } from '@/shared/constants';
+import type { CategoryId } from '@/shared/types';
+import { byCategoryOrder, categorySettingsStore, isCategoryId, tagEditStore, textEditStore } from '@/shared/utils';
+import { allElements } from './elementsApi';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, newId, now, respond } from './mockServer';
 
@@ -23,17 +27,41 @@ const categoryTarget = (category: Category) => ({
 
 const isSibling = (category: Category) => (other: Category) => other.parentId === category.parentId;
 
-// Categories in display order: each parent is followed by its subcategories on the page.
-export const fetchCategories = () => respond(() => db.categories);
+// ---------- The site's categories ----------
+// Top-level categories are the site's own: their names are the site's text (a rename is saved as a text correction),
+// and their order and hidden state are saved where the site reads them. Subcategories and attributes are admin only.
+
+const isSiteCategory = (id: string): id is CategoryId => isCategoryId(id);
+
+const siteName = (id: CategoryId): LocalizedText => {
+  const edits = textEditStore.get();
+  return {
+    en: edits.en?.[`categories.${id}.name`] || texts.en.categories[id].name,
+    ar: edits.ar?.[`categories.${id}.name`] || texts.ar.categories[id].name,
+  };
+};
+
+// Categories in display order: each top-level category (in the site's order) followed by its subcategories.
+export const allCategories = (): Category[] => {
+  const { hidden } = categorySettingsStore.get();
+  const topLevel = byCategoryOrder(
+    db.categories
+      .filter((category): category is Category & { id: CategoryId } => category.parentId === null && isSiteCategory(category.id))
+      .map((category) => ({ ...category, name: siteName(category.id), hidden: hidden.includes(category.id) })),
+  );
+  return topLevel.flatMap((parent) => [parent, ...db.categories.filter((category) => category.parentId === parent.id)]);
+};
+
+export const fetchCategories = () => respond(allCategories);
 
 // null when the category doesn't exist: the page shows "Category not found".
-export const fetchCategory = (id: string) => respond(() => db.categories.find((category) => category.id === id) ?? null);
+export const fetchCategory = (id: string) => respond(() => allCategories().find((category) => category.id === id) ?? null);
 
-// Only two levels: a subcategory's parent must be a top-level category.
+// New categories are subcategories of a site category (the site's categories themselves are fixed).
 export const createCategory = (actorId: string, input: CategoryInput) =>
   respond((): Category => {
     const actor = authorize(actorId, 'manageCatalog');
-    if (input.parentId && findById(db.categories, input.parentId).parentId) throw new AdminApiError('notFound');
+    if (!input.parentId || !isSiteCategory(input.parentId)) throw new AdminApiError('notFound');
 
     const category: Category = {
       id: newId(),
@@ -47,31 +75,50 @@ export const createCategory = (actorId: string, input: CategoryInput) =>
     return category;
   });
 
+// A site category's new name shows everywhere on the site (it's saved as a correction to the site's text).
 export const renameCategory = (actorId: string, id: string, name: LocalizedText) =>
   respond(() => {
     const actor = authorize(actorId, 'manageCatalog');
-    const category = findById(db.categories, id);
-    category.name = trimLocalized(name);
+    const trimmed = trimLocalized(name);
+    if (isSiteCategory(id)) {
+      const edits = textEditStore.get();
+      const key = `categories.${id}.name`;
+      textEditStore.set({ ...edits, en: { ...edits.en, [key]: trimmed.en }, ar: { ...edits.ar, [key]: trimmed.ar } });
+    } else {
+      findById(db.categories, id).name = trimmed;
+    }
+    const category = findById(allCategories(), id);
     logAction(actor, 'categoryUpdated', categoryTarget(category), { change: 'details' });
     return category;
   });
 
-// Moves a category above or below its neighbor with the same parent.
+// Moves a category above or below its neighbor with the same parent. Site categories move on the site too.
 export const moveCategory = (actorId: string, id: string, direction: MoveDirection) =>
   respond(() => {
     const actor = authorize(actorId, 'manageCatalog');
-    const category = findById(db.categories, id);
-    db.categories = moveItem(db.categories, id, direction, isSibling(category));
+    const category = findById(allCategories(), id);
+    if (isSiteCategory(id)) {
+      const order = moveItem(allCategories().filter((current) => current.parentId === null), id, direction).map((current) => current.id);
+      categorySettingsStore.set({ ...categorySettingsStore.get(), order: order.filter(isSiteCategory) });
+    } else {
+      db.categories = moveItem(db.categories, id, direction, isSibling(category));
+    }
     logAction(actor, 'categoryUpdated', categoryTarget(category), { change: 'moved' });
-    return db.categories;
+    return allCategories();
   });
 
-// Hidden categories and their subcategories don't show on the site. Their elements stay live.
+// Hidden categories and their subcategories don't show in the site's category lists. Their elements stay live.
 export const setCategoryHidden = (actorId: string, id: string, hidden: boolean) =>
   respond(() => {
     const actor = authorize(actorId, 'manageCatalog');
-    const category = findById(db.categories, id);
-    category.hidden = hidden;
+    if (isSiteCategory(id)) {
+      const settings = categorySettingsStore.get();
+      const others = settings.hidden.filter((current) => current !== id);
+      categorySettingsStore.set({ ...settings, hidden: hidden ? [...others, id] : others });
+    } else {
+      findById(db.categories, id).hidden = hidden;
+    }
+    const category = findById(allCategories(), id);
     logAction(actor, 'categoryUpdated', categoryTarget(category), { change: hidden ? 'hidden' : 'shown' });
     return category;
   });
@@ -91,8 +138,8 @@ export const saveAttribute = (actorId: string, categoryId: string, input: Attrib
     } else {
       category.attributes.push({ id: newId(), ...attribute });
     }
-    logAction(actor, 'categoryUpdated', categoryTarget(category), { change: 'attributes' });
-    return category;
+    logAction(actor, 'categoryUpdated', categoryTarget(findById(allCategories(), categoryId)), { change: 'attributes' });
+    return findById(allCategories(), categoryId);
   });
 
 export const removeAttribute = (actorId: string, categoryId: string, attributeId: string) =>
@@ -101,8 +148,8 @@ export const removeAttribute = (actorId: string, categoryId: string, attributeId
     const category = findById(db.categories, categoryId);
     findById(category.attributes, attributeId);
     category.attributes = category.attributes.filter((attribute) => attribute.id !== attributeId);
-    logAction(actor, 'categoryUpdated', categoryTarget(category), { change: 'attributes' });
-    return category;
+    logAction(actor, 'categoryUpdated', categoryTarget(findById(allCategories(), categoryId)), { change: 'attributes' });
+    return findById(allCategories(), categoryId);
   });
 
 export const moveAttribute = (actorId: string, categoryId: string, attributeId: string, direction: MoveDirection) =>
@@ -110,16 +157,18 @@ export const moveAttribute = (actorId: string, categoryId: string, attributeId: 
     const actor = authorize(actorId, 'manageCatalog');
     const category = findById(db.categories, categoryId);
     category.attributes = moveItem(category.attributes, attributeId, direction);
-    logAction(actor, 'categoryUpdated', categoryTarget(category), { change: 'attributes' });
-    return category;
+    logAction(actor, 'categoryUpdated', categoryTarget(findById(allCategories(), categoryId)), { change: 'attributes' });
+    return findById(allCategories(), categoryId);
   });
 
 const tagTarget = (name: string) => ({ kind: 'tag' as const, id: name, label: name });
 
-const tagUsage = (name: string) => db.elements.filter((element) => element.tags.includes(name)).length;
+const tagUsage = (name: string) => allElements().filter((element) => element.tags.includes(name)).length;
 
 // Replaces a tag on every element that has it, without listing the same tag twice.
+// The site's items follow too: the change is saved where the site reads item tags.
 const replaceTag = (from: string, to: string | null) => {
+  tagEditStore.set({ ...tagEditStore.get(), [from]: to });
   db.elements.forEach((element) => {
     if (!element.tags.includes(from)) return;
     const tags = element.tags.flatMap((tag) => (tag === from ? (to ? [to] : []) : [tag]));
@@ -167,6 +216,11 @@ export const setTagBanned = (actorId: string, id: string, banned: boolean) =>
     const tag = findById(db.tags, id);
     tag.banned = banned;
     if (banned) replaceTag(tag.name, null);
+    else {
+      // Unbanned: the site's items get the tag back.
+      const { [tag.name]: _removed, ...rest } = tagEditStore.get();
+      tagEditStore.set(rest);
+    }
     logAction(actor, banned ? 'tagBanned' : 'tagUnbanned', tagTarget(tag.name));
     return listTags();
   });

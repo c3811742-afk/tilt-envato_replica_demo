@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { fetchLiveElements, unpublishElement } from '@/features/admin/api';
-import {
-  DataTable,
-  ElementSummary,
-  FilterBar,
-  Notice,
-  PageHeader,
-  RequirePermission,
-  Stack,
-  TextField,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ElementSummary, FilterBar, Notice, RequirePermission } from '@/features/admin/components';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { CatalogElement, UnpublishInput } from '@/features/admin/types';
 import { elementMatchesQuery, errorMessage, fillText, isolate } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+  TextField,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber, safeAsync } from '@/shared/utils';
@@ -51,22 +52,22 @@ const LiveElements = () => {
     live.retry();
   };
 
-  const columns: DataTableColumn<CatalogElement>[] = [
+  const columns: RecordColumn<CatalogElement>[] = [
     {
       key: 'element',
-      header: t.columns.element,
+      label: t.columns.element,
       render: (element) => <ElementSummary title={element.title} creatorName={element.creator.name} />,
     },
-    { key: 'type', header: t.columns.type, render: (element) => t.elementTypes[element.type] },
-    { key: 'category', header: t.columns.category, render: (element) => t.categories[element.category] },
+    { key: 'type', label: t.columns.type, render: (element) => t.elementTypes[element.type] },
+    { key: 'category', label: t.columns.category, render: (element) => text.categories[element.category].name },
     {
       key: 'published',
-      header: t.columns.published,
+      label: t.columns.published,
       render: (element) => (element.publishedAt ? formatDate(element.publishedAt, locale) : ''),
     },
     {
       key: 'actions',
-      header: t.columns.actions,
+      label: t.columns.actions,
       align: 'end',
       render: (element) => (
         <Button size="sm" variant="danger" onClick={() => openUnpublish(element)}>
@@ -78,7 +79,7 @@ const LiveElements = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.live.title} description={t.live.description} />
+      <SectionHeader as="h1" title={t.live.title} subtitle={t.live.description} />
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
           {notice}
@@ -96,18 +97,17 @@ const LiveElements = () => {
                   placeholder={t.common.searchPlaceholder}
                   value={query}
                   onChange={setQuery}
-                  autoDirection
                 />
               </FilterBar>
               <Text color={vars.colors.textMuted}>
                 {fillText(t.live.count, { count: formatNumber(elements.length, locale) })}
               </Text>
               {visible.length > 0 ? (
-                <DataTable
+                <Table
                   label={t.live.tableLabel}
-                  columns={columns}
-                  rows={visible}
-                  getRowKey={(element) => element.id}
+                  columns={columns} rows={recordRows(visible, (element) => element.id, columns)} stackOnMobile
+                 
+                 
                 />
               ) : (
                 <EmptyState

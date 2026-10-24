@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { fetchPayoutRules, savePayoutRules } from '@/features/admin/api';
-import { FilterBar, Notice, Panel, Stack, TextField } from '@/features/admin/components';
+import { FilterBar, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { PayoutRules } from '@/features/admin/types';
-import { fillText, formatMoney, hasErrors, isValidAmount, isWholeNumber, toNumber } from '@/features/admin/utils';
-import { AsyncContent, Button, Text } from '@/shared/components';
+import { fillText, hasErrors, isValidAmount, isWholeNumber, toNumber } from '@/features/admin/utils';
+import { AsyncContent, Button, Card, Stack, Text, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
+import { formatNumber, formatPrice } from '@/shared/utils';
 
 // The last day every month has, so payouts never skip a short month.
 const lastPayoutDay = 28;
@@ -58,7 +58,7 @@ const RulesForm = ({ rules, onSaved }: RulesFormProps) => {
           </Notice>
         )}
         {error && <Notice tone="danger">{error}</Notice>}
-        <Panel title={t.shareTitle}>
+        <Card title={t.shareTitle}>
           <TextField
             type="number"
             label={t.shareLabel}
@@ -73,13 +73,13 @@ const RulesForm = ({ rules, onSaved }: RulesFormProps) => {
           {!errors.share && (
             <Text color={vars.colors.textMuted}>
               {fillText(t.example, {
-                creator: formatMoney(shareValue, locale),
-                tilt: formatMoney(100 - shareValue, locale),
+                creator: formatPrice(shareValue, locale),
+                tilt: formatPrice(100 - shareValue, locale),
               })}
             </Text>
           )}
-        </Panel>
-        <Panel title={t.payoutTitle}>
+        </Card>
+        <Card title={t.payoutTitle}>
           <FilterBar>
             <TextField
               type="number"
@@ -103,10 +103,10 @@ const RulesForm = ({ rules, onSaved }: RulesFormProps) => {
               required
             />
           </FilterBar>
-        </Panel>
-        <Stack direction="row">
+        </Card>
+        <Stack direction="row" wrap>
           <Button type="submit" disabled={pending}>
-            {text.admin.common.save}
+            {text.common.saveChanges}
           </Button>
         </Stack>
       </Stack>

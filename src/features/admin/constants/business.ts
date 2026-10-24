@@ -1,36 +1,25 @@
-import type { BadgeTone } from '@/features/admin/components/Badge';
+
 import type {
   CancelReason,
   ClaimStatus,
   ContentRuleKey,
-  DiscountType,
-  GenerationType,
   InvoiceKind,
   InvoiceStatus,
   ItemReportKind,
   ItemReportStatus,
-  LicenseScope,
   LicenseStatus,
   PayoutStatus,
   RefundReason,
   ReportKind,
-  RevokeReason,
   SubscriptionStatus,
   TicketStatus,
   TransactionStatus,
 } from '@/features/admin/types';
+import { type BadgeVariant } from '@/shared/components';
 
-// The currency every amount in the admin area is in.
-export const currency = 'EGP';
-
-// Egyptian VAT, added to e-invoices and e-receipts.
-export const vatRate = 0.14;
-
-export const licenseScopes: readonly LicenseScope[] = ['personal', 'commercial', 'team', 'enterprise'];
-export const discountTypes: readonly DiscountType[] = ['percent', 'fixed'];
 export const refundReasons: readonly RefundReason[] = ['duplicate', 'notAsDescribed', 'accidental', 'goodwill'];
 export const cancelReasons: readonly CancelReason[] = ['customerRequest', 'paymentIssue', 'fraud', 'other'];
-export const revokeReasons: readonly RevokeReason[] = ['fraud', 'chargeback', 'stolenAccount', 'termsBreach'];
+export { revokeReasons } from '@/shared/constants';
 export const reportKinds: readonly ReportKind[] = ['subscriptions', 'revenue', 'downloads', 'earnings', 'payouts'];
 // The reports finance exports from the payouts page.
 export const payoutReportKinds: readonly ReportKind[] = ['earnings', 'payouts'];
@@ -39,14 +28,6 @@ export const payoutStatuses: readonly PayoutStatus[] = ['pending', 'approved', '
 export const ticketStatuses: readonly TicketStatus[] = ['open', 'answered', 'closed'];
 export const invoiceKinds: readonly InvoiceKind[] = ['receipt', 'invoice'];
 
-export const generationTypes: readonly GenerationType[] = [
-  'imageStandard',
-  'imageHd',
-  'backgroundRemoval',
-  'copy',
-  'voiceMinute',
-  'upscale',
-];
 export const contentRuleKeys: readonly ContentRuleKey[] = [
   'explicit',
   'religiousFigures',
@@ -63,43 +44,43 @@ export const licenseTabs = ['lookup', 'claims'] as const;
 export const supportTabs = ['tickets', 'itemReports'] as const;
 export const aiTabs = ['tools', 'costs', 'rules'] as const;
 
-export const transactionStatusTone: Record<TransactionStatus, BadgeTone> = {
+export const transactionStatusTone: Record<TransactionStatus, BadgeVariant> = {
   paid: 'success',
   partlyRefunded: 'warning',
   refunded: 'neutral',
 };
-export const subscriptionStatusTone: Record<SubscriptionStatus, BadgeTone> = {
+export const subscriptionStatusTone: Record<SubscriptionStatus, BadgeVariant> = {
   active: 'success',
   canceling: 'warning',
   canceled: 'neutral',
 };
-export const payoutStatusTone: Record<PayoutStatus, BadgeTone> = {
+export const payoutStatusTone: Record<PayoutStatus, BadgeVariant> = {
   pending: 'info',
-  approved: 'primary',
+  approved: 'info',
   paid: 'success',
   failed: 'danger',
   rejected: 'neutral',
 };
-export const invoiceStatusTone: Record<InvoiceStatus, BadgeTone> = { accepted: 'success', rejected: 'danger' };
-export const licenseStatusTone: Record<LicenseStatus, BadgeTone> = { valid: 'success', revoked: 'danger' };
-export const claimStatusTone: Record<ClaimStatus, BadgeTone> = {
+export const invoiceStatusTone: Record<InvoiceStatus, BadgeVariant> = { accepted: 'success', rejected: 'danger' };
+export const licenseStatusTone: Record<LicenseStatus, BadgeVariant> = { valid: 'success', revoked: 'danger' };
+export const claimStatusTone: Record<ClaimStatus, BadgeVariant> = {
   new: 'info',
   investigating: 'warning',
   takenDown: 'danger',
   rejected: 'neutral',
 };
-export const ticketStatusTone: Record<TicketStatus, BadgeTone> = {
+export const ticketStatusTone: Record<TicketStatus, BadgeVariant> = {
   open: 'warning',
   answered: 'info',
   closed: 'neutral',
 };
-export const itemReportStatusTone: Record<ItemReportStatus, BadgeTone> = {
+export const itemReportStatusTone: Record<ItemReportStatus, BadgeVariant> = {
   open: 'warning',
   fixed: 'success',
   removed: 'danger',
   dismissed: 'neutral',
 };
-export const itemReportKindTone: Record<ItemReportKind, BadgeTone> = {
+export const itemReportKindTone: Record<ItemReportKind, BadgeVariant> = {
   brokenFiles: 'warning',
   infringement: 'danger',
   wrongCategory: 'info',

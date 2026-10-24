@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { saveTranslation } from '@/features/admin/api';
-import { Modal, Notice, Stack, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage, TranslationEntry } from '@/features/admin/types';
 import { fillText, formatList, isBlank, placeholdersOf, samePlaceholders } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Button, Modal, Stack, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 
@@ -51,7 +51,7 @@ export const EditTranslationModal = ({ language, entry, onClose, onSaved }: Edit
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {text.admin.common.save}
+            {text.common.saveChanges}
           </Button>
         </>
       }
@@ -69,8 +69,7 @@ export const EditTranslationModal = ({ language, entry, onClose, onSaved }: Edit
           <bdi lang="en">{entry.source}</bdi>
         </Text>
       </Stack>
-      <TextField
-        multiline
+      <TextField rows={4}
         label={language.name}
         hint={placeholders.length > 0 ? fillText(t.placeholdersHint, { list: formatList(placeholders, locale) }) : undefined}
         value={value}

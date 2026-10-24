@@ -1,36 +1,13 @@
-export type AiToolKey = 'imageGeneration' | 'backgroundRemoval' | 'arabicCopywriting' | 'textToSpeech' | 'videoUpscale';
+import type { AiContentRules, AiCostKey, AiToolSetting } from '@/shared/types';
 
-// An AI tool, the model behind it, and the plans that can use it.
-export interface AiTool {
-  key: AiToolKey;
-  model: string;
-  enabled: boolean; // off: no plan can use it
-  planIds: string[];
-}
-
-export type GenerationType = 'imageStandard' | 'imageHd' | 'backgroundRemoval' | 'copy' | 'voiceMinute' | 'upscale';
+// AI Studio's own settings (see shared/types/aiSettings.ts): what the admin saves is what AI Studio uses.
+export type { BlockedGeneration, BlockedStage, ContentRuleKey } from '@/shared/types';
+export type { AiTool as AiToolKey } from '@/shared/constants';
+export type AiTool = AiToolSetting;
+export type GenerationType = AiCostKey;
+export type ContentRules = AiContentRules;
 
 export interface GenerationCost {
   type: GenerationType;
   credits: number;
-}
-
-export type ContentRuleKey = 'explicit' | 'religiousFigures' | 'realPeople' | 'hate' | 'violence' | 'brands';
-
-// What the AI tools refuse. Prompts are checked before generating and outputs before they're shown.
-export interface ContentRules {
-  rules: Record<ContentRuleKey, boolean>;
-  blockedPhrases: string[];
-}
-
-export type BlockedStage = 'prompt' | 'output';
-
-export interface BlockedGeneration {
-  id: string;
-  at: string;
-  userName: string;
-  tool: AiToolKey;
-  stage: BlockedStage;
-  excerpt: string;
-  rule: ContentRuleKey | 'phrase';
 }

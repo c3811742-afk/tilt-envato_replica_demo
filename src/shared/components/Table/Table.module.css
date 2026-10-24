@@ -1,0 +1,103 @@
+.scroller {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-styles-body-sm-font-size);
+  line-height: var(--text-styles-body-sm-line-height);
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table thead th {
+  background: var(--colors-surface-muted);
+  font-weight: var(--text-styles-title-font-weight);
+}
+
+.table tbody tr:last-child > * {
+  border-block-end: none;
+}
+
+.rowHeaders tbody th {
+  inline-size: var(--table-first-column);
+  font-weight: var(--text-styles-title-font-weight);
+}
+
+.table .end {
+  text-align: end;
+}
+
+.table .center {
+  text-align: center;
+}
+
+/* Phones (stackOnMobile): each row is a card, each cell shows its column name before the value. */
+.stacked thead {
+  display: none;
+}
+
+.stacked tbody tr {
+  display: block;
+  padding-block: var(--spacing-3);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+.stacked tbody tr:last-child {
+  border-block-end: none;
+}
+
+.stacked tbody td {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--spacing-3);
+  padding-block: var(--spacing-1);
+  border: none;
+  text-align: start;
+}
+
+.stacked tbody td::before {
+  content: attr(data-label);
+  color: var(--colors-text-muted);
+  font-weight: var(--text-styles-title-font-weight);
+}
+
+@media (--md-up) {
+  .stacked thead {
+    display: table-header-group;
+  }
+
+  .stacked tbody tr {
+    display: table-row;
+    padding-block: 0;
+    border-block-end: none;
+  }
+
+  .stacked tbody td {
+    display: table-cell;
+    padding-block: var(--spacing-3);
+    border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  }
+
+  .stacked tbody tr:last-child > td {
+    border-block-end: none;
+  }
+
+  .stacked .end {
+    text-align: end;
+  }
+
+  .stacked tbody td::before {
+    content: none;
+  }
+}

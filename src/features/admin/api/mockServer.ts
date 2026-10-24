@@ -2,51 +2,43 @@ import type { Permission } from '@/features/admin/constants';
 import {
   mockConfig,
   seedAdmins,
-  seedAiTools,
   seedBlockedGenerations,
   seedClaims,
-  seedContentRules,
   seedFailedPayments,
-  seedGenerationCosts,
   seedInvoices,
   seedItemReports,
   seedLicenses,
   seedPayoutRules,
   seedPayouts,
-  seedPlans,
-  seedPromoCodes,
   seedSubscriptions,
   seedTickets,
   seedTransactions,
   seedAnnouncements,
-  seedArticles,
   seedAuditLog,
-  seedBanners,
   seedCategories,
-  seedCollections,
   seedElements,
   seedExtraTags,
-  seedFaqs,
-  seedFeatured,
-  seedFreeElements,
   seedLanguages,
-  seedLegalPages,
   seedNewsletters,
   seedNoClickSearches,
-  seedOccasions,
-  seedPrograms,
   seedSearchReports,
+  seedCreatorApplications,
+  seedIdentityChecks,
+  seedUserDownloads,
+  seedUsers,
 } from '@/features/admin/mocks';
-import type { Admin, AuditAction, AuditDetails, AuditTarget } from '@/features/admin/types';
+import type { Admin, AuditAction, AuditDetails, AuditTarget, ClaimStatus, ItemReportStatus, ReportStatus } from '@/features/admin/types';
 import { hasPermission } from '@/features/admin/utils/permissions';
+import { mockItems } from '@/shared/mocks';
+import { editedTags } from '@/shared/utils';
 import { AdminApiError } from './errors';
 
 export const newId = () => crypto.randomUUID();
 export const now = () => new Date().toISOString();
 
-// Every tag used by an element, once, plus the extra seed tags. Usage is counted when tags are fetched.
+// Every tag used by an element or a site item, once, plus the extra seed tags. Usage is counted when tags are fetched.
 const seedTags = () => {
-  const names = new Set(seedElements.flatMap((element) => element.tags));
+  const names = new Set([...seedElements.flatMap((element) => element.tags), ...mockItems.flatMap((item) => editedTags(item.tags))]);
   return [
     ...[...names].map((name) => ({ id: newId(), name, banned: false })),
     ...seedExtraTags.map((tag) => ({ id: newId(), ...tag })),
@@ -60,23 +52,11 @@ export const db = {
   auditLog: structuredClone(seedAuditLog),
   categories: structuredClone(seedCategories),
   tags: seedTags(),
-  collections: structuredClone(seedCollections),
-  featured: structuredClone(seedFeatured),
-  occasions: structuredClone(seedOccasions),
-  freeElements: structuredClone(seedFreeElements),
-  banners: structuredClone(seedBanners),
   noClickSearches: structuredClone(seedNoClickSearches),
   searchReports: structuredClone(seedSearchReports),
-  faqs: structuredClone(seedFaqs),
-  legalPages: structuredClone(seedLegalPages),
-  articles: structuredClone(seedArticles),
   languages: structuredClone(seedLanguages),
-  translationEdits: {} as Record<string, Record<string, string>>, // language code -> text key -> corrected text
   announcements: structuredClone(seedAnnouncements),
   newsletters: structuredClone(seedNewsletters),
-  programs: structuredClone(seedPrograms),
-  plans: structuredClone(seedPlans),
-  promoCodes: structuredClone(seedPromoCodes),
   transactions: structuredClone(seedTransactions),
   failedPayments: structuredClone(seedFailedPayments),
   subscriptions: structuredClone(seedSubscriptions),
@@ -87,10 +67,15 @@ export const db = {
   claims: structuredClone(seedClaims),
   tickets: structuredClone(seedTickets),
   itemReports: structuredClone(seedItemReports),
-  aiTools: structuredClone(seedAiTools),
-  generationCosts: structuredClone(seedGenerationCosts),
-  contentRules: structuredClone(seedContentRules),
   blockedGenerations: structuredClone(seedBlockedGenerations),
+  users: structuredClone(seedUsers),
+  userDownloads: structuredClone(seedUserDownloads),
+  siteClaimDecisions: {} as Record<string, { status: ClaimStatus; note?: string }>, // decisions on copyright reports from the site
+  siteReportStatus: {} as Record<string, ItemReportStatus>,
+  siteSearchReportStatus: {} as Record<string, ReportStatus>, // answers to search reports from the site // answers to broken-download reports from the site
+  dismissedAlerts: {} as Record<string, string>, // user id -> when an admin last dismissed their download alert
+  creatorApplications: structuredClone(seedCreatorApplications),
+  identityChecks: structuredClone(seedIdentityChecks),
 };
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -110,9 +95,21 @@ export const authorize = (actorId: string, permission: Permission): Admin => {
   return actor;
 };
 
+const changeListeners = new Set<() => void>();
+
+// Runs `listener` after every admin action (e.g. to count again what is waiting). Returns the unsubscribe function.
+export const onAdminChange = (listener: () => void) => {
+  changeListeners.add(listener);
+  return () => {
+    changeListeners.delete(listener);
+  };
+};
+
 // Every admin action goes through here, so nothing is missing from the audit log.
 export const logAction = (actor: Admin, action: AuditAction, target: AuditTarget, details: AuditDetails = {}) => {
   db.auditLog.unshift({ id: newId(), at: now(), actorId: actor.id, actorName: actor.name, action, target, details });
+  // After the response is sent, so listeners see the saved change.
+  setTimeout(() => changeListeners.forEach((listener) => listener()));
 };
 
 // The item with this id, or a "not found" error.

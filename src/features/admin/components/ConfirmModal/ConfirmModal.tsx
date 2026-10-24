@@ -1,8 +1,8 @@
-import { Button, Text } from '@/shared/components';
+import { Button, Modal, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { withDefaults } from '@/shared/utils';
-import { Modal } from '../Modal';
+
 import { Notice } from '../Notice';
 import { confirmModalDefaults } from './ConfirmModal.defaults';
 import type { ConfirmModalProps } from './ConfirmModal.types';

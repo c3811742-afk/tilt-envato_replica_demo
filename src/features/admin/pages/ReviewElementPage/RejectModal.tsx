@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { Checkbox, Field, Modal, Notice, TextField } from '@/features/admin/components';
+import { Field, Notice } from '@/features/admin/components';
 import { hardRejectReasons, softRejectReasons } from '@/features/admin/constants';
 import type { RejectDecision, RejectReason } from '@/features/admin/types';
 import { toggleItem } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Button, Checkbox, Modal, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 
@@ -64,13 +64,11 @@ export const RejectModal = ({ decision, pending, error, onClose, onSubmit }: Rej
           />
         ))}
       </Field>
-      <TextField
-        multiline
+      <TextField rows={4}
         label={t.commentLabel}
         hint={t.commentHint}
         value={comment}
         onChange={setComment}
-        autoDirection
       />
     </Modal>
   );

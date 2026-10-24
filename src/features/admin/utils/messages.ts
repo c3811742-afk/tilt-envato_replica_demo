@@ -2,8 +2,7 @@ import { adminErrorCode } from '@/features/admin/api';
 import type { AuditEntry } from '@/features/admin/types';
 import type { Text } from '@/shared/constants';
 import type { Locale } from '@/shared/theme';
-import { formatNumber } from '@/shared/utils';
-import { formatMoney } from './business';
+import { formatNumber, formatPrice } from '@/shared/utils';
 import { fillText, formatList, isolate } from './text';
 
 // The friendly message for a failed admin action (save, send, review...). Never shows technical details.
@@ -45,8 +44,15 @@ export const describeAuditDetails = ({ details }: AuditEntry, text: Text, locale
   if (details.cancelReason) lines.push(fillText(t.reason, { reason: text.admin.cancelReasons[details.cancelReason] }));
   if (details.revokeReason) lines.push(fillText(t.reason, { reason: text.admin.revokeReasons[details.revokeReason] }));
   if (details.reportKind) lines.push(fillText(t.report, { report: text.admin.reportKinds[details.reportKind] }));
+  if (details.suspensionReason) {
+    lines.push(fillText(t.reason, { reason: text.admin.users.statusReasons[details.suspensionReason] }));
+  }
+  if (details.applicationReason) {
+    lines.push(fillText(t.reason, { reason: text.admin.creators.applicationReasons[details.applicationReason] }));
+  }
+  if (details.idReason) lines.push(fillText(t.reason, { reason: text.admin.creators.idReasons[details.idReason] }));
   if (details.amount !== undefined) {
-    lines.push(fillText(t.amount, { amount: formatMoney(details.amount, locale) }));
+    lines.push(fillText(t.amount, { amount: formatPrice(details.amount, locale) }));
   }
   if (details.recipients !== undefined) {
     lines.push(fillText(t.recipients, { count: formatNumber(details.recipients, locale) }));

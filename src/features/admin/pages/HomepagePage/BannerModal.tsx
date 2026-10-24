@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { saveBanner } from '@/features/admin/api';
-import { DateRangeField, LocalizedField, Modal, Notice, TextField } from '@/features/admin/components';
+import { DateRangeField, LocalizedField, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Banner } from '@/features/admin/types';
 import { dateRangeErrors, emptyLocalized, hasErrors, isValidLink, localizedErrors } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface BannerModalProps {
@@ -50,7 +50,7 @@ export const BannerModal = ({ banner, onClose, onSaved }: BannerModalProps) => {
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={pending}>
-            {banner ? text.admin.common.save : t.add}
+            {banner ? text.common.saveChanges : t.add}
           </Button>
         </>
       }

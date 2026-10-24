@@ -1,124 +1,21 @@
 .layout {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   min-block-size: var(--sizes-viewport-full-height);
 }
 
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-5);
-  padding: var(--sizes-card-padding);
-  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-  background: var(--colors-surface-muted);
-}
-
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-5);
-}
-
-.navGroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-2);
-}
-
-.navList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.navLink {
-  display: block;
-  padding-block: var(--spacing-2);
-  padding-inline: var(--spacing-3);
-  color: var(--colors-text);
-  font-weight: var(--font-weight-bold);
-  text-decoration: none;
-}
-
-.navLink:hover {
-  background: var(--colors-surface);
-}
-
-.navLink:focus-visible {
-  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
-  outline-offset: 0;
-}
-
-.active,
-.active:hover {
-  background: var(--colors-primary);
-  color: var(--colors-on-primary);
-}
-
-/* Phones and tablets: a "Menu" toggle. Desktop: the links are always shown. */
-.menuToggle {
-  padding-block: var(--spacing-3);
-  padding-inline: var(--spacing-4);
-  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-  background: var(--colors-surface);
-  font-family: var(--text-styles-label-font-family);
-  font-size: var(--text-styles-label-font-size);
-  font-weight: var(--text-styles-label-font-weight);
-  letter-spacing: var(--text-styles-label-letter-spacing);
-  text-transform: var(--text-styles-label-text-transform);
-  cursor: pointer;
-}
-
-.menuToggle:focus-visible {
-  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
-  outline-offset: 0;
-}
-
-.menu[open] > .menuToggle {
-  margin-block-end: var(--spacing-5);
-}
-
-.desktopNav {
-  display: none;
-}
-
-.session {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--spacing-3);
+.body {
+  display: grid;
+  flex: 1;
 }
 
 .main {
   min-inline-size: 0;
-  padding-block: var(--spacing-6);
+  padding-block: var(--spacing-6) var(--spacing-8);
 }
 
 @media (--lg-up) {
-  .layout {
+  .body {
     grid-template-columns: var(--sizes-sidebar-width) minmax(0, 1fr);
-  }
-
-  .sidebar {
-    position: sticky;
-    inset-block-start: 0;
-    block-size: var(--sizes-viewport-full-height);
-    overflow-y: auto;
-    border-block-end: none;
-    border-inline-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
-  }
-
-  .menu {
-    display: none;
-  }
-
-  .desktopNav {
-    display: block;
-  }
-
-  .session {
-    margin-block-start: auto;
   }
 }

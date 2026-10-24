@@ -1,38 +1,83 @@
-import type { ClaimDecision, ClaimStatus, RevokeInput } from '@/features/admin/types';
+import type { ClaimDecision, ClaimStatus, CopyrightClaim, License, RevokeInput } from '@/features/admin/types';
+import type { LicenseRecord } from '@/shared/types';
+import { findAccountById, readAccounts, readLicenses, revokeLicenseRecord } from '@/shared/utils';
 import { sameText } from '@/features/admin/utils/lists';
 import { takeElementDown } from './elementsApi';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, now, respond } from './mockServer';
 
+// Licenses from the site's license server (every download on the customer side in this browser), and the demo ones.
+const fromSite = (record: LicenseRecord): License => ({
+  id: record.code,
+  code: record.code,
+  element: { id: record.itemId, title: record.itemTitle },
+  customer: { name: record.licenseeName, email: findAccountById(record.ownerId)?.email ?? '' },
+  project: record.projectName,
+  issuedAt: record.issuedAt,
+  status: record.revoked ? 'revoked' : 'valid',
+  revoke: record.revoked && { reason: record.revoked.reason, note: record.revoked.note ?? '', at: record.revoked.at },
+  source: 'site',
+});
+
+export const allLicenses = () => [...readLicenses().map(fromSite), ...db.licenses];
+
 // Most recent first.
-export const fetchLicenses = () => respond(() => [...db.licenses].sort((a, b) => b.issuedAt.localeCompare(a.issuedAt)));
+export const fetchLicenses = () => respond(() => allLicenses().sort((a, b) => b.issuedAt.localeCompare(a.issuedAt)));
 
 // Finds a license by the code printed on its certificate. null when no license has that code.
-export const findLicense = (code: string) =>
-  respond(() => db.licenses.find((license) => sameText(license.code, code)) ?? null);
+export const findLicense = (code: string) => respond(() => allLicenses().find((license) => sameText(license.code, code)) ?? null);
 
-// A revoked license no longer covers the project. The customer is told, and the certificate shows "Revoked".
+// A revoked license no longer covers the project. The customer is told, and the license check shows "Revoked" with the reason.
 export const revokeLicense = (actorId: string, id: string, input: RevokeInput) =>
   respond(() => {
     const actor = authorize(actorId, 'manageLicenses');
-    const license = findById(db.licenses, id);
+    const license = findById(allLicenses(), id);
     if (license.status === 'revoked') throw new AdminApiError('alreadyRevoked');
 
-    license.status = 'revoked';
-    license.revoke = { ...input, adminId: actor.id, at: now() };
-    logAction(actor, 'licenseRevoked', { kind: 'license', id: license.id, label: license.code }, {
+    let saved: License;
+    if (license.source === 'site') {
+      const record = revokeLicenseRecord(license.code, input.reason, input.note || undefined);
+      if (!record) throw new AdminApiError('notFound');
+      saved = fromSite(record);
+    } else {
+      saved = { ...license, status: 'revoked', revoke: { ...input, at: now() } };
+      db.licenses = db.licenses.map((current) => (current.id === id ? saved : current));
+    }
+    logAction(actor, 'licenseRevoked', { kind: 'license', id: saved.id, label: saved.code }, {
       revokeReason: input.reason,
       note: input.note || undefined,
     });
-    return license;
+    return saved;
   });
+
+// Copyright reports sent from item pages on the site. The admin's decision is kept here.
+const siteClaims = (): CopyrightClaim[] =>
+  readAccounts().flatMap((account) =>
+    account.copyrightReports.map((report): CopyrightClaim => {
+      const decision = db.siteClaimDecisions[report.id];
+      return {
+        id: report.id,
+        reference: report.reference,
+        claimant: { name: report.name, email: report.email },
+        element: { id: report.itemId, title: report.itemTitle },
+        originalLink: '',
+        description: report.details,
+        receivedAt: report.createdAt,
+        status: decision?.status ?? 'new',
+        decisionNote: decision?.note,
+        source: 'site',
+      };
+    }),
+  );
+
+const allClaims = () => [...siteClaims(), ...db.claims];
 
 // New claims first, then the ones being looked at, then closed ones; newest first in each.
 const claimOrder: Record<ClaimStatus, number> = { new: 0, investigating: 1, takenDown: 2, rejected: 2 };
 
 export const fetchClaims = () =>
   respond(() =>
-    [...db.claims].sort(
+    allClaims().sort(
       (a, b) => claimOrder[a.status] - claimOrder[b.status] || b.receivedAt.localeCompare(a.receivedAt),
     ),
   );
@@ -41,12 +86,13 @@ export const fetchClaims = () =>
 export const decideClaim = (actorId: string, id: string, decision: ClaimDecision, note = '') =>
   respond(() => {
     const actor = authorize(actorId, 'manageLicenses');
-    const claim = findById(db.claims, id);
-    const closed = claim.status === 'takenDown' || claim.status === 'rejected';
-    if (closed || claim.status === decision) throw new AdminApiError('alreadyClosed');
+    const found = findById(allClaims(), id);
+    const closed = found.status === 'takenDown' || found.status === 'rejected';
+    if (closed || found.status === decision) throw new AdminApiError('alreadyClosed');
 
-    claim.status = decision;
-    claim.decisionNote = note.trim() || undefined;
+    const claim: CopyrightClaim = { ...found, status: decision, decisionNote: note.trim() || undefined };
+    if (claim.source === 'site') db.siteClaimDecisions[id] = { status: decision, note: claim.decisionNote };
+    else db.claims = db.claims.map((current) => (current.id === id ? claim : current));
     if (decision === 'takenDown') {
       takeElementDown(actor, claim.element.id, { reason: 'copyright', note: claim.decisionNote ?? '' });
     }

@@ -1,9 +1,10 @@
 import { useLocale } from '@/shared/hooks';
 import { withDefaults } from '@/shared/utils';
-import { TextField } from '../TextField';
+
 import { dateRangeFieldDefaults } from './DateRangeField.defaults';
 import type { DateRangeFieldProps } from './DateRangeField.types';
 import styles from './DateRangeField.module.css';
+import { TextField } from '@/shared/components';
 
 // A start and an end date side by side. The end date can't be picked before the start date.
 export const DateRangeField = (props: DateRangeFieldProps) => {

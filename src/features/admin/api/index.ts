@@ -91,5 +91,22 @@ export {
   fetchContentRules,
   saveContentRules,
 } from './aiApi';
+export {
+  fetchUsers,
+  fetchUser,
+  changeUserStatus,
+  fetchAppeals,
+  decideAppeal,
+  fetchDownloadAlerts,
+  dismissDownloadAlert,
+  fetchCreatorApplications,
+  decideCreatorApplication,
+  fetchIdentityChecks,
+  decideIdentityCheck,
+  fetchAdminAlerts,
+} from './usersApi';
+export { onAdminChange } from './mockServer';
+export { searchEverything } from './searchAllApi';
+export type { AdminSearchResults } from './searchAllApi';
 export { AdminApiError, adminErrorCode } from './errors';
 export type { AdminErrorCode } from './errors';

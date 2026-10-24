@@ -1,11 +1,5 @@
-import { currency } from '@/features/admin/constants/business';
 import type { Metric, PromoCode, Transaction } from '@/features/admin/types';
-import type { Locale } from '@/shared/theme';
-import { formatPrice } from '@/shared/utils';
 import { toDateKey } from './dates';
-
-// Every admin amount is in Egyptian pounds, formatted for the page's language.
-export const formatMoney = (amount: number, locale: Locale) => formatPrice(amount, currency, locale);
 
 // The part of a payment that can still be refunded.
 export const refundable = (transaction: Pick<Transaction, 'amount' | 'refunded'>) =>

@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { adminErrorCode, renameTag } from '@/features/admin/api';
-import { Modal, Notice, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Tag } from '@/features/admin/types';
 import { isBlank } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Modal, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 
 interface RenameTagModalProps {
@@ -63,7 +63,7 @@ export const RenameTagModal = ({ tag, onClose, onSaved }: RenameTagModalProps) =
       }
     >
       {error && <Notice tone="danger">{error}</Notice>}
-      <TextField label={t.nameLabel} value={name} onChange={setName} error={fieldError} required autoDirection />
+      <TextField label={t.nameLabel} value={name} onChange={setName} error={fieldError} required />
     </Modal>
   );
 };

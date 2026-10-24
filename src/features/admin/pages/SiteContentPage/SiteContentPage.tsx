@@ -1,4 +1,4 @@
-import { PageHeader, RequirePermission, Stack, Tabs } from '@/features/admin/components';
+import { RequirePermission } from '@/features/admin/components';
 import { contentTabs } from '@/features/admin/constants';
 import { useTabParam } from '@/features/admin/hooks';
 import { useLocale } from '@/shared/hooks';
@@ -6,6 +6,7 @@ import { vars } from '@/shared/theme';
 import { ArticlesTab } from './ArticlesTab';
 import { FaqsTab } from './FaqsTab';
 import { LegalTab } from './LegalTab';
+import { SectionHeader, Stack, Tabs } from '@/shared/components';
 
 const SiteContent = () => {
   const { text } = useLocale();
@@ -14,7 +15,7 @@ const SiteContent = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} />
       <Tabs
         label={t.tabsLabel}
         tabs={contentTabs.map((value) => ({ value, label: t.tabs[value] }))}

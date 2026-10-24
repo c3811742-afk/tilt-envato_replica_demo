@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { decidePayout } from '@/features/admin/api';
-import { DetailList, Modal, Notice, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Payout, PayoutDecision } from '@/features/admin/types';
-import { formatMoney, isBlank } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { isBlank } from '@/features/admin/utils';
+import { Button, DetailList, Modal, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { formatDate } from '@/shared/utils';
+import { formatDate, formatPrice } from '@/shared/utils';
 
 // Rejecting or marking as failed needs a note, because the creator is told why.
 const needsNote: Record<PayoutDecision, boolean> = { approved: false, rejected: true, paid: false, failed: true };
@@ -55,9 +55,9 @@ export const PayoutDecisionModal = ({ payout, decision, onClose, onDone }: Payou
       }
     >
       <DetailList
-        items={[
+        rows={[
           { label: text.admin.columns.creator, value: <Text as="span" autoDirection>{payout.creator.name}</Text> },
-          { label: text.admin.columns.amount, value: formatMoney(payout.amount, locale) },
+          { label: text.admin.columns.amount, value: formatPrice(payout.amount, locale) },
           {
             label: text.admin.columns.method,
             value: (
@@ -71,15 +71,13 @@ export const PayoutDecisionModal = ({ payout, decision, onClose, onDone }: Payou
       />
       <Text color={vars.colors.textMuted}>{labels.message}</Text>
       {error && <Notice tone="danger">{error}</Notice>}
-      <TextField
-        multiline
+      <TextField rows={4}
         label={t.noteLabel}
         hint={needsNote[decision] ? t.noteRequiredHint : text.admin.common.optional}
         value={note}
         onChange={setNote}
         error={submitted && noteMissing ? t.noteRequired : undefined}
         required={needsNote[decision]}
-        autoDirection
       />
     </Modal>
   );

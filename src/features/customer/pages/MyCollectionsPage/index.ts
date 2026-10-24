@@ -1,0 +1,1 @@
+export { MyCollectionsPage } from './MyCollectionsPage';

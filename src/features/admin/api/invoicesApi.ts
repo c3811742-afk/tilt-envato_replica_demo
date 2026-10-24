@@ -1,4 +1,4 @@
-import { vatRate } from '@/features/admin/constants/business';
+import { vatRate } from '@/shared/constants';
 import type { Invoice, InvoiceInput } from '@/features/admin/types';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, newId, now, respond } from './mockServer';

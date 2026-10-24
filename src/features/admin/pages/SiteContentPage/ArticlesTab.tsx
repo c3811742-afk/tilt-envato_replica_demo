@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import { deleteArticle, fetchArticles } from '@/features/admin/api';
-import { Badge, ConfirmModal, DataTable, Notice, Stack, type DataTableColumn } from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { articleStatusTone, articleTabKind } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Article } from '@/features/admin/types';
 import { fillText, isolate, localized, removeById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -39,10 +49,10 @@ export const ArticlesTab = ({ tab }: ArticlesTabProps) => {
     setDeleting(null);
   };
 
-  const columns: DataTableColumn<Article>[] = [
+  const columns: RecordColumn<Article>[] = [
     {
       key: 'title',
-      header: text.admin.columns.title,
+      label: text.admin.columns.title,
       render: (article) => (
         <Text as="span" autoDirection>
           {localized(article.title, locale)}
@@ -51,19 +61,19 @@ export const ArticlesTab = ({ tab }: ArticlesTabProps) => {
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (article) => <Badge tone={articleStatusTone[article.status]}>{t.statuses[article.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (article) => <Badge variant={articleStatusTone[article.status]}>{t.statuses[article.status]}</Badge>,
     },
     {
       key: 'updated',
-      header: text.admin.columns.updated,
+      label: text.admin.columns.updated,
       render: (article) => formatDate(article.updatedAt, locale),
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (article) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" wrap gap={vars.spacing[2]}>
           <Button size="sm" variant="muted" onClick={() => setEditing(article)}>
             {text.admin.common.edit}
           </Button>
@@ -86,7 +96,7 @@ export const ArticlesTab = ({ tab }: ArticlesTabProps) => {
 
   return (
     <Stack>
-      <Stack direction="row" align="center">
+      <Stack direction="row" wrap align="center">
         <Text color={vars.colors.textMuted}>{labels.description}</Text>
         {current.length > 0 && addButton}
       </Stack>
@@ -100,7 +110,7 @@ export const ArticlesTab = ({ tab }: ArticlesTabProps) => {
         empty={<EmptyState title={labels.emptyTitle} message={labels.emptyMessage} action={addButton} />}
       >
         {(list) => (
-          <DataTable label={labels.tableLabel} columns={columns} rows={list} getRowKey={(article) => article.id} />
+          <Table label={labels.tableLabel} columns={columns} rows={recordRows(list, (article) => article.id, columns)} stackOnMobile />
         )}
       </AsyncContent>
       {editing && (

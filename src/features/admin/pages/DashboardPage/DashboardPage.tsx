@@ -1,15 +1,15 @@
 import { fetchDashboard } from '@/features/admin/api';
-import { PageHeader, Panel, ReportExport, RequirePermission, Stack, StatCard } from '@/features/admin/components';
+import { ReportExport, RequirePermission, StatCard } from '@/features/admin/components';
 import { useAdminSession } from '@/features/admin/hooks';
 import type { DashboardStats, Metric } from '@/features/admin/types';
-import { fillText, formatMoney, metricChange } from '@/features/admin/utils';
-import { AsyncContent, ErrorBoundary } from '@/shared/components';
+import { fillText, metricChange } from '@/features/admin/utils';
+import { AsyncContent, Card, ErrorBoundary, SectionHeader, Stack } from '@/shared/components';
 import type { Text } from '@/shared/constants';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import type { Locale } from '@/shared/theme';
 import { vars } from '@/shared/theme';
-import { formatNumber, formatPercent } from '@/shared/utils';
+import { formatNumber, formatPercent, formatPrice } from '@/shared/utils';
 import styles from './DashboardPage.module.css';
 
 // "Up 4.8% from last month" / "Down 1.2% from last month" / "Same as last month", in words so it never relies on color.
@@ -41,7 +41,7 @@ const Tiles = ({ stats }: TilesProps) => {
       />
       <StatCard
         label={t.mrr}
-        value={formatMoney(stats.mrr.value, locale)}
+        value={formatPrice(stats.mrr.value, locale)}
         detail={changeText(stats.mrr, text, locale)}
         to={can('manageBilling') ? routes.adminBilling : undefined}
       />
@@ -69,7 +69,7 @@ const Tiles = ({ stats }: TilesProps) => {
       <StatCard
         label={t.pendingPayouts}
         value={formatNumber(stats.pendingPayouts.count, locale)}
-        detail={fillText(t.pendingPayoutsDetail, { amount: formatMoney(stats.pendingPayouts.amount, locale) })}
+        detail={fillText(t.pendingPayoutsDetail, { amount: formatPrice(stats.pendingPayouts.amount, locale) })}
         to={can('managePayouts') ? routes.adminPayouts : undefined}
       />
     </div>
@@ -84,15 +84,15 @@ const Dashboard = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} />
       {/* The numbers can fail on their own; the report export below keeps working. */}
       <ErrorBoundary>
         <AsyncContent state={stats}>{(data) => <Tiles stats={data} />}</AsyncContent>
       </ErrorBoundary>
       {can('exportReports') && (
-        <Panel title={t.reportsTitle}>
+        <Card title={t.reportsTitle}>
           <ReportExport />
-        </Panel>
+        </Card>
       )}
     </Stack>
   );

@@ -1,4 +1,4 @@
-import type { BadgeTone } from '@/features/admin/components/Badge';
+
 import type {
   ArticleKind,
   ArticleStatus,
@@ -12,6 +12,7 @@ import type {
   ReportStatus,
   ScheduleStatus,
 } from '@/features/admin/types';
+import { type BadgeVariant } from '@/shared/components';
 
 export const attributeTypes: readonly AttributeType[] = ['single', 'multiple', 'boolean', 'range'];
 
@@ -34,14 +35,14 @@ export const searchTabs = ['noClicks', 'reports'] as const;
 export const contentTabs = ['faqs', 'legal', 'help', 'learn', 'releaseNotes'] as const;
 export const messageTabs = ['announcements', 'newsletters'] as const;
 
-export const scheduleStatusTone: Record<ScheduleStatus, BadgeTone> = {
+export const scheduleStatusTone: Record<ScheduleStatus, BadgeVariant> = {
   scheduled: 'info',
   active: 'success',
   ended: 'neutral',
 };
 
 export const reportStatuses: readonly ReportStatus[] = ['open', 'resolved', 'dismissed'];
-export const reportStatusTone: Record<ReportStatus, BadgeTone> = {
+export const reportStatusTone: Record<ReportStatus, BadgeVariant> = {
   open: 'warning',
   resolved: 'success',
   dismissed: 'neutral',
@@ -55,17 +56,17 @@ export const articleTabKind = {
 } as const satisfies Record<string, ArticleKind>;
 
 export const articleStatuses: readonly ArticleStatus[] = ['draft', 'published'];
-export const articleStatusTone: Record<ArticleStatus, BadgeTone> = { draft: 'neutral', published: 'success' };
+export const articleStatusTone: Record<ArticleStatus, BadgeVariant> = { draft: 'neutral', published: 'success' };
 
 export const audiences: readonly Audience[] = ['customers', 'creators', 'everyone'];
-export const messageStatusTone: Record<MessageStatus, BadgeTone> = {
+export const messageStatusTone: Record<MessageStatus, BadgeVariant> = {
   scheduled: 'info',
   sent: 'success',
   canceled: 'neutral',
 };
 
 export const programKinds: readonly ProgramKind[] = ['studentProgram', 'competition'];
-export const programStatusTone: Record<ProgramStatus, BadgeTone> = {
+export const programStatusTone: Record<ProgramStatus, BadgeVariant> = {
   upcoming: 'info',
   open: 'success',
   judging: 'warning',

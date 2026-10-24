@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { fetchAudienceSizes, sendAnnouncement } from '@/features/admin/api';
-import { ConfirmModal, Modal, Notice, SelectField, TextField } from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { audiences } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { Announcement, Audience } from '@/features/admin/types';
 import { fillText, hasErrors, isBlank, isOneOf, toDateTimeKey } from '@/features/admin/utils';
-import { AsyncContent, Button } from '@/shared/components';
+import { AsyncContent, Button, Modal, Select, TextField } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { formatDate, formatNumber } from '@/shared/utils';
 
@@ -83,7 +83,7 @@ export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) =
             {text.common.cancel}
           </Button>
           <Button type="submit" disabled={sizes.status !== 'success'}>
-            {text.admin.common.continue}
+            {text.common.continue}
           </Button>
         </>
       }
@@ -91,7 +91,7 @@ export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) =
       <AsyncContent state={sizes}>
         {(counts) => (
           <>
-            <SelectField
+            <Select
               label={t.audienceLabel}
               options={audiences.map((value) => ({
                 value,
@@ -109,18 +109,15 @@ export const AnnouncementModal = ({ onClose, onSent }: AnnouncementModalProps) =
               onChange={setTitle}
               error={submitted ? errors.title : undefined}
               required
-              autoDirection
             />
-            <TextField
-              multiline
+            <TextField rows={4}
               label={t.bodyLabel}
               value={body}
               onChange={setBody}
               error={submitted ? errors.body : undefined}
               required
-              autoDirection
             />
-            <SelectField
+            <Select
               label={t.timingLabel}
               options={timings.map((value) => ({ value, label: t.timings[value] }))}
               value={timing}

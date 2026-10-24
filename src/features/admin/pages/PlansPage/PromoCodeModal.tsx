@@ -1,20 +1,18 @@
 import { useState, type FormEvent } from 'react';
 import { adminErrorCode, createPromoCode } from '@/features/admin/api';
-import { Checkbox, Field, FilterBar, Modal, Notice, SelectField, Stack, TextField } from '@/features/admin/components';
-import { discountTypes } from '@/features/admin/constants';
+import { Field, FilterBar, Notice } from '@/features/admin/components';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
-import type { DiscountType, Plan, PromoCode } from '@/features/admin/types';
+import type { Plan, PromoCode } from '@/features/admin/types';
 import {
   hasErrors,
-  isOneOf,
-  isValidAmount,
   isWholeNumber,
   localized,
   toDateKey,
   toggleItem,
   toNumber,
 } from '@/features/admin/utils';
-import { Button } from '@/shared/components';
+import { Button, Checkbox, Modal, Stack, TextField } from '@/shared/components';
+import type { PlanId } from '@/shared/types';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 
@@ -33,10 +31,9 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
   const { run, pending, error, clearError } = useAdminAction();
   const t = text.admin.promoCodes;
   const [code, setCode] = useState('');
-  const [discountType, setDiscountType] = useState<DiscountType>('percent');
   const [value, setValue] = useState('');
   const [allPlans, setAllPlans] = useState(true);
-  const [planIds, setPlanIds] = useState<string[]>([]);
+  const [planIds, setPlanIds] = useState<PlanId[]>([]);
   const [expiresAt, setExpiresAt] = useState('');
   const [maxUses, setMaxUses] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -45,14 +42,7 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
 
   const errors = {
     code: codeTaken ? text.admin.errors.codeTaken : codePattern.test(code.trim().toUpperCase()) ? undefined : t.codeInvalid,
-    value:
-      discountType === 'percent'
-        ? isWholeNumber(value, 1) && (toNumber(value) ?? 0) <= 100
-          ? undefined
-          : t.percentInvalid
-        : isValidAmount(value)
-          ? undefined
-          : t.amountInvalid,
+    value: isWholeNumber(value, 1) && (toNumber(value) ?? 0) <= 100 ? undefined : t.percentInvalid,
     plans: allPlans || planIds.length > 0 ? undefined : t.plansRequired,
     expiresAt: !expiresAt ? text.admin.common.dateRequired : expiresAt < today ? t.expiryPast : undefined,
     maxUses: !maxUses.trim() || isWholeNumber(maxUses, 1) ? undefined : t.maxUsesInvalid,
@@ -64,8 +54,7 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
     if (hasErrors(errors)) return;
     const input = {
       code,
-      discountType,
-      value: toNumber(value) ?? 0,
+      percent: toNumber(value) ?? 0,
       planIds: allPlans ? [] : planIds,
       expiresAt,
       maxUses: maxUses.trim() ? toNumber(maxUses) : null,
@@ -114,23 +103,17 @@ export const PromoCodeModal = ({ plans, onClose, onCreated }: PromoCodeModalProp
         direction="ltr"
         required
       />
-      <FilterBar>
-        <SelectField
-          label={t.discountTypeLabel}
-          options={discountTypes.map((option) => ({ value: option, label: t.discountTypes[option] }))}
-          value={discountType}
-          onChange={(next) => isOneOf(discountTypes, next) && setDiscountType(next)}
-        />
-        <TextField
-          type="number"
-          label={discountType === 'percent' ? t.percentLabel : t.amountLabel}
-          value={value}
-          onChange={setValue}
-          error={shown(errors.value)}
-          min="0"
-          required
-        />
-      </FilterBar>
+      <TextField
+        type="number"
+        label={t.percentLabel}
+        value={value}
+        onChange={setValue}
+        error={shown(errors.value)}
+        direction="ltr"
+        min="1"
+        max="100"
+        required
+      />
       <Field group label={t.plansLabel} error={shown(errors.plans)}>
         <Stack gap={vars.spacing[3]}>
           <Checkbox label={t.allPlans} checked={allPlans} onChange={setAllPlans} />

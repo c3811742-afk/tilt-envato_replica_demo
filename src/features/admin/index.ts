@@ -26,3 +26,7 @@ export { LicensesPage } from './pages/LicensesPage';
 export { SupportPage } from './pages/SupportPage';
 export { TicketPage } from './pages/TicketPage';
 export { AiPage } from './pages/AiPage';
+export { SearchPage as AdminSearchPage } from './pages/SearchPage';
+export { UsersPage } from './pages/UsersPage';
+export { UserPage } from './pages/UserPage';
+export { CreatorsPage } from './pages/CreatorsPage';

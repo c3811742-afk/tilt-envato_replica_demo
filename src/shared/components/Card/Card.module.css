@@ -1,0 +1,24 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  block-size: 100%;
+  padding: var(--card-padding);
+  border: var(--borders-width-thin) var(--borders-style) var(--card-border-color);
+  border-radius: var(--card-radius);
+  background: var(--card-background);
+  color: var(--card-color);
+}
+
+.item {
+  display: block;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.interactive {
+  composes: lift from '@/shared/styles/interactions.module.css';
+}
+

@@ -19,8 +19,6 @@ export const fromDateKey = (key: string) => {
   return new Date(year, month - 1, day);
 };
 
-export const isBetween = (day: string, start: string, end: string) => start <= day && day <= end;
-
 export const monthsBefore = (months: number, from: Date = new Date()) => {
   const date = new Date(from);
   date.setMonth(date.getMonth() - months);

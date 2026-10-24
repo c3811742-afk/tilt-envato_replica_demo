@@ -1,23 +1,25 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { fetchTranslations } from '@/features/admin/api';
-import {
-  Badge,
-  Checkbox,
-  DataTable,
-  FilterBar,
-  Notice,
-  PageHeader,
-  RequirePermission,
-  Stack,
-  TextField,
-  TextLink,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { FilterBar, Notice, RequirePermission } from '@/features/admin/components';
 import { translationsPageSize } from '@/features/admin/constants';
 import type { TranslationEntry, Translations } from '@/features/admin/types';
 import { fillText, isBlank, isolate, matchesQuery } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  Checkbox,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+  TextField,
+  TextLink,
+} from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -55,10 +57,10 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
     setNotice(fillText(t.saved, { key: isolate(saved.key) }));
   };
 
-  const columns: DataTableColumn<TranslationEntry>[] = [
+  const columns: RecordColumn<TranslationEntry>[] = [
     {
       key: 'key',
-      header: text.admin.columns.key,
+      label: text.admin.columns.key,
       render: (entry) => (
         <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
           <bdi>{entry.key}</bdi>
@@ -67,7 +69,7 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
     },
     {
       key: 'english',
-      header: text.admin.languageNames.en,
+      label: text.admin.languageNames.en,
       render: (entry) => (
         <Text as="span">
           <bdi lang="en">{entry.source}</bdi>
@@ -76,10 +78,10 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
     },
     {
       key: 'translation',
-      header: language.name,
+      label: language.name,
       render: (entry) =>
         isBlank(entry.value) ? (
-          <Badge tone="warning">{t.missing}</Badge>
+          <Badge variant="warning">{t.missing}</Badge>
         ) : (
           <Text as="span">
             <bdi lang={language.code} dir={language.direction}>
@@ -90,7 +92,7 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (entry) => (
         <Button size="sm" variant="muted" onClick={() => setEditing(entry)}>
@@ -102,9 +104,9 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader
+      <SectionHeader as="h1"
         title={fillText(t.title, { language: isolate(language.name) })}
-        description={fillText(t.progress, {
+        subtitle={fillText(t.progress, {
           translated: formatNumber(language.translated, locale),
           total: formatNumber(language.total, locale),
           missing: formatNumber(missing, locale),
@@ -126,7 +128,6 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
             setQuery(value);
             resetPaging();
           }}
-          autoDirection
         />
         <Checkbox
           label={t.missingOnly}
@@ -145,14 +146,14 @@ const TranslationsView = ({ data, onChange }: TranslationsViewProps) => {
               total: formatNumber(visible.length, locale),
             })}
           </Text>
-          <DataTable
+          <Table
             label={fillText(t.title, { language: isolate(language.name) })}
-            columns={columns}
-            rows={visible.slice(0, shown)}
-            getRowKey={(entry) => entry.key}
+            columns={columns} rows={recordRows(visible.slice(0, shown), (entry) => entry.key, columns)} stackOnMobile
+           
+           
           />
           {shown < visible.length && (
-            <Stack direction="row">
+            <Stack direction="row" wrap>
               <Button variant="muted" onClick={() => setShown((count) => count + translationsPageSize)}>
                 {t.showMore}
               </Button>

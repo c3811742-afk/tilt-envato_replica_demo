@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { fetchItemReports, resolveItemReport } from '@/features/admin/api';
-import {
-  Badge,
-  ConfirmModal,
-  DataTable,
-  Notice,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { ConfirmModal, Notice } from '@/features/admin/components';
 import { itemReportKindTone, itemReportStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { ItemReport, ItemReportResolution } from '@/features/admin/types';
 import { fillText, isolate, replaceById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -37,22 +40,22 @@ export const ItemReportsTab = () => {
     setNotice(fillText(t.done[resolution], { title: isolate(report.element.title) }));
   };
 
-  const columns: DataTableColumn<ItemReport>[] = [
+  const columns: RecordColumn<ItemReport>[] = [
     {
       key: 'element',
-      header: text.admin.columns.element,
+      label: text.admin.columns.element,
       render: (report) => (
-        <Stack gap={vars.spacing[1]} align="start">
+        <Stack gap={vars.spacing[1]} align="flex-start">
           <Text as="span" autoDirection>
             {report.element.title}
           </Text>
-          <Badge tone={itemReportKindTone[report.kind]}>{t.kinds[report.kind]}</Badge>
+          <Badge variant={itemReportKindTone[report.kind]}>{t.kinds[report.kind]}</Badge>
         </Stack>
       ),
     },
     {
       key: 'report',
-      header: text.admin.columns.report,
+      label: text.admin.columns.report,
       render: (report) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -69,15 +72,15 @@ export const ItemReportsTab = () => {
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
-      render: (report) => <Badge tone={itemReportStatusTone[report.status]}>{t.statuses[report.status]}</Badge>,
+      label: text.admin.columns.status,
+      render: (report) => <Badge variant={itemReportStatusTone[report.status]}>{t.statuses[report.status]}</Badge>,
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       render: (report) =>
         report.status === 'open' && (
-          <Stack direction="row" gap={vars.spacing[2]}>
+          <Stack direction="row" wrap gap={vars.spacing[2]}>
             <Button size="sm" disabled={action.pending} onClick={() => resolve(report, 'fixed')}>
               {t.markFixed}
             </Button>
@@ -113,7 +116,7 @@ export const ItemReportsTab = () => {
         </Notice>
       )}
       <AsyncContent state={reports} empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} />}>
-        {(list) => <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(report) => report.id} />}
+        {(list) => <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (report) => report.id, columns)} stackOnMobile />}
       </AsyncContent>
       {removing && (
         <ConfirmModal

@@ -1,7 +1,16 @@
 import { fetchNoClickSearches } from '@/features/admin/api';
-import { Badge, DataTable, Stack, type DataTableColumn } from '@/features/admin/components';
+
 import type { NoClickSearch } from '@/features/admin/types';
-import { AsyncContent, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
@@ -12,30 +21,30 @@ export const NoClicksTab = () => {
   const searches = useAsync(fetchNoClickSearches, []);
   const t = text.admin.search.noClicks;
 
-  const columns: DataTableColumn<NoClickSearch>[] = [
+  const columns: RecordColumn<NoClickSearch>[] = [
     {
       key: 'term',
-      header: text.admin.columns.term,
+      label: text.admin.columns.term,
       render: (search) => (
         <Text as="span" autoDirection>
           {search.term}
         </Text>
       ),
     },
-    { key: 'searches', header: text.admin.columns.searches, render: (search) => formatNumber(search.searches, locale) },
+    { key: 'searches', label: text.admin.columns.searches, render: (search) => formatNumber(search.searches, locale) },
     {
       key: 'results',
-      header: text.admin.columns.results,
+      label: text.admin.columns.results,
       render: (search) =>
         search.results === 0 ? (
-          <Badge tone="danger">{t.noResults}</Badge>
+          <Badge variant="danger">{t.noResults}</Badge>
         ) : (
           formatNumber(search.results, locale)
         ),
     },
     {
       key: 'lastSearched',
-      header: text.admin.columns.lastSearched,
+      label: text.admin.columns.lastSearched,
       render: (search) => formatDate(search.lastSearchedAt, locale),
     },
   ];
@@ -44,7 +53,7 @@ export const NoClicksTab = () => {
     <Stack>
       <Text color={vars.colors.textMuted}>{t.description}</Text>
       <AsyncContent state={searches} empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} />}>
-        {(list) => <DataTable label={t.tableLabel} columns={columns} rows={list} getRowKey={(search) => search.id} />}
+        {(list) => <Table label={t.tableLabel} columns={columns} rows={recordRows(list, (search) => search.id, columns)} stackOnMobile />}
       </AsyncContent>
     </Stack>
   );

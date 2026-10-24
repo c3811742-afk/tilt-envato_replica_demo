@@ -1,8 +1,11 @@
 import type { Program, ProgramInput } from '@/features/admin/types';
-import { authorize, db, findById, logAction, newId, respond } from './mockServer';
+import { programStore } from '@/shared/utils';
+import { authorize, findById, logAction, newId, respond } from './mockServer';
+
+// Programs are the site's own: they show on the Become an author page.
 
 // Latest start date first.
-export const fetchPrograms = () => respond(() => [...db.programs].sort((a, b) => b.startDate.localeCompare(a.startDate)));
+export const fetchPrograms = () => respond(() => [...programStore.get()].sort((a, b) => b.startDate.localeCompare(a.startDate)));
 
 // Adds a program or competition, or updates it when an id is given. Only competitions keep a prize and results date.
 export const saveProgram = (actorId: string, input: ProgramInput, id?: string) =>
@@ -17,8 +20,9 @@ export const saveProgram = (actorId: string, input: ProgramInput, id?: string) =
       prize: isCompetition ? input.prize?.trim() || undefined : undefined,
       resultsDate: isCompetition ? input.resultsDate || undefined : undefined,
     };
-    const program = id ? Object.assign(findById(db.programs, id), values) : { id: newId(), participants: 0, ...values };
-    if (!id) db.programs.push(program);
+    const programs = programStore.get();
+    const program: Program = id ? { ...findById(programs, id), ...values } : { id: newId(), participants: 0, ...values };
+    programStore.set(id ? programs.map((current) => (current.id === id ? program : current)) : [...programs, program]);
     logAction(actor, 'programSaved', { kind: 'program', id: program.id, label: program.name }, {
       change: id ? 'details' : 'added',
     });

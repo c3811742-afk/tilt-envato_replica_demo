@@ -1,5 +1,0 @@
-.multiline {
-  min-block-size: var(--sizes-textarea-min-height);
-  padding-block: var(--spacing-3);
-  resize: vertical;
-}

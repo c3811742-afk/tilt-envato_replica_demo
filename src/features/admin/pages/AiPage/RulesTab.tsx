@@ -1,20 +1,24 @@
 import { useState } from 'react';
 import { fetchContentRules, saveContentRules } from '@/features/admin/api';
-import {
-  Badge,
-  Checkbox,
-  DataTable,
-  Notice,
-  Panel,
-  Stack,
-  TextField,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { contentRuleKeys } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { BlockedGeneration, ContentRules } from '@/features/admin/types';
 import { isBlank, sameText } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  Card,
+  Checkbox,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  Stack,
+  Table,
+  Text,
+  TextField,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate } from '@/shared/utils';
@@ -67,7 +71,7 @@ const RulesForm = ({ initialRules }: RulesFormProps) => {
         </Notice>
       )}
       {error && <Notice tone="danger">{error}</Notice>}
-      <Panel title={t.rulesTitle}>
+      <Card title={t.rulesTitle}>
         <Stack gap={vars.spacing[3]}>
           {contentRuleKeys.map((key) => (
             <Checkbox
@@ -79,8 +83,8 @@ const RulesForm = ({ initialRules }: RulesFormProps) => {
             />
           ))}
         </Stack>
-      </Panel>
-      <Panel title={t.phrasesTitle}>
+      </Card>
+      <Card title={t.phrasesTitle}>
         <Text color={vars.colors.textMuted}>{t.phrasesDescription}</Text>
         {rules.blockedPhrases.length > 0 ? (
           <ul className={styles.phrases}>
@@ -107,16 +111,16 @@ const RulesForm = ({ initialRules }: RulesFormProps) => {
         ) : (
           <Text color={vars.colors.textMuted}>{t.noPhrases}</Text>
         )}
-        <TextField label={t.phraseLabel} value={phrase} onChange={setPhrase} error={phraseError} autoDirection />
-        <Stack direction="row">
+        <TextField label={t.phraseLabel} value={phrase} onChange={setPhrase} error={phraseError} />
+        <Stack direction="row" wrap>
           <Button variant="secondary" onClick={addPhrase}>
             {t.addPhrase}
           </Button>
         </Stack>
-      </Panel>
-      <Stack direction="row">
+      </Card>
+      <Stack direction="row" wrap>
         <Button disabled={pending} onClick={save}>
-          {text.admin.common.save}
+          {text.common.saveChanges}
         </Button>
       </Stack>
     </Stack>
@@ -128,11 +132,11 @@ const BlockedLog = ({ blocked }: { blocked: BlockedGeneration[] }) => {
   const { text, locale } = useLocale();
   const t = text.admin.ai;
 
-  const columns: DataTableColumn<BlockedGeneration>[] = [
-    { key: 'date', header: text.admin.columns.date, render: (row) => formatDate(row.at, locale, dateTime) },
+  const columns: RecordColumn<BlockedGeneration>[] = [
+    { key: 'date', label: text.admin.columns.date, render: (row) => formatDate(row.at, locale, dateTime) },
     {
       key: 'user',
-      header: text.admin.columns.user,
+      label: text.admin.columns.user,
       render: (row) => (
         <Text as="span" autoDirection>
           {row.userName}
@@ -141,17 +145,17 @@ const BlockedLog = ({ blocked }: { blocked: BlockedGeneration[] }) => {
     },
     {
       key: 'tool',
-      header: text.admin.columns.tool,
+      label: text.admin.columns.tool,
       render: (row) => (
-        <Stack gap={vars.spacing[1]} align="start">
-          <Text as="span">{t.tools[row.tool]}</Text>
+        <Stack gap={vars.spacing[1]} align="flex-start">
+          <Text as="span">{text.ai.tools[row.tool].name}</Text>
           <Badge>{t.stages[row.stage]}</Badge>
         </Stack>
       ),
     },
     {
       key: 'excerpt',
-      header: text.admin.columns.excerpt,
+      label: text.admin.columns.excerpt,
       render: (row) => (
         <Text as="span" autoDirection>
           {row.excerpt}
@@ -160,19 +164,19 @@ const BlockedLog = ({ blocked }: { blocked: BlockedGeneration[] }) => {
     },
     {
       key: 'rule',
-      header: text.admin.columns.rule,
+      label: text.admin.columns.rule,
       render: (row) => (row.rule === 'phrase' ? t.phraseRule : t.rules[row.rule].label),
     },
   ];
 
   return (
-    <Panel title={t.blockedTitle}>
+    <Card title={t.blockedTitle}>
       {blocked.length > 0 ? (
-        <DataTable label={t.blockedTitle} columns={columns} rows={blocked} getRowKey={(row) => row.id} />
+        <Table label={t.blockedTitle} columns={columns} rows={recordRows(blocked, (row) => row.id, columns)} stackOnMobile />
       ) : (
         <EmptyState title={t.blockedEmptyTitle} message={t.blockedEmptyMessage} />
       )}
-    </Panel>
+    </Card>
   );
 };
 

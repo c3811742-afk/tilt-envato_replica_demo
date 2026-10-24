@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { decideClaim } from '@/features/admin/api';
-import { Badge, DetailList, Modal, Notice, TextField } from '@/features/admin/components';
+import { Notice } from '@/features/admin/components';
 import { claimStatusTone } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { ClaimDecision, CopyrightClaim } from '@/features/admin/types';
 import { fillText, isBlank } from '@/features/admin/utils';
-import { Button, Text } from '@/shared/components';
+import { Badge, Button, DetailList, Modal, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { formatDate } from '@/shared/utils';
 
@@ -60,8 +60,8 @@ export const ClaimModal = ({ claim, onClose, onDecided }: ClaimModalProps) => {
       }
     >
       <DetailList
-        items={[
-          { label: text.admin.columns.status, value: <Badge tone={claimStatusTone[claim.status]}>{t.statuses[claim.status]}</Badge> },
+        rows={[
+          { label: text.admin.columns.status, value: <Badge variant={claimStatusTone[claim.status]}>{t.statuses[claim.status]}</Badge> },
           { label: text.admin.columns.element, value: <Text as="span" autoDirection>{claim.element.title}</Text> },
           {
             label: t.claimantLabel,
@@ -76,7 +76,7 @@ export const ClaimModal = ({ claim, onClose, onDecided }: ClaimModalProps) => {
               </>
             ),
           },
-          { label: t.originalLabel, value: <bdi>{claim.originalLink}</bdi> },
+          ...(claim.originalLink ? [{ label: t.originalLabel, value: <bdi>{claim.originalLink}</bdi> }] : []),
           { label: t.descriptionLabel, value: <Text as="span" autoDirection>{claim.description}</Text> },
           { label: text.admin.columns.received, value: formatDate(claim.receivedAt, locale) },
           ...(claim.decisionNote
@@ -87,14 +87,12 @@ export const ClaimModal = ({ claim, onClose, onDecided }: ClaimModalProps) => {
       {open && <Text>{t.decideMessage}</Text>}
       {error && <Notice tone="danger">{error}</Notice>}
       {open && (
-        <TextField
-          multiline
+        <TextField rows={4}
           label={t.noteLabel}
           hint={t.noteHint}
           value={note}
           onChange={setNote}
           error={noteError}
-          autoDirection
         />
       )}
     </Modal>

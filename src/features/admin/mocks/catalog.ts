@@ -1,4 +1,5 @@
 import type { Category, CategoryAttribute } from '@/features/admin/types';
+import type { CategoryId } from '@/shared/types';
 
 const attribute = (seed: Omit<CategoryAttribute, 'options' | 'isFilter'> & Partial<CategoryAttribute>) => ({
   options: [],
@@ -19,126 +20,53 @@ const bilingual = attribute({
   type: 'boolean',
 });
 
-// Top-level category ids match the element categories, so live elements stay linked to them.
+// The site's categories, each with the attributes the review form asks for (admin only), followed by
+// subcategories (admin only). The site's names, order and hidden state are applied when they're read (see catalogApi).
+const topLevel = (id: CategoryId, attributes: CategoryAttribute[] = []): Category => ({
+  id,
+  name: { en: '', ar: '' },
+  parentId: null,
+  hidden: false,
+  attributes,
+});
+
+const subcategory = (id: string, parentId: CategoryId, name: Category['name'], hidden = false): Category => ({
+  id,
+  name,
+  parentId,
+  hidden,
+  attributes: [],
+});
+
 export const seedCategories: Category[] = [
-  {
-    id: 'ramadan',
-    name: { en: 'Ramadan and Eid', ar: 'رمضان والعيد' },
-    parentId: null,
-    hidden: false,
-    attributes: [orientation, bilingual],
-  },
-  {
-    id: 'sub-ramadan-social',
-    name: { en: 'Social media posts', ar: 'منشورات السوشيال ميديا' },
-    parentId: 'ramadan',
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'sub-ramadan-greetings',
-    name: { en: 'Greeting cards', ar: 'بطاقات التهنئة' },
-    parentId: 'ramadan',
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'weddings',
-    name: { en: 'Weddings and engagements', ar: 'الأفراح والخطوبة' },
-    parentId: null,
-    hidden: false,
-    attributes: [
-      orientation,
-      attribute({
-        id: 'attr-print-size',
-        name: { en: 'Print size', ar: 'مقاس الطباعة' },
-        type: 'multiple',
-        options: ['A4', 'A5', '5x7 in'],
-      }),
-    ],
-  },
-  {
-    id: 'sub-weddings-katb-ketab',
-    name: { en: 'Katb el-ketab', ar: 'كتب الكتاب' },
-    parentId: 'weddings',
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'restaurants',
-    name: { en: 'Restaurants and cafés', ar: 'المطاعم والكافيهات' },
-    parentId: null,
-    hidden: false,
-    attributes: [
-      attribute({
-        id: 'attr-currency',
-        name: { en: 'Prices in', ar: 'الأسعار بعملة' },
-        type: 'single',
-        options: ['EGP', 'SAR', 'AED', 'USD'],
-      }),
-    ],
-  },
-  {
-    id: 'realEstate',
-    name: { en: 'Real estate', ar: 'العقارات' },
-    parentId: null,
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'education',
-    name: { en: 'Education', ar: 'التعليم' },
-    parentId: null,
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'business',
-    name: { en: 'Business', ar: 'الأعمال' },
-    parentId: null,
-    hidden: false,
-    attributes: [
-      attribute({
-        id: 'attr-slides',
-        name: { en: 'Number of slides', ar: 'عدد الشرائح' },
-        type: 'range',
-      }),
-    ],
-  },
-  {
-    id: 'landmarks',
-    name: { en: 'Egyptian landmarks', ar: 'معالم مصرية' },
-    parentId: null,
-    hidden: false,
-    attributes: [
-      attribute({
-        id: 'attr-duration',
-        name: { en: 'Duration (seconds)', ar: 'المدة (بالثواني)' },
-        type: 'range',
-      }),
-    ],
-  },
-  {
-    id: 'sub-landmarks-giza',
-    name: { en: 'Giza and the pyramids', ar: 'الجيزة والأهرامات' },
-    parentId: 'landmarks',
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'calligraphy',
-    name: { en: 'Arabic calligraphy', ar: 'الخط العربي' },
-    parentId: null,
-    hidden: false,
-    attributes: [],
-  },
-  {
-    id: 'sub-old-flyers',
-    name: { en: 'Printed flyers', ar: 'الفلايرات المطبوعة' },
-    parentId: 'business',
-    hidden: true,
-    attributes: [],
-  },
+  topLevel('videoTemplates', [orientation, bilingual]),
+  subcategory('sub-video-intros', 'videoTemplates', { en: 'Intros and openers', ar: 'مقدمات وافتتاحيات' }),
+  subcategory('sub-video-social', 'videoTemplates', { en: 'Social media videos', ar: 'فيديوهات السوشيال ميديا' }),
+  topLevel('stockVideo', [
+    orientation,
+    attribute({ id: 'attr-duration', name: { en: 'Duration (seconds)', ar: 'المدة (بالثواني)' }, type: 'range' }),
+  ]),
+  subcategory('sub-video-landmarks', 'stockVideo', { en: 'Egyptian landmarks', ar: 'معالم مصرية' }),
+  topLevel('music'),
+  topLevel('soundEffects'),
+  topLevel('fonts', [bilingual]),
+  subcategory('sub-fonts-calligraphy', 'fonts', { en: 'Arabic calligraphy', ar: 'الخط العربي' }),
+  topLevel('graphics', [
+    orientation,
+    attribute({ id: 'attr-print-size', name: { en: 'Print size', ar: 'مقاس الطباعة' }, type: 'multiple', options: ['A4', 'A5', '5x7 in'] }),
+  ]),
+  subcategory('sub-graphics-weddings', 'graphics', { en: 'Weddings and engagements', ar: 'الأفراح والخطوبة' }),
+  subcategory('sub-graphics-flyers', 'graphics', { en: 'Printed flyers', ar: 'الفلايرات المطبوعة' }, true),
+  topLevel('graphicTemplates', [
+    bilingual,
+    attribute({ id: 'attr-currency', name: { en: 'Prices in', ar: 'الأسعار بعملة' }, type: 'single', options: ['EGP', 'SAR', 'AED', 'USD'] }),
+  ]),
+  subcategory('sub-templates-menus', 'graphicTemplates', { en: 'Restaurant menus', ar: 'قوائم المطاعم' }),
+  topLevel('photos', [orientation]),
+  topLevel('presentationTemplates', [
+    attribute({ id: 'attr-slides', name: { en: 'Number of slides', ar: 'عدد الشرائح' }, type: 'range' }),
+  ]),
+  topLevel('webTemplates'),
 ];
 
 // Tags no element uses yet, on top of the tags taken from the elements. One is banned already.

@@ -1,0 +1,12 @@
+/* A generated image or video fills its column; audio players stretch across it. */
+.media {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface-muted);
+}
+
+.audio {
+  inline-size: 100%;
+}

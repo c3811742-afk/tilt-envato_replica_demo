@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { fetchPrograms } from '@/features/admin/api';
-import {
-  Badge,
-  DataTable,
-  Notice,
-  PageHeader,
-  RequirePermission,
-  Stack,
-  type DataTableColumn,
-} from '@/features/admin/components';
+import { Notice, RequirePermission } from '@/features/admin/components';
 import { programStatusTone } from '@/features/admin/constants';
 import type { Program } from '@/features/admin/types';
 import { fillText, fromDateKey, isolate, programStatus, toDateKey, upsertById } from '@/features/admin/utils';
-import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
+import {
+  AsyncContent,
+  Badge,
+  Button,
+  EmptyState,
+  type RecordColumn,
+  recordRows,
+  SectionHeader,
+  Stack,
+  Table,
+  Text,
+} from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { formatDate, formatNumber } from '@/shared/utils';
@@ -28,10 +31,10 @@ const Programs = () => {
   const day = (key: string) => formatDate(fromDateKey(key), locale);
   const current = programs.status === 'success' ? programs.data : [];
 
-  const columns: DataTableColumn<Program>[] = [
+  const columns: RecordColumn<Program>[] = [
     {
       key: 'program',
-      header: text.admin.columns.program,
+      label: text.admin.columns.program,
       render: (program) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
@@ -48,10 +51,10 @@ const Programs = () => {
         </Stack>
       ),
     },
-    { key: 'kind', header: text.admin.columns.type, render: (program) => t.kinds[program.kind] },
+    { key: 'kind', label: text.admin.columns.type, render: (program) => t.kinds[program.kind] },
     {
       key: 'dates',
-      header: text.admin.columns.dates,
+      label: text.admin.columns.dates,
       render: (program) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span">
@@ -67,20 +70,20 @@ const Programs = () => {
     },
     {
       key: 'status',
-      header: text.admin.columns.status,
+      label: text.admin.columns.status,
       render: (program) => {
         const status = programStatus(program, today);
-        return <Badge tone={programStatusTone[status]}>{t.statuses[status]}</Badge>;
+        return <Badge variant={programStatusTone[status]}>{t.statuses[status]}</Badge>;
       },
     },
     {
       key: 'participants',
-      header: text.admin.columns.participants,
+      label: text.admin.columns.participants,
       render: (program) => formatNumber(program.participants, locale),
     },
     {
       key: 'actions',
-      header: text.admin.columns.actions,
+      label: text.admin.columns.actions,
       align: 'end',
       render: (program) => (
         <Button size="sm" variant="muted" onClick={() => setEditing(program)}>
@@ -94,7 +97,7 @@ const Programs = () => {
 
   return (
     <Stack gap={vars.spacing[6]}>
-      <PageHeader title={t.title} description={t.description} actions={current.length > 0 && addButton} />
+      <SectionHeader as="h1" title={t.title} subtitle={t.description} actions={current.length > 0 && addButton} />
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
           {notice}
@@ -104,7 +107,7 @@ const Programs = () => {
         state={programs}
         empty={<EmptyState title={t.emptyTitle} message={t.emptyMessage} action={addButton} />}
       >
-        {(list) => <DataTable label={t.title} columns={columns} rows={list} getRowKey={(program) => program.id} />}
+        {(list) => <Table label={t.title} columns={columns} rows={recordRows(list, (program) => program.id, columns)} stackOnMobile />}
       </AsyncContent>
       {editing && (
         <ProgramModal

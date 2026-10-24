@@ -2,6 +2,7 @@ import { seedDownloadsByType, seedEarnings } from '@/features/admin/mocks';
 import type { PayoutDecision, PayoutRules, PayoutStatus, Report, ReportKind } from '@/features/admin/types';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, now, respond } from './mockServer';
+import { allPlans } from './plansApi';
 
 export const fetchPayoutRules = () => respond(() => db.payoutRules);
 
@@ -56,7 +57,7 @@ const inMonth = (iso: string, month: string) => iso.startsWith(month);
 const buildReport: Record<ReportKind, (month: string) => Pick<Report, 'columns' | 'rows'>> = {
   subscriptions: () => ({
     columns: ['plan', 'subscribers', 'monthlyPrice', 'mrr'],
-    rows: db.plans.map((plan) => [plan.name.en, plan.subscribers, plan.monthlyPrice, plan.subscribers * plan.monthlyPrice]),
+    rows: allPlans().map((plan) => [plan.name.en, plan.subscribers, plan.monthlyPrice ?? 0, plan.subscribers * (plan.monthlyPrice ?? 0)]),
   }),
   revenue: (month) => ({
     columns: ['date', 'customer', 'plan', 'method', 'amount', 'refunded'],

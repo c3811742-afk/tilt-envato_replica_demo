@@ -8,4 +8,13 @@
   line-height: var(--text-line-height);
   letter-spacing: var(--text-letter-spacing);
   text-transform: var(--text-transform);
+  overflow-wrap: anywhere;
+}
+
+.clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--text-max-lines);
+  line-clamp: var(--text-max-lines);
 }

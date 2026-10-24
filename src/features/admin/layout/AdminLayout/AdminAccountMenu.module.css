@@ -1,0 +1,14 @@
+/* The admin's name shows on wide screens; phones show the icon alone, so the bar fits. */
+.name {
+  display: none;
+}
+
+@media (--lg-up) {
+  .name {
+    display: inline;
+    max-inline-size: var(--sizes-dropdown-width);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

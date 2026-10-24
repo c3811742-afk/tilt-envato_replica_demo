@@ -1,0 +1,94 @@
+.control {
+  position: relative;
+}
+
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  inline-size: 100%;
+  min-block-size: var(--sizes-input-height);
+  padding-inline: var(--sizes-input-padding-x);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--radii-none);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  font-family: var(--text-styles-title-font-family);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  text-align: start;
+  cursor: pointer;
+}
+
+.select:hover,
+.open {
+  border-color: var(--colors-primary);
+}
+
+.invalid {
+  border-color: var(--colors-danger);
+}
+
+.placeholder {
+  color: var(--colors-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.select:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.flipped {
+  transform: rotate(180deg);
+}
+
+/* The open list: flat, hard-edged, with the brand's hard shadow. */
+.list {
+  position: absolute;
+  inset-block-start: calc(100% + var(--spacing-1));
+  inset-inline: 0;
+  z-index: var(--z-index-dropdown);
+  min-inline-size: max-content;
+  max-block-size: var(--select-list-max-height);
+  overflow-y: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  box-shadow: var(--shadows-hard);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  min-block-size: var(--sizes-tap-target);
+  padding-inline: var(--sizes-input-padding-x);
+  color: var(--colors-text);
+  font-family: var(--text-styles-title-font-family);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.option + .option {
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+}
+
+.active {
+  background: var(--colors-highlight);
+  color: var(--colors-on-highlight);
+}
