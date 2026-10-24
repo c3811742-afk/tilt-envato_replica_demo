@@ -15,16 +15,22 @@ export const AccountSuspendedPage = () => {
   const submit = form.submit(async ({ message }) => setAccount(await supportApi.appeal(message)));
 
   return (
-    <Page title={text.suspended.title} subtitle={fillText(text.suspended.since, { date: formatDate(suspension.at, locale) })} contentMaxWidth={vars.sizes.readable.maxWidth}>
+    <Page
+      title={suspension.banned ? text.suspended.bannedTitle : text.suspended.title}
+      subtitle={fillText(suspension.banned ? text.suspended.bannedSince : text.suspended.since, { date: formatDate(suspension.at, locale) })}
+      contentMaxWidth={vars.sizes.readable.maxWidth}
+    >
       <Card gap={vars.spacing[3]}>
         <Text as="h2" variant="h4">
           {text.suspended.reasonTitle}
         </Text>
         <Text>{text.suspended.reasons[suspension.reason]}</Text>
-        <Text color={vars.colors.textMuted}>{text.suspended.meaning}</Text>
+        <Text color={vars.colors.textMuted}>{suspension.banned ? text.suspended.bannedMeaning : text.suspended.meaning}</Text>
       </Card>
       <Section title={text.suspended.appealTitle} subtitle={text.suspended.appealText} variant="h3" gap={vars.spacing[3]}>
-        {suspension.appeal ? (
+        {suspension.appeal?.rejectedAt ? (
+          <IconNote icon="info" text={fillText(text.suspended.appealRejected, { date: formatDate(suspension.appeal.rejectedAt, locale) })} />
+        ) : suspension.appeal ? (
           <IconNote icon="clock" text={fillText(text.suspended.underReview, { date: formatDate(suspension.appeal.at, locale) })} />
         ) : (
           <Stack as="form" gap={vars.spacing[3]} onSubmit={submit} noValidate>

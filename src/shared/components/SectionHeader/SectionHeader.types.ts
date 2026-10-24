@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 import type { TextVariant } from '../Text';
 
 export interface SectionHeaderProps {
+  actions?: ReactNode; // buttons or badges at the end of the header, e.g. on an admin page
+  autoDirection?: boolean; // the title is user content that may be in either language
   title?: string;
   subtitle?: string;
   as?: 'h1' | 'h2' | 'h3';

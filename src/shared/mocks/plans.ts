@@ -1,4 +1,4 @@
-import type { Plan, ProjectPass } from '@/shared/types';
+import type { Plan, ProjectPass, PromoCode } from '@/shared/types';
 
 // Monthly prices in EGP, VAT included, before the yearly discount.
 export const mockPlans: Plan[] = [
@@ -70,8 +70,11 @@ export const mockPasses: ProjectPass[] = [
   { id: 'downloads10', price: 89, days: 30, downloads: 10 },
 ];
 
-// Promo codes the checkout accepts: a share off the first payment.
-export const mockPromoCodes: Record<string, number> = {
-  SYNC20: 0.2,
-  WELCOME10: 0.1,
-};
+// Promo codes the checkout accepts (until the admin team changes them): a share off the first payment.
+export const mockPromoCodes: PromoCode[] = [
+  { id: 'promo-sync20', code: 'SYNC20', percent: 20, planIds: [], expiresAt: '2027-12-31', maxUses: null, uses: 0, active: true },
+  { id: 'promo-welcome10', code: 'WELCOME10', percent: 10, planIds: [], expiresAt: '2027-12-31', maxUses: null, uses: 0, active: true },
+  { id: 'promo-ramadan30', code: 'RAMADAN30', percent: 30, planIds: [], expiresAt: '2027-03-09', maxUses: 500, uses: 0, active: true },
+  { id: 'promo-helwan50', code: 'HELWAN50', percent: 50, planIds: ['individual'], expiresAt: '2027-01-31', maxUses: 100, uses: 42, active: true },
+  { id: 'promo-eid2026', code: 'EID2026', percent: 20, planIds: [], expiresAt: '2026-06-10', maxUses: null, uses: 311, active: true },
+];

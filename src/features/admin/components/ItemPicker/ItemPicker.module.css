@@ -1,0 +1,11 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  max-block-size: var(--item-picker-max-height);
+  margin: 0;
+  padding: var(--spacing-4);
+  overflow-y: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  list-style: none;
+}

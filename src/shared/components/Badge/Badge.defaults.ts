@@ -7,6 +7,9 @@ export const badgeVariants: Record<BadgeVariant, { background: string; color: st
   premium: { background: vars.colors.secondary, color: vars.colors.onSecondary },
   highlight: { background: vars.colors.highlight, color: vars.colors.onHighlight },
   info: { background: vars.colors.primary, color: vars.colors.onPrimary },
+  success: { background: vars.colors.success, color: vars.colors.onSuccess },
+  warning: { background: vars.colors.warning, color: vars.colors.onWarning },
+  danger: { background: vars.colors.danger, color: vars.colors.onDanger },
 };
 
 export const badgeDefaults: Required<Pick<BadgeProps, 'variant' | 'radius'>> = {

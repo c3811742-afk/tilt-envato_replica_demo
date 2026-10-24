@@ -1,5 +1,7 @@
 import { catalog, spotlights, type SortOption } from '@/shared/constants';
-import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockItems as allItems, mockPasses, mockPlans } from '@/shared/mocks';
+import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockItems as allItems, mockPasses } from '@/shared/mocks';
+import { featuredIds, freeItemIdsThisMonth } from './siteHomepage';
+import { byCategoryOrder, categorySettingsStore, editedTags, logEmptySearch, plansOnSale, searchReportStore } from './siteSettings';
 import type {
   CatalogStats,
   Category,
@@ -19,7 +21,7 @@ import type {
 } from '@/shared/types';
 import { applyFilters, countFacets } from './filters';
 import { lookDistance } from './imageLook';
-import { readCatalogEvents } from './accountStore';
+import { readCatalogEvents, signedInAccountOrNull } from './accountStore';
 import { respond } from './mockResponse';
 import { byTrending, findDownloadedTogether, findSimilarItems, isEmptyQuery, matchItems, parseQuery, sortItems, sortScored } from './search';
 import { itemSoundProfile, soundDistance } from './soundProfile';
@@ -28,17 +30,22 @@ import { suggestSearches } from './suggestions';
 // Items with the demo's catalog events applied: a creator's newly published item is new; removed items are marked.
 const withEvents = (item: Item): Item => {
   const { publishedAt, removedItemIds } = readCatalogEvents();
-  return { ...item, createdAt: publishedAt[item.id] ?? item.createdAt, removedAt: removedItemIds[item.id] };
+  return { ...item, tags: editedTags(item.tags), createdAt: publishedAt[item.id] ?? item.createdAt, removedAt: removedItemIds[item.id] };
 };
 
 // The items people can browse: removed items are left out (licensed users still reach them by link).
 const catalogItems = () => allItems.map(withEvents).filter((item) => !item.removedAt);
 
-const categoriesWithCounts = (): Category[] =>
-  mockCategories.map((category) => ({
-    ...category,
-    itemCount: catalogItems().filter((item) => item.categoryId === category.id).length,
-  }));
+// The categories shown on the site, in the team's order, without the ones it hid (set in the admin).
+const categoriesWithCounts = (): Category[] => {
+  const { hidden } = categorySettingsStore.get();
+  return byCategoryOrder(mockCategories)
+    .filter((category) => !hidden.includes(category.id))
+    .map((category) => ({
+      ...category,
+      itemCount: catalogItems().filter((item) => item.categoryId === category.id).length,
+    }));
+};
 
 const creators: Creator[] = Object.values(mockCreators);
 
@@ -104,6 +111,8 @@ export const api = {
     const now = Date.now();
     const ranked = rankResults(query);
     const results = applyFilters(ranked, filters, now);
+    // A typed search that found nothing goes to the team's search insights (only on the first page).
+    if (results.length === 0 && offset === 0 && query.query) logEmptySearch(query.query);
     return respond({
       items: results.slice(offset, offset + limit),
       total: results.length,
@@ -115,16 +124,25 @@ export const api = {
   getItems: (sort: SortOption, limit: number = catalog.railSize, categoryId?: CategoryId): Promise<Item[]> =>
     respond(sortItems(searchBase({ categoryId }), sort).slice(0, limit)),
 
-  getFeaturedItems: (limit: number = catalog.railSize): Promise<Item[]> =>
-    respond(catalogItems().filter((item) => item.featured).slice(0, limit)),
+  // The team's featured items, in their order (set in the admin).
+  getFeaturedItems: (limit: number = catalog.railSize): Promise<Item[]> => {
+    const items = catalogItems();
+    const picked = featuredIds('element').flatMap((id) => items.filter((item) => item.id === id));
+    return respond(picked.slice(0, limit));
+  },
 
   // Most downloaded in the last 30 days.
   getTrendingItems: (limit: number = catalog.railSize): Promise<Item[]> =>
     respond([...catalogItems()].sort(byTrending).slice(0, limit)),
 
   // This month's free items: anyone with an account can download them.
-  getFreeItems: (limit: number = catalog.railSize): Promise<Item[]> =>
-    respond(catalogItems().filter((item) => item.tier === 'free').slice(0, limit)),
+  // This month's free items chosen by the team, or the library's free items when none are chosen.
+  getFreeItems: (limit: number = catalog.railSize): Promise<Item[]> => {
+    const chosen = freeItemIdsThisMonth();
+    const items = catalogItems();
+    const free = chosen ? chosen.flatMap((id) => items.filter((item) => item.id === id)) : items.filter((item) => item.tier === 'free');
+    return respond(free.slice(0, limit));
+  },
 
   // Items from a home page browse section: an occasion, a business type or a local spotlight.
   getBrowseItems: (query: Pick<SearchQuery, 'occasion' | 'business' | 'spotlight'>, limit: number = catalog.railSize) =>
@@ -172,7 +190,12 @@ export const api = {
 
   getCreators: (): Promise<Creator[]> => respond([...creators].sort((a, b) => a.name.localeCompare(b.name))),
 
-  getCollections: (): Promise<CollectionWithItems[]> => respond(mockCollections.map(withItems)),
+  // Featured collections (set in the admin) first.
+  getCollections: (): Promise<CollectionWithItems[]> => {
+    const featured = featuredIds('collection');
+    const rank = (id: string) => (featured.includes(id) ? featured.indexOf(id) : featured.length);
+    return respond([...mockCollections].sort((a, b) => rank(a.id) - rank(b.id)).map(withItems));
+  },
 
   // null when no collection has this id.
   getCollection: (id: string): Promise<CollectionWithItems | null> => {
@@ -184,9 +207,17 @@ export const api = {
     respond(suggestSearches(typed, catalogItems(), categoriesWithCounts(), catalog.suggestionLimit), catalog.suggestLatencyMs),
 
   // "These results don't match my search": the demo keeps nothing on a server.
-  reportSearch: (report: SearchReport): Promise<SearchReport> => respond(report),
+  // Sent to the team: it shows in the admin's search insights.
+  reportSearch: (report: SearchReport): Promise<SearchReport> => {
+    const signedIn = signedInAccountOrNull();
+    searchReportStore.set([
+      { ...report, id: crypto.randomUUID(), reportedBy: signedIn?.email ?? '', at: new Date().toISOString() },
+      ...searchReportStore.get(),
+    ]);
+    return respond(report);
+  },
 
-  getPlans: (): Promise<Plan[]> => respond(mockPlans),
+  getPlans: (): Promise<Plan[]> => respond(plansOnSale()),
 
   getPasses: (): Promise<ProjectPass[]> => respond(mockPasses),
 

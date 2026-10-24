@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { vars } from '@/shared/theme';
 import { cx, withDefaults } from '@/shared/utils';
+import { FieldMessage } from '../FieldMessage';
 import { Icon } from '../Icon';
 import { Stack } from '../Stack';
 import { Text } from '../Text';
@@ -11,13 +12,19 @@ import styles from './Select.module.css';
 // A labelled dropdown in the brand's style (a styled list instead of the browser's own).
 // Keyboard: arrows, Home / End and a typed letter move; Enter or Space picks; Esc closes.
 export const Select = (props: SelectProps) => {
-  const { label, hideLabel, value, options, onChange, id, disabled, listMaxHeight } = withDefaults(selectDefaults, props);
+  const { label, value, options, onChange, id, disabled, listMaxHeight, placeholder, hint, error, required, hideLabel } = withDefaults(
+    selectDefaults,
+    props,
+  );
   const generatedId = useId();
   const buttonId = id ?? generatedId;
   const labelId = `${buttonId}-label`;
   const listId = `${buttonId}-list`;
+  const messageId = `${buttonId}-message`;
+  const message = error ?? hint;
   const [open, setOpen] = useState(false);
-  const selectedIndex = Math.max(0, options.findIndex((option) => option.value === value));
+  const foundIndex = options.findIndex((option) => option.value === value);
+  const selectedIndex = Math.max(0, foundIndex);
   const [active, setActive] = useState(selectedIndex);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -86,7 +93,8 @@ export const Select = (props: SelectProps) => {
     }
   };
 
-  const selected = options[selectedIndex];
+  // Nothing chosen yet: the placeholder when there is one, otherwise the first option.
+  const selected = foundIndex >= 0 || !placeholder ? options[selectedIndex] : undefined;
 
   return (
     <Stack gap={vars.spacing[2]}>
@@ -102,19 +110,23 @@ export const Select = (props: SelectProps) => {
           ref={buttonRef}
           id={buttonId}
           type="button"
-          className={cx(styles.select, open && styles.open)}
+          className={cx(styles.select, open && styles.open, error && styles.invalid)}
           disabled={disabled}
           role="combobox"
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls={listId}
-          aria-labelledby={label ? `${labelId} ${buttonId}` : undefined}
+          aria-labelledby={label && !hideLabel ? `${labelId} ${buttonId}` : undefined}
+          aria-label={hideLabel ? label : undefined}
+          aria-invalid={error ? true : undefined}
+          aria-required={required || undefined}
+          aria-describedby={message ? messageId : undefined}
           aria-activedescendant={open ? `${listId}-${active}` : undefined}
           onClick={() => (open ? setOpen(false) : openList())}
           onKeyDown={onKeyDown}
         >
-          <span className={styles.value} dir="auto">
-            {selected?.label}
+          <span className={cx(styles.value, !selected && styles.placeholder)} dir="auto">
+            {selected?.label ?? placeholder}
           </span>
           <span className={cx(styles.chevron, open && styles.flipped)}>
             <Icon name="chevronDown" size={vars.sizes.icon.sm} />
@@ -143,6 +155,7 @@ export const Select = (props: SelectProps) => {
           </ul>
         )}
       </div>
+      <FieldMessage id={messageId} message={message} tone={error ? 'error' : 'hint'} />
     </Stack>
   );
 };

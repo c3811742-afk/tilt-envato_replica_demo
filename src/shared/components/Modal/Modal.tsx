@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from 'react';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { cx, withDefaults } from '@/shared/utils';
@@ -9,9 +9,19 @@ import { modalDefaults } from './Modal.defaults';
 import type { ModalProps } from './Modal.types';
 import styles from './Modal.module.css';
 
+// The dialog's content: a form when the dialog submits something, a plain block otherwise.
+const ModalBody = ({ onSubmit, children }: { onSubmit?: ModalProps['onSubmit']; children: ReactNode }) =>
+  onSubmit ? (
+    <form className={styles.content} onSubmit={onSubmit} noValidate>
+      {children}
+    </form>
+  ) : (
+    <div className={styles.content}>{children}</div>
+  );
+
 // A dialog built on the native <dialog>: focus is trapped inside and Esc closes it.
 export const Modal = (props: ModalProps) => {
-  const { open, onClose, title, children, actions, width, placement, closeLabel } = withDefaults(modalDefaults, props);
+  const { open, onClose, title, children, actions, width, placement, closeLabel, onSubmit } = withDefaults(modalDefaults, props);
   const { text } = useLocale();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -38,7 +48,7 @@ export const Modal = (props: ModalProps) => {
       }}
     >
       {open && (
-        <div className={styles.content}>
+        <ModalBody onSubmit={onSubmit}>
           <div className={styles.header}>
             {title && (
               <Text as="h2" variant="h3" id={titleId}>
@@ -51,7 +61,7 @@ export const Modal = (props: ModalProps) => {
           </div>
           <Stack gap={vars.spacing[4]}>{children}</Stack>
           {actions && <div className={styles.actions}>{actions}</div>}
-        </div>
+        </ModalBody>
       )}
     </dialog>
   );

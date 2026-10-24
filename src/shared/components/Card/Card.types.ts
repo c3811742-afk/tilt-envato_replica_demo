@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 export interface CardProps {
   children?: ReactNode;
+  title?: string; // a heading at the top of the card, which also names it
   as?: 'div' | 'article' | 'section' | 'li';
   to?: string; // app path (from routes.ts): the whole card is a link
   padding?: string;

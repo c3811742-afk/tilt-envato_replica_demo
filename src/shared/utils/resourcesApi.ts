@@ -4,7 +4,8 @@ import { storage } from './storage';
 
 // The newsletter list and program applications, kept in this browser for the demo.
 
-const readList = <T>(key: string): T[] => {
+// A list kept in this browser's storage (empty when missing or corrupted).
+export const readList = <T>(key: string): T[] => {
   const saved = storage.get(key);
   if (!saved) return [];
   try {

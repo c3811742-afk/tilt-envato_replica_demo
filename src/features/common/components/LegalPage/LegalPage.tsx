@@ -21,8 +21,8 @@ export const LegalPage = ({ title, updatedAt, updatedLabel, sections }: LegalPag
       contentMaxWidth={vars.sizes.readable.maxWidth}
       gap={vars.spacing[6]}
     >
-      {sections.map((section) => (
-        <Section key={section.title} title={section.title} variant="h3" gap={vars.spacing[2]}>
+      {sections.map((section, index) => (
+        <Section key={`${index}-${section.title}`} title={section.title || undefined} variant="h3" gap={vars.spacing[2]}>
           <Text>{section.text}</Text>
         </Section>
       ))}

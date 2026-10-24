@@ -7,7 +7,7 @@ import {
   type PlanDuration,
   type SavedPaymentKind,
 } from '@/shared/constants';
-import { mockPasses, mockPlans, mockPromoCodes } from '@/shared/mocks';
+import { mockPasses } from '@/shared/mocks';
 import type { BillingAddress, Invoice, InvoiceLine, PassId, PlanId, SavedPaymentMethod, Subscription } from '@/shared/types';
 import {
   call,
@@ -25,6 +25,7 @@ import {
   type StoredAccount,
 } from './accountStore';
 import { ApiError } from './apiError';
+import { findPlanById, promoCodeStore } from './siteSettings';
 import { ensureTeam, seatsInUse } from './teamApi';
 import { getSubscriptionTotal, paymentBreakdown, prorate, vatIncluded } from './pricing';
 import { isSubscriptionActive } from './session';
@@ -90,7 +91,7 @@ export interface SalesRequest {
 }
 
 const findPlan = (planId: PlanId) => {
-  const plan = mockPlans.find((candidate) => candidate.id === planId);
+  const plan = findPlanById(planId);
   if (!plan || plan.monthlyPrice === null) throw new ApiError('planUnavailable');
   return plan;
 };
@@ -112,11 +113,28 @@ const monthlyCredits = (planId: PlanId, members: number, credits?: number) => {
   return (tier?.credits ?? plan.credits) * (plan.perMember ? members : 1);
 };
 
-const promoRate = (code?: string) => {
-  if (!code?.trim()) return 0;
-  const rate = mockPromoCodes[code.trim().toUpperCase()];
-  if (rate === undefined) throw new ApiError('invalidPromo');
-  return rate;
+// The promo code, if it works: turned on, not expired, not used up, and for this plan (no plan: a project pass).
+const findPromo = (code: string | undefined, planId?: PlanId) => {
+  if (!code?.trim()) return null;
+  const promo = promoCodeStore.get().find((candidate) => candidate.code === code.trim().toUpperCase());
+  const today = new Date().toISOString().slice(0, 10);
+  const usable =
+    promo &&
+    promo.active &&
+    promo.expiresAt >= today &&
+    (promo.maxUses === null || promo.uses < promo.maxUses) &&
+    (promo.planIds.length === 0 || (planId !== undefined && promo.planIds.includes(planId)));
+  if (!usable) throw new ApiError('invalidPromo');
+  return promo;
+};
+
+const promoRate = (code?: string, planId?: PlanId) => (findPromo(code, planId)?.percent ?? 0) / 100;
+
+// Counts a use once the payment went through.
+const countPromoUse = (code?: string) => {
+  if (!code?.trim()) return;
+  const upper = code.trim().toUpperCase();
+  promoCodeStore.set(promoCodeStore.get().map((promo) => (promo.code === upper ? { ...promo, uses: promo.uses + 1 } : promo)));
 };
 
 const cardBrandSummary = (number: string) => `•••• ${keepDigits(number, card.numberLength).slice(-4)}`;
@@ -178,8 +196,8 @@ const makeInvoice = (account: StoredAccount, lines: InvoiceLine[], paymentMethod
 };
 
 // Lines that lower a payment: a promo code, then account credit from an earlier downgrade.
-const reductions = (account: StoredAccount, subtotal: number, promoCode?: string): InvoiceLine[] => {
-  const { discount, balanceUsed } = paymentBreakdown(subtotal, promoRate(promoCode), account.balance);
+const reductions = (account: StoredAccount, subtotal: number, promoCode?: string, planId?: PlanId): InvoiceLine[] => {
+  const { discount, balanceUsed } = paymentBreakdown(subtotal, promoRate(promoCode, planId), account.balance);
   return [
     ...(discount ? [{ kind: 'discount' as const, code: (promoCode ?? '').trim().toUpperCase(), amount: -discount }] : []),
     ...(balanceUsed ? [{ kind: 'balance' as const, amount: -balanceUsed }] : []),
@@ -201,7 +219,8 @@ const chargeableMethod = (account: StoredAccount, subscription: Subscription) =>
 
 export const billingApi = {
   // Checks a promo code: the share it takes off the first payment.
-  checkPromo: (code: string) => call(() => promoRate(code)),
+  // planId: the plan being bought; none for a project pass.
+  checkPromo: (code: string, planId?: PlanId) => call(() => promoRate(code, planId)),
 
   // Starts a plan. Fawry payments stay pending (with a pending invoice) until the code is paid.
   subscribe: ({ planId, duration, members, credits, payment, autoRenew, promoCode, billingAddress }: SubscribeRequest) =>
@@ -210,7 +229,7 @@ export const billingApi = {
       const seats = plan.perMember ? Math.max(members, plan.minMembers) : 1;
       const base = { ...signedInAccount(), billingAddress };
       const subtotal = planTotal(base, planId, duration, seats, credits);
-      const lines: InvoiceLine[] = [{ kind: 'plan', planId, duration, members: seats, credits, amount: subtotal }, ...reductions(base, subtotal, promoCode)];
+      const lines: InvoiceLine[] = [{ kind: 'plan', planId, duration, members: seats, credits, amount: subtotal }, ...reductions(base, subtotal, promoCode, planId)];
       const charged = charge(base, payment);
       const { account, savedMethodId } = rememberMethod(charged, payment);
       const pending = payment.method === 'fawry';
@@ -230,6 +249,7 @@ export const billingApi = {
         ...(pending && { fawryCode: randomDigits(fawry.codeLength), payBy: minutesFromNow(fawry.payWithinHours * 60) }),
       };
       const saved = saveAccount({ ...account, subscription, balance: account.balance - usedBalance(lines), invoices: [invoice, ...account.invoices] });
+      countPromoUse(promoCode);
       // A plan with seats comes with a team the buyer owns.
       if (plan.perMember) ensureTeam(saved);
       return toSessionAccount(saved);
@@ -245,6 +265,7 @@ export const billingApi = {
       const { account } = rememberMethod(charge(base, payment), payment);
       const pending = payment.method === 'fawry';
       const invoice = makeInvoice(account, lines, payment.method, pending ? 'pending' : 'paid');
+      countPromoUse(promoCode);
       return toSessionAccount(
         saveAccount({
           ...account,

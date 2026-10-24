@@ -2,7 +2,7 @@ import { Button, Card, FaqAccordion, Grid, Icon, Page, Section, Stack, Text } fr
 import { aiToolGroupKeys, aiToolGroups, aiToolIcons, aiToolPath, routes } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { accountCredits } from '@/shared/utils';
+import { accountCredits, isAiToolOn } from '@/shared/utils';
 
 // "AI hub": open to everyone. A page for each AI tool, grouped, then the AI FAQ and the prompt guides.
 export const AiHubPage = () => {
@@ -30,7 +30,7 @@ export const AiHubPage = () => {
       {aiToolGroupKeys.map((group) => (
         <Section key={group} title={text.ai.groups[group]}>
           <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} ariaLabel={text.ai.groups[group]}>
-            {aiToolGroups[group].map((tool) => (
+            {aiToolGroups[group].filter(isAiToolOn).map((tool) => (
               <li key={tool}>
                 <Card to={aiToolPath(tool)} gap={vars.spacing[3]}>
                   <Icon name={aiToolIcons[tool]} size={vars.sizes.icon.lg} color={vars.colors.primary} />

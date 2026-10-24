@@ -12,6 +12,7 @@ import { CookieSettingsDialog } from './CookieSettingsDialog';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { LanguageSuggestion } from './LanguageSuggestion';
+import { SiteBanner } from './SiteBanner';
 import styles from './AppLayout.module.css';
 
 // Every item card shows the favorite and "Save to collection" buttons.
@@ -32,6 +33,7 @@ export const AppLayout = () => {
     <div className={styles.layout}>
       <PageBackground />
       <LanguageSuggestion />
+      <SiteBanner />
       <Header />
       <main className={styles.main}>
         <ItemActionsContext value={itemActions}>

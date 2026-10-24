@@ -17,9 +17,9 @@ export const formatCount = (forms: CountForms, count: number, locale: Locale) =>
 export const formatCompactNumber = (value: number, locale: Locale) =>
   new Intl.NumberFormat(intlTag(locale), { notation: 'compact' }).format(value);
 
-// 0.25 -> "25%"
-export const formatPercent = (fraction: number, locale: Locale) =>
-  new Intl.NumberFormat(intlTag(locale), { style: 'percent' }).format(fraction);
+// 0.25 -> "25%". Pass fractionDigits for small shares: 0.031 -> "3.1%".
+export const formatPercent = (fraction: number, locale: Locale, fractionDigits = 0) =>
+  new Intl.NumberFormat(intlTag(locale), { style: 'percent', maximumFractionDigits: fractionDigits }).format(fraction);
 
 // "EGP 1,499" / "1,499 ج.م.", or another currency's amount: "$30.88".
 export const formatPrice = (amount: number, locale: Locale, currencyCode: DisplayCurrency = currency.code) =>

@@ -1,5 +1,5 @@
 import { mockItems } from '@/shared/mocks';
-import { accountPath, itemPath, licenseCheckPath, renewalReminderDays, routes, type RevokeReason, type SuspensionReason } from '@/shared/constants';
+import { accountPath, itemPath, renewalReminderDays, routes, type RevokeReason, type SuspensionReason } from '@/shared/constants';
 import {
   call,
   findByEmail,
@@ -7,6 +7,7 @@ import {
   readAccounts,
   readCatalogEvents,
   readLicenses,
+  revokeLicenseRecord,
   saveAccount,
   saveTeam,
   signedInAccount,
@@ -16,12 +17,28 @@ import {
   writeAccounts,
   writeCatalogEvents,
   withDueReminders,
-  writeLicenses,
 } from './accountStore';
 import { ApiError } from './apiError';
 import { originalTitle } from './itemText';
 
 const dayMs = 24 * 60 * 60 * 1000;
+
+// Takes an item out of the library: it no longer shows in search, and everyone who downloaded it is told
+// (their licenses stay valid). Used by the demo page and by the admin. False when there is no such item.
+export const removeItemFromLibrary = (itemId: string) => {
+  const item = mockItems.find((candidate) => candidate.id === itemId);
+  if (!item) return false;
+  const events = readCatalogEvents();
+  writeCatalogEvents({ ...events, removedItemIds: { ...events.removedItemIds, [itemId]: new Date().toISOString() } });
+  writeAccounts(
+    readAccounts().map((account) =>
+      account.downloads.some((download) => download.itemId === itemId)
+        ? withAlert(account, 'itemRemoved', { title: originalTitle(item) }, routes.downloads)
+        : account,
+    ),
+  );
+  return true;
+};
 
 // Things that happen to an account over time (a renewal coming up, a payment failing, a creator publishing).
 // The demo page triggers them on demand so each notification can be seen.
@@ -45,17 +62,7 @@ export const demoApi = {
   // Removes an item from the library. Everyone who licensed it is told; their licenses stay valid.
   removeItem: (itemId: string) =>
     call(() => {
-      const item = mockItems.find((candidate) => candidate.id === itemId);
-      if (!item) throw new ApiError('itemRemoved');
-      const events = readCatalogEvents();
-      writeCatalogEvents({ ...events, removedItemIds: { ...events.removedItemIds, [itemId]: new Date().toISOString() } });
-      writeAccounts(
-        readAccounts().map((account) =>
-          account.downloads.some((download) => download.itemId === itemId)
-            ? withAlert(account, 'itemRemoved', { title: originalTitle(item) }, routes.downloads)
-            : account,
-        ),
-      );
+      if (!removeItemFromLibrary(itemId)) throw new ApiError('itemRemoved');
       return toSessionAccount(signedInAccount());
     }),
 
@@ -63,13 +70,10 @@ export const demoApi = {
   revokeLatestLicense: (reason: RevokeReason) =>
     call(() => {
       const account = signedInAccount();
-      const licenses = readLicenses();
-      const latest = licenses.find((license) => license.ownerId === account.id && !license.revoked);
+      const latest = readLicenses().find((license) => license.ownerId === account.id && !license.revoked);
       if (!latest) throw new ApiError('noDownloadAccess');
-      writeLicenses(licenses.map((license) => (license.code === latest.code ? { ...license, revoked: { reason, at: new Date().toISOString() } } : license)));
-      return toSessionAccount(
-        saveAccount(withAlert(account, 'licenseRevoked', { title: latest.itemTitle, code: latest.code, reason }, licenseCheckPath(latest.code))),
-      );
+      revokeLicenseRecord(latest.code, reason);
+      return toSessionAccount(signedInAccount());
     }),
 
   // A creator publishes a new item: everyone who follows them is told.

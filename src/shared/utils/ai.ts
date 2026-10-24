@@ -1,5 +1,4 @@
 import {
-  aiCredits,
   aiGeneration,
   aiModelCredits,
   aiOutputSizes,
@@ -9,7 +8,8 @@ import {
   type AiStyle,
   type AiVideoModelId,
 } from '@/shared/constants';
-import { mockPlans } from '@/shared/mocks';
+import { aiCost } from './siteAi';
+import { findPlanById } from './siteSettings';
 import type { AiRequest, Generation, Subscription } from '@/shared/types';
 import { monthStart } from './library';
 import { isSubscriptionActive } from './session';
@@ -28,24 +28,24 @@ export const generationCost = (request: AiRequest) => {
   const { tool } = request;
   switch (tool) {
     case 'image':
-      if (request.burst) return aiCredits.burst;
-      return (isImageModel(request.model) ? aiModelCredits[request.model] : 1) * (request.count ?? 1);
+      if (request.burst) return aiCost('burst');
+      return (isImageModel(request.model) ? aiCost(request.model) : 1) * (request.count ?? 1);
     case 'video': {
       const seconds = request.duration ?? aiGeneration.videoDurations[0];
       const perSecond =
-        (isVideoModel(request.model) ? aiVideoModelCredits[request.model] : 1) +
-        (request.resolution === '1080p' ? aiCredits.videoHighResolutionPerSecond : 0) +
-        (request.audio ? aiCredits.videoAudioPerSecond : 0);
+        (isVideoModel(request.model) ? aiCost(request.model) : 1) +
+        (request.resolution === '1080p' ? aiCost('videoHighResolutionPerSecond') : 0) +
+        (request.audio ? aiCost('videoAudioPerSecond') : 0);
       return perSecond * seconds;
     }
     case 'music':
-      return aiCredits.musicPerTenSeconds * Math.ceil((request.duration ?? aiGeneration.musicDurations[0]) / 10);
+      return aiCost('musicPerTenSeconds') * Math.ceil((request.duration ?? aiGeneration.musicDurations[0]) / 10);
     case 'voice':
-      return aiCredits.voicePerHundredCharacters * Math.max(1, Math.ceil(request.prompt.trim().length / 100));
+      return aiCost('voicePerHundredCharacters') * Math.max(1, Math.ceil(request.prompt.trim().length / 100));
     case 'graphics':
-      return aiCredits.graphics * (request.count ?? 1);
+      return aiCost('graphics') * (request.count ?? 1);
     default:
-      return aiCredits[tool];
+      return aiCost(tool);
   }
 };
 
@@ -91,7 +91,7 @@ export interface CreditAllowance {
 
 // The AI credits the user's plan gives this month, and what's left. No plan: no credits.
 export const creditAllowance = (generations: Generation[], subscription: Subscription | null, now: Date = new Date()): CreditAllowance => {
-  const plan = subscription && isSubscriptionActive(subscription, now) ? mockPlans.find((candidate) => candidate.id === subscription.planId) : undefined;
+  const plan = subscription && isSubscriptionActive(subscription, now) ? findPlanById(subscription.planId) : undefined;
   if (!subscription || !plan) return { total: 0, used: 0, remaining: 0, resetsAt: null, concurrent: 0, models: [], videoModels: [] };
   const since = monthStart(subscription, now);
   const used = generations.filter((generation) => new Date(generation.createdAt) >= since).reduce((total, generation) => total + generation.credits, 0);

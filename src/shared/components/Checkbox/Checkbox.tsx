@@ -10,7 +10,7 @@ import styles from './Checkbox.module.css';
 
 // A native checkbox with its label, and an error under it when it must be checked.
 export const Checkbox = (props: CheckboxProps) => {
-  const { label, checked, onChange, error, id, disabled } = withDefaults(checkboxDefaults, props);
+  const { label, checked, onChange, error, id, disabled, description, hideLabel } = withDefaults(checkboxDefaults, props);
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const errorId = `${inputId}-error`;
@@ -27,10 +27,20 @@ export const Checkbox = (props: CheckboxProps) => {
           onChange={(event) => onChange?.(event.target.checked)}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
+          aria-label={hideLabel && typeof label === 'string' ? label : undefined}
         />
-        <Text as="label" htmlFor={inputId} variant="bodySm">
-          {label}
-        </Text>
+        {!hideLabel && (
+          <Stack gap={vars.spacing[1]}>
+            <Text as="label" htmlFor={inputId} variant="bodySm">
+              {label}
+            </Text>
+            {description && (
+              <Text variant="bodySm" color={vars.colors.textMuted}>
+                {description}
+              </Text>
+            )}
+          </Stack>
+        )}
       </div>
       <FieldMessage id={errorId} message={error} tone="error" />
     </Stack>

@@ -32,6 +32,8 @@ export const TextField = (props: TextFieldProps) => {
     required,
     autoFocus,
     autoComplete,
+    lang,
+    hideLabel,
   } = withDefaults(textFieldDefaults, props);
   const generatedId = useId();
   const inputId = id ?? generatedId;
@@ -49,13 +51,15 @@ export const TextField = (props: TextFieldProps) => {
     autoFocus,
     autoComplete,
     dir: direction,
+    lang,
+    'aria-label': hideLabel ? label : undefined,
     'aria-invalid': error ? true : undefined,
     'aria-describedby': message ? messageId : undefined,
   };
 
   return (
     <Stack gap={vars.spacing[2]}>
-      {label && (
+      {label && !hideLabel && (
         <Text as="label" htmlFor={inputId} variant="title">
           {label}
         </Text>

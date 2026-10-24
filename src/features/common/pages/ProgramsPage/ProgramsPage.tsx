@@ -4,7 +4,7 @@ import { categoryIds } from '@/shared/types';
 import { partnerAudiences, partnerPrograms, routes, type PartnerAudience, type PartnerProgram } from '@/shared/constants';
 import { useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { fillText, formatNumber, resourcesApi, validateEmail, validateRequired } from '@/shared/utils';
+import { currentPrograms, fillText, formatDate, formatNumber, resourcesApi, validateEmail, validateRequired } from '@/shared/utils';
 
 // "Author portal": how to become an author, the application, and ways to sign in or get help. Open to everyone.
 export const AuthorsPage = () => {
@@ -19,6 +19,7 @@ export const AuthorsPage = () => {
   );
 
   const submit = form.submit(async (values) => setReference(await resourcesApi.apply({ kind: 'author', ...values })));
+  const programs = currentPrograms();
 
   return (
     <Page title={text.authors.title} subtitle={text.authors.subtitle} gap={vars.spacing[7]}>
@@ -34,6 +35,37 @@ export const AuthorsPage = () => {
           ))}
         </Grid>
       </Section>
+      {/* Student programs and competitions the team runs with universities (set up in the admin). */}
+      {programs.length > 0 && (
+        <Section title={text.authors.programsTitle} subtitle={text.authors.programsText}>
+          <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} ariaLabel={text.authors.programsTitle}>
+            {programs.map((program) => (
+              <Card key={program.id} as="li" gap={vars.spacing[2]}>
+                <Text variant="label" color={vars.colors.textMuted}>
+                  {text.authors.programKinds[program.kind]}
+                </Text>
+                <Text as="h3" variant="title" autoDirection>
+                  {program.name}
+                </Text>
+                <Text variant="bodySm" autoDirection>
+                  {program.university}
+                </Text>
+                <Text variant="bodySm" color={vars.colors.textMuted} autoDirection>
+                  {program.description}
+                </Text>
+                <Text variant="bodySm">
+                  {fillText(text.authors.programDates, { start: formatDate(program.startDate, locale), end: formatDate(program.endDate, locale) })}
+                </Text>
+                {program.prize && (
+                  <Text variant="bodySm" autoDirection>
+                    {fillText(text.authors.programPrize, { prize: program.prize })}
+                  </Text>
+                )}
+              </Card>
+            ))}
+          </Grid>
+        </Section>
+      )}
       <SplitLayout
         main={
           <Section title={text.authors.formTitle} variant="h3" gap={vars.spacing[4]}>

@@ -1,4 +1,5 @@
-import { mockPasses, mockPlans } from '@/shared/mocks';
+import { mockPasses } from '@/shared/mocks';
+import { findPlanById } from './siteSettings';
 import type { Download, PassPurchase, Subscription, UserCollection } from '@/shared/types';
 import { isSubscriptionActive } from './session';
 
@@ -32,7 +33,7 @@ export const downloadAllowance = (
 ): DownloadAllowance => {
   const paid = downloads.filter((download) => !freeItemIds.has(download.itemId));
   if (subscription && isSubscriptionActive(subscription, now)) {
-    const plan = mockPlans.find((candidate) => candidate.id === subscription.planId);
+    const plan = findPlanById(subscription.planId);
     const since = monthStart(subscription, now);
     const used = paid.filter((download) => counts(download, since)).length;
     const limit = plan?.downloadsPerMonth == null ? null : plan.downloadsPerMonth * (plan.perMember ? subscription.members : 1);

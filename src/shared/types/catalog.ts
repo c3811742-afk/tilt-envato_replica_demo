@@ -211,3 +211,16 @@ export interface SearchReport {
   reason: string;
   comment: string;
 }
+
+// A search report as the team receives it (kept in this browser for the demo).
+export interface SentSearchReport extends SearchReport {
+  id: string;
+  reportedBy: string; // the signed-in email, or empty for a guest
+  at: string; // ISO date
+}
+
+// A search that found nothing.
+export interface EmptySearch {
+  term: string;
+  at: string; // ISO date
+}

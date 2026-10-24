@@ -10,7 +10,7 @@ export { useMessages } from './useMessages';
 export { useForm } from './useForm';
 export type { SessionContextValue } from './useSession';
 export { useAsync, toAsyncState } from './useAsync';
-export type { AsyncState, AsyncResult } from './useAsync';
+export type { AsyncState, AsyncResult, UpdatableAsyncResult } from './useAsync';
 export { usePagedAsync } from './usePagedAsync';
 export type { PagedAsyncResult } from './usePagedAsync';
 export { useCategories } from './useCategories';

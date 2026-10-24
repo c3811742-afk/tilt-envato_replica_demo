@@ -1,4 +1,5 @@
-// Raw brand palette, pixel-sampled from SYNC posts. The system uses only SYNC blue and lime, plus neutrals. Components must not use it directly:
+// Raw brand palette, pixel-sampled from SYNC posts. The system uses SYNC blue and lime, plus neutrals, and red only for
+// destructive actions and errors (danger). Components must not use it directly:
 // use `colors` (semantic) or `accentPairs` instead.
 export const palette = {
   black: '#000000',
@@ -12,6 +13,7 @@ export const palette = {
   royalBlue: '#403AFE',
   royalBlueDark: '#3A32E0',
   lime: '#9AE62E',
+  red: '#E8303C',
 } as const;
 
 export const colors = {
@@ -36,7 +38,7 @@ export const colors = {
   borderMuted: palette.gray200,
   focus: palette.black, // lime is too light to see on white
 
-  danger: palette.royalBlue,
+  danger: palette.red, // destructive actions (delete, ban) and errors
   onDanger: palette.white,
   success: palette.lime,
   onSuccess: palette.black,
@@ -48,6 +50,13 @@ export const colors = {
   transparent: 'transparent', // see-through backgrounds and borders (ghost buttons)
   overlay: 'rgba(0, 0, 0, 0.6)',
   shadow: palette.black, // the hard hover shadow
+
+  // The admin sidebar: always SYNC blue with lime for the current page, whatever accent the user picked.
+  nav: palette.royalBlue,
+  onNav: palette.white,
+  navHover: palette.royalBlueDark,
+  navAccent: palette.lime,
+  onNavAccent: palette.black,
 } as const;
 
 export type ColorName = keyof typeof colors;

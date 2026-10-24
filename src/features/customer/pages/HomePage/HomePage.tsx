@@ -25,18 +25,19 @@ import {
 } from '@/shared/constants';
 import { useAsync, useCategories, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { api, fillText, unreadReleaseNotes } from '@/shared/utils';
+import { api, currentOccasion, faqGroups, fillText, unreadReleaseNotes } from '@/shared/utils';
 import { ChipLinks, HowItWorksSteps, ItemRowSection, SearchBox } from '@/features/customer/components';
 import styles from './HomePage.module.css';
 
 export const HomePage = () => {
-  const { text, price } = useLocale();
+  const { text, price, locale } = useLocale();
   const { session } = useSession();
   const categories = useCategories();
   const collections = useAsync(api.getCollections, []);
   const plans = useAsync(api.getPlans, []);
-  const faqPreview = text.faq.groups.flatMap((group) => group.items).slice(0, catalog.faqPreviewSize);
+  const faqPreview = faqGroups(locale).flatMap((group) => group.items).slice(0, catalog.faqPreviewSize);
   const signedIn = session.status === 'signedIn';
+  const occasion = currentOccasion();
 
   return (
     <>
@@ -44,6 +45,12 @@ export const HomePage = () => {
         <Container>
           <div className={styles.heroContent}>
             <Stack gap={vars.spacing[5]}>
+              {/* The occasion the team set up for today (admin, homepage settings), e.g. Ramadan. */}
+              {occasion && (
+                <Text variant="label" color={vars.colors.onPrimary} autoDirection>
+                  {occasion.headline[locale]}
+                </Text>
+              )}
               <Text as="h1" variant="display" color={vars.colors.onPrimary}>
                 {text.home.title}
               </Text>

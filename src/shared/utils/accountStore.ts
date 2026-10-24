@@ -1,5 +1,15 @@
-import { accountPath, auth, defaultLicensingPreference, notificationTopics, renewalReminderDays, storageKeys, type AlertKind } from '@/shared/constants';
-import { mockLicenses, mockPlans } from '@/shared/mocks';
+import {
+  accountPath,
+  auth,
+  defaultLicensingPreference,
+  licenseCheckPath,
+  notificationTopics,
+  renewalReminderDays,
+  storageKeys,
+  type AlertKind,
+  type RevokeReason,
+} from '@/shared/constants';
+import { mockLicenses } from '@/shared/mocks';
 import type { Locale } from '@/shared/theme';
 import type {
   Alert,
@@ -17,6 +27,7 @@ import type {
 } from '@/shared/types';
 import { ApiError } from './apiError';
 import { respond, respondError } from './mockResponse';
+import { findPlanById } from './siteSettings';
 import { storage } from './storage';
 
 // The demo's mock server: accounts, licenses and catalog events live in this browser's storage; nothing is sent anywhere.
@@ -259,6 +270,19 @@ export const readLicenses = (): LicenseRecord[] => {
 
 export const writeLicenses = (licenses: LicenseRecord[]) => storage.set(storageKeys.licenses, JSON.stringify(licenses));
 
+// Revokes a license and tells its owner (the license check then shows it as revoked, with the reason).
+// Returns the updated license, or null when no license has that code.
+export const revokeLicenseRecord = (code: string, reason: RevokeReason, note?: string): LicenseRecord | null => {
+  const licenses = readLicenses();
+  const license = licenses.find((current) => current.code === code);
+  if (!license) return null;
+  const revoked: LicenseRecord = { ...license, revoked: { reason, at: new Date().toISOString(), note } };
+  writeLicenses(licenses.map((current) => (current.code === code ? revoked : current)));
+  const owner = findById(license.ownerId);
+  if (owner) saveAccount(withAlert(owner, 'licenseRevoked', { title: license.itemTitle, code, reason }, licenseCheckPath(code)));
+  return revoked;
+};
+
 // ---------- Catalog events (demo) ----------
 
 export interface CatalogEvents {
@@ -305,7 +329,7 @@ export const saveTeam = (updated: Team) => {
 export const teamOf = (accountId: string) => readTeams().find((team) => team.members.some((member) => member.accountId === accountId)) ?? null;
 
 // Plans that come with a team: priced per seat.
-const isTeamPlan = (subscription: Subscription | null) => subscription !== null && mockPlans.some((plan) => plan.id === subscription.planId && plan.perMember);
+const isTeamPlan = (subscription: Subscription | null) => subscription !== null && Boolean(subscription && findPlanById(subscription.planId)?.perMember);
 
 // The plan an account downloads and generates with, and whose usage counts against it:
 // their own plan, or (for team members without one) the owner's, shared by the whole team.

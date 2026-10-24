@@ -27,6 +27,7 @@ export type {
 } from './catalog';
 export type {
   PlanId,
+  PromoCode,
   CreditTier,
   Plan,
   PassId,
@@ -52,6 +53,7 @@ export type {
   PassPurchase,
   Session,
   SupportRequest,
+  SupportReply,
   CopyrightReport,
   Suspension,
   AiRequest,
@@ -66,5 +68,15 @@ export type {
   License,
   LicenseRecord,
 } from './account';
-export type { LocalizedList, HelpArticle, LearnGuide, BlogPost, CourseLesson, Course, Job, NewsPost } from './content';
+export type {
+  LegalPageId,
+  SiteArticle,
+  SiteArticleKind,
+  SiteArticleStatus,
+  SiteFaq,
+  SiteLegalPage, LocalizedList, HelpArticle, LearnGuide, BlogPost, CourseLesson, Course, Job, NewsPost } from './content';
+export type { Banner, FeaturedKind, FeaturedSlot, FreeElements, HomepageSettings, Occasion as HomepageOccasion } from './homepage';
+export type { AiContentRules, AiCostKey, AiSettings, AiToolSetting, BlockedGeneration, BlockedStage, ContentRuleKey } from './aiSettings';
+export type { EmptySearch, SentSearchReport } from './catalog';
+export type { Program, ProgramInput, ProgramKind, ProgramStatus } from './programs';
 export type { IdType, PayoutMethod, TaxStatus, FileInfo, CreatorApplication, CreatorApplicationReceipt } from './creator';

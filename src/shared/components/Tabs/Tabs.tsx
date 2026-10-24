@@ -8,7 +8,7 @@ import styles from './Tabs.module.css';
 // Arrow keys move between tabs; only the open panel is rendered.
 export const Tabs = <T extends string>(props: TabsProps<T>) => {
   const resolved = withDefaults(tabsDefaults, props);
-  const { label, onChange, gap } = resolved;
+  const { label, onChange, gap, children } = resolved;
   const tabs = resolved.tabs as Tab<T>[];
   const [ownValue, setOwnValue] = useState<T | undefined>(undefined);
   const value = resolved.value ?? ownValue ?? tabs[0]?.value;
@@ -59,7 +59,7 @@ export const Tabs = <T extends string>(props: TabsProps<T>) => {
       </div>
       {open && (
         <div id={`${baseId}-panel`} role="tabpanel" aria-labelledby={`${baseId}-tab-${open.value}`}>
-          {open.content}
+          {open.content ?? children}
         </div>
       )}
     </div>

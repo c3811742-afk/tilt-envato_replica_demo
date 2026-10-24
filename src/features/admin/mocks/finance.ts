@@ -1,0 +1,112 @@
+import type { Invoice, Payout, PayoutRules } from '@/features/admin/types';
+
+export const seedPayoutRules: PayoutRules = {
+  creatorShare: 50,
+  minimumPayout: 500,
+  payoutDay: 5,
+};
+
+export const seedPayouts: Payout[] = [
+  {
+    id: 'po-1',
+    creator: { id: 'cr-1', name: 'Hana Saleh' },
+    amount: 3240,
+    method: 'instapay',
+    account: '•••• 4821',
+    requestedAt: '2026-10-21T10:00:00Z',
+    status: 'pending',
+    updatedAt: '2026-10-21T10:00:00Z',
+  },
+  {
+    id: 'po-2',
+    creator: { id: 'cr-2', name: 'أحمد نبيل' },
+    amount: 1875,
+    method: 'bank',
+    account: 'CIB •••• 0093',
+    requestedAt: '2026-10-20T15:30:00Z',
+    status: 'pending',
+    updatedAt: '2026-10-20T15:30:00Z',
+  },
+  {
+    id: 'po-3',
+    creator: { id: 'cr-4', name: 'Laila Mansour' },
+    amount: 640,
+    method: 'vodafoneCash',
+    account: '010 •••• 7712',
+    requestedAt: '2026-10-19T09:10:00Z',
+    status: 'pending',
+    updatedAt: '2026-10-19T09:10:00Z',
+  },
+  {
+    id: 'po-4',
+    creator: { id: 'cr-8', name: 'Ramy Khaled' },
+    amount: 2210,
+    method: 'bank',
+    account: 'NBE •••• 5530',
+    requestedAt: '2026-10-12T11:00:00Z',
+    status: 'approved',
+    updatedAt: '2026-10-14T09:00:00Z',
+  },
+  {
+    id: 'po-5',
+    creator: { id: 'cr-10', name: 'Mona Gamal' },
+    amount: 980,
+    method: 'instapay',
+    account: '•••• 1180',
+    requestedAt: '2026-09-28T13:00:00Z',
+    status: 'paid',
+    updatedAt: '2026-10-05T08:00:00Z',
+  },
+  {
+    id: 'po-6',
+    creator: { id: 'cr-12', name: 'Hossam Wael' },
+    amount: 520,
+    method: 'vodafoneCash',
+    account: '011 •••• 2045',
+    requestedAt: '2026-09-27T17:20:00Z',
+    status: 'failed',
+    note: 'The wallet number is no longer active.',
+    updatedAt: '2026-10-05T08:00:00Z',
+  },
+];
+
+// Creator earnings per month, for the earnings report.
+export const seedEarnings = [
+  { month: '2026-10', creator: 'Hana Saleh', downloads: 1630, earnings: 3240 },
+  { month: '2026-10', creator: 'أحمد نبيل', downloads: 940, earnings: 1875 },
+  { month: '2026-10', creator: 'Laila Mansour', downloads: 410, earnings: 820 },
+  { month: '2026-10', creator: 'Ramy Khaled', downloads: 415, earnings: 830 },
+  { month: '2026-10', creator: 'Mona Gamal', downloads: 342, earnings: 684 },
+  { month: '2026-09', creator: 'Hana Saleh', downloads: 1480, earnings: 2960 },
+  { month: '2026-09', creator: 'أحمد نبيل', downloads: 860, earnings: 1720 },
+  { month: '2026-09', creator: 'Ramy Khaled', downloads: 690, earnings: 1380 },
+  { month: '2026-09', creator: 'Mona Gamal', downloads: 490, earnings: 980 },
+];
+
+export const seedInvoices: Invoice[] = [
+  {
+    id: 'inv-1',
+    number: 'EINV-2026-00041',
+    kind: 'invoice',
+    transactionId: 'tx-1001',
+    customerName: 'Nile Studio',
+    taxId: '512346789',
+    amount: 8990,
+    vat: 1258.6,
+    issuedAt: '2026-10-22T09:30:00Z',
+    status: 'accepted',
+    etaUuid: '3F6B2K9Q7R1M8XWZ4C5D',
+  },
+  {
+    id: 'inv-2',
+    number: 'ERCT-2026-01187',
+    kind: 'receipt',
+    transactionId: 'tx-1008',
+    customerName: 'Omar Zaki',
+    amount: 299,
+    vat: 41.86,
+    issuedAt: '2026-10-05T07:31:00Z',
+    status: 'accepted',
+    etaUuid: '9H2J5L8N1P4S7V0Y3B6E',
+  },
+];

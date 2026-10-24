@@ -8,7 +8,8 @@ import styles from './TextLink.module.css';
 
 // An inline text link: to another page of the app (`to`), to an external site (`href`), or an action (`onClick`).
 export const TextLink = (props: TextLinkProps) => {
-  const { children, to, href, onClick, variant, color, underline, newTab } = withDefaults(textLinkDefaults, props);
+  const { children, to, href, onClick, variant, color, underline, newTab, autoDirection } = withDefaults(textLinkDefaults, props);
+  const dir = autoDirection ? 'auto' : undefined;
   const textStyle = textStyleVars[variant];
 
   const style = {
@@ -24,7 +25,7 @@ export const TextLink = (props: TextLinkProps) => {
 
   if (onClick) {
     return (
-      <button type="button" className={cx(className, styles.button)} style={style} onClick={onClick}>
+      <button type="button" className={cx(className, styles.button)} style={style} onClick={onClick} dir={dir}>
         {children}
       </button>
     );
@@ -32,14 +33,14 @@ export const TextLink = (props: TextLinkProps) => {
 
   if (href) {
     return (
-      <a href={href} target="_blank" rel="noreferrer" className={className} style={style}>
+      <a href={href} target="_blank" rel="noreferrer" className={className} style={style} dir={dir}>
         {children}
       </a>
     );
   }
 
   return (
-    <Link to={to} className={className} style={style} target={newTab ? '_blank' : undefined} rel={newTab ? 'noreferrer' : undefined}>
+    <Link to={to} className={className} style={style} target={newTab ? '_blank' : undefined} rel={newTab ? 'noreferrer' : undefined} dir={dir}>
       {children}
     </Link>
   );

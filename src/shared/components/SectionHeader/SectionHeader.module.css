@@ -12,3 +12,10 @@
   gap: var(--spacing-2);
   max-inline-size: var(--sizes-readable-max-width);
 }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}

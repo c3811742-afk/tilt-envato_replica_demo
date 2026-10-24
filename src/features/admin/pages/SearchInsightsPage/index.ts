@@ -1,0 +1,1 @@
+export { SearchInsightsPage } from './SearchInsightsPage';

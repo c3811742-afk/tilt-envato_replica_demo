@@ -2,7 +2,7 @@ import { useCallback, useLayoutEffect, useMemo, useState, type ReactNode } from 
 import { applyTheme, buildTheme, defaultLocale, isLocale, type Locale } from '@/shared/theme';
 import { storageKeys, texts } from '@/shared/constants';
 import { LocaleContext, useAppearance, useStoredValue } from '@/shared/hooks';
-import { convertPrice, formatPrice, preferences, storage } from '@/shared/utils';
+import { convertPrice, formatPrice, preferences, storage, textEditStore, withTextEdits } from '@/shared/utils';
 
 const savedLocale = (): Locale => {
   const saved = storage.get(storageKeys.locale);
@@ -16,7 +16,9 @@ export const LocaleProvider = ({ children }: { children: ReactNode }) => {
   const [currency, setCurrency] = useStoredValue(preferences.currency);
   const { mode, accent } = useAppearance();
   const theme = useMemo(() => buildTheme({ locale, mode, accent }), [locale, mode, accent]);
-  const text = texts[locale];
+  const [textEdits] = useStoredValue(textEditStore);
+  // The site's text with the team's corrections from the admin (translations, category names).
+  const text = useMemo(() => withTextEdits(texts[locale], textEdits[locale]), [locale, textEdits]);
 
   useLayoutEffect(() => {
     applyTheme(theme);

@@ -47,6 +47,39 @@ import { AuthorsPage, PartnersPage } from '@/features/common/pages/ProgramsPage'
 import { FairUsePage, LicenseTermsPage } from '@/features/common/pages/LegalPages';
 import { UnsubscribePage } from '@/features/common/pages/UnsubscribePage';
 import { CreatorOnboardingPage } from '@/features/creator/pages/CreatorOnboardingPage';
+import {
+  AdminHomePage,
+  AdminLayout,
+  AdminsPage,
+  AiPage,
+  AuditLogPage,
+  BillingPage,
+  CategoriesPage as AdminCategoriesPage,
+  CategoryDetailsPage,
+  DashboardPage,
+  HomepagePage,
+  InvoicesPage,
+  LanguagesPage,
+  LicensesPage,
+  LiveElementsPage,
+  MessagesPage,
+  PayoutsPage,
+  PlansPage,
+  ProgramsPage,
+  ReviewElementPage,
+  ReviewQueuePage,
+  SearchInsightsPage,
+  SiteContentPage,
+  SupportPage as AdminSupportPage,
+  TagsPage,
+  TicketPage,
+  TranslationsPage,
+  UnusedElementsPage,
+  UserPage,
+  UsersPage,
+  CreatorsPage,
+  AdminSearchPage,
+} from '@/features/admin';
 import { AppErrorBoundary } from './AppErrorBoundary';
 import { AppLayout } from './layout';
 import { AppearanceProvider } from './providers/AppearanceProvider';
@@ -65,6 +98,39 @@ export const App = () => (
           <HashRouter>
             <AppErrorBoundary>
               <Routes>
+                {/* The admin area has its own layout: sidebar and admin top bar, no customer header or footer. */}
+                <Route path={routes.admin} element={<AdminLayout />}>
+                  <Route index element={<AdminHomePage />} />
+                  <Route path={routes.adminDashboard} element={<DashboardPage />} />
+                  <Route path={routes.adminSearch} element={<AdminSearchPage />} />
+                  <Route path={routes.adminUsers} element={<UsersPage />} />
+                  <Route path={routes.adminUser} element={<UserPage />} />
+                  <Route path={routes.adminCreators} element={<CreatorsPage />} />
+                  <Route path={routes.adminReview} element={<ReviewQueuePage />} />
+                  <Route path={routes.adminReviewElement} element={<ReviewElementPage />} />
+                  <Route path={routes.adminLiveElements} element={<LiveElementsPage />} />
+                  <Route path={routes.adminCategories} element={<AdminCategoriesPage />} />
+                  <Route path={routes.adminCategory} element={<CategoryDetailsPage />} />
+                  <Route path={routes.adminTags} element={<TagsPage />} />
+                  <Route path={routes.adminHomepage} element={<HomepagePage />} />
+                  <Route path={routes.adminUnusedElements} element={<UnusedElementsPage />} />
+                  <Route path={routes.adminSearchInsights} element={<SearchInsightsPage />} />
+                  <Route path={routes.adminContent} element={<SiteContentPage />} />
+                  <Route path={routes.adminLanguages} element={<LanguagesPage />} />
+                  <Route path={routes.adminTranslations} element={<TranslationsPage />} />
+                  <Route path={routes.adminMessages} element={<MessagesPage />} />
+                  <Route path={routes.adminPrograms} element={<ProgramsPage />} />
+                  <Route path={routes.adminAi} element={<AiPage />} />
+                  <Route path={routes.adminPlans} element={<PlansPage />} />
+                  <Route path={routes.adminBilling} element={<BillingPage />} />
+                  <Route path={routes.adminPayouts} element={<PayoutsPage />} />
+                  <Route path={routes.adminInvoices} element={<InvoicesPage />} />
+                  <Route path={routes.adminSupport} element={<AdminSupportPage />} />
+                  <Route path={routes.adminTicket} element={<TicketPage />} />
+                  <Route path={routes.adminLicenses} element={<LicensesPage />} />
+                  <Route path={routes.adminAdmins} element={<AdminsPage />} />
+                  <Route path={routes.adminAuditLog} element={<AuditLogPage />} />
+                </Route>
                 <Route element={<AppLayout />}>
                   <Route path={routes.home} element={<HomePage />} />
                   <Route path={routes.search} element={<SearchPage />} />

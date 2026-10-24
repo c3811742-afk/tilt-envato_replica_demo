@@ -1,13 +1,14 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { cx, withDefaults } from '@/shared/utils';
+import { Text } from '../Text';
 import { cardDefaults } from './Card.defaults';
 import type { CardProps } from './Card.types';
 import styles from './Card.module.css';
 
 // A bordered, flat box for grouped content: a plan, a category, a step.
 export const Card = (props: CardProps) => {
-  const { children, as: Element, to, padding, gap, background, color, borderColor, radius, interactive } = withDefaults(
+  const { children, title, as: Element, to, padding, gap, background, color, borderColor, radius, interactive } = withDefaults(
     cardDefaults,
     props,
   );
@@ -34,6 +35,11 @@ export const Card = (props: CardProps) => {
 
   return (
     <Element className={className} style={style}>
+      {title && (
+        <Text as="h2" variant="h4">
+          {title}
+        </Text>
+      )}
       {children}
     </Element>
   );

@@ -1,13 +1,14 @@
 import { Card, ContactButton, FaqAccordion, Page, Section, Text } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import { faqGroups } from '@/shared/utils';
 
 export const FaqPage = () => {
-  const { text } = useLocale();
+  const { text, locale } = useLocale();
 
   return (
     <Page title={text.faq.title} subtitle={text.faq.subtitle} contentMaxWidth={vars.sizes.readable.maxWidth}>
-      {text.faq.groups.map((group) => (
+      {faqGroups(locale).map((group) => (
         <Section key={group.title} title={group.title} variant="h3" gap={vars.spacing[3]}>
           <FaqAccordion entries={group.items} />
         </Section>

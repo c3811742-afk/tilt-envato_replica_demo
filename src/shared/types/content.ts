@@ -65,3 +65,38 @@ export interface NewsPost {
   summary: LocalizedText;
   publishedAt: string; // ISO date
 }
+
+// ---------- Content the admin team edits ----------
+
+// One question on the FAQ page, in its group.
+export interface SiteFaq {
+  id: string;
+  group: LocalizedText; // the heading it is shown under
+  question: LocalizedText;
+  answer: LocalizedText;
+}
+
+export type LegalPageId = 'terms' | 'privacy' | 'license';
+
+// A legal page's text: blocks separated by an empty line, each a title line and its text.
+export interface SiteLegalPage {
+  id: LegalPageId;
+  body: LocalizedText;
+  updatedAt: string; // ISO date
+  updatedBy?: string; // the team member who last changed it
+}
+
+// Help Center articles, Learn guides and What's new posts share one shape and one editor.
+export type SiteArticleKind = 'help' | 'learn' | 'releaseNote';
+export type SiteArticleStatus = 'draft' | 'published';
+
+export interface SiteArticle {
+  id: string;
+  kind: SiteArticleKind;
+  title: LocalizedText;
+  body: LocalizedText; // paragraphs (or a guide's steps) separated by an empty line
+  status: SiteArticleStatus; // only published ones show on the site
+  topic?: HelpTopic; // Help Center and Learn
+  updatedAt: string;
+  publishedAt?: string;
+}

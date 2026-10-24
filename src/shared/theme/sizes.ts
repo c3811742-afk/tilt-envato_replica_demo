@@ -39,6 +39,11 @@ export const sizes = {
   searchBar: { height: { md: '3rem', lg: '3.75rem' } }, // 48 / 60
   chip: { height: '2.5rem', paddingX: spacing[4], rowWidth: 'auto' }, // 40; in a scrolling row each chip is as wide as its label
   segment: { height: { sm: '2.5rem', md: '2.75rem' }, paddingX: spacing[4] }, // 40 / 44
+  textarea: { minHeight: '7.5rem' }, // 120
+  checkbox: { size: '1.25rem' }, // 20
+  mediaPreview: { maxHeight: '60dvh' }, // element previews never take more than most of the screen
+  statCard: { minHeight: '8.5rem' }, // 136; dashboard number tiles line up in a row
+  picker: { maxHeight: '20rem' }, // 320; long tick-box lists scroll inside this height
   tag: { height: '1.375rem', paddingX: spacing[2] }, // 22
   meter: { height: '0.5rem' }, // 8, the bar of a usage meter (credits, downloads)
   table: { firstColumn: 'min(14rem, 40%)' }, // the row labels of a comparison table

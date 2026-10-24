@@ -18,4 +18,5 @@ export interface TableProps {
   rowHeaders?: boolean; // the first column labels each row (e.g. a comparison table)
   firstColumnWidth?: string;
   emptyText?: ReactNode; // shown when there are no rows
+  stackOnMobile?: boolean; // on phones each row becomes a card, each cell with its column name (for long lists of records)
 }

@@ -1,9 +1,10 @@
-import { aiGeneration, aiLicense, aiModels, aiVideoModels, type AiModelId, type AiVideoModelId } from '@/shared/constants';
+import { aiGeneration, aiLicense, aiModels, aiTools, aiVideoModels, type AiModelId, type AiTool, type AiVideoModelId } from '@/shared/constants';
 import type { AiRequest, Generation, GenerationOutput, LicenseRecord } from '@/shared/types';
 import { call, planAccess, readLicenses, saveAccount, signedInAccount, teamOf, toSessionAccount, writeLicenses } from './accountStore';
 import { creditAllowance, generationCost, imageOutputCount, newSeed } from './ai';
 import { ApiError } from './apiError';
 import { fileStore } from './fileStore';
+import { aiBlockedStore, aiToolSetting, blockedPhraseIn } from './siteAi';
 import { createLicenseCode } from './license';
 
 // A result the browser made for the request (an edited image, a video, music): kept in the browser's file store.
@@ -25,6 +26,27 @@ export const aiApi = {
       const access = planAccess(account);
       const allowance = creditAllowance(access.pool.flatMap((member) => member.generations), access.subscription);
       if (!allowance.total) throw new ApiError('noAiAccess');
+      // The team's settings (admin): the tool must be on, and included in the plan.
+      const toolSetting = aiTools.includes(request.tool as AiTool) ? aiToolSetting(request.tool as AiTool) : undefined;
+      if (toolSetting && !toolSetting.enabled) throw new ApiError('aiToolOff');
+      if (toolSetting && access.subscription && !toolSetting.planIds.includes(access.subscription.planId)) throw new ApiError('aiToolNotInPlan');
+      // Prompts with a blocked word are refused, and the team sees them in the admin.
+      const blocked = blockedPhraseIn(request.prompt);
+      if (blocked) {
+        aiBlockedStore.set([
+          {
+            id: crypto.randomUUID(),
+            at: new Date().toISOString(),
+            userName: account.email,
+            tool: (toolSetting?.key ?? 'image'),
+            stage: 'prompt',
+            excerpt: request.prompt.trim().slice(0, aiGeneration.promptMaxLength),
+            rule: 'phrase',
+          },
+          ...aiBlockedStore.get(),
+        ]);
+        throw new ApiError('promptBlocked');
+      }
       if (request.model && isImageModel(request.model) && !allowance.models.includes(request.model)) throw new ApiError('modelNotIncluded');
       if (request.model && isVideoModel(request.model) && !allowance.videoModels.includes(request.model)) throw new ApiError('modelNotIncluded');
       const credits = generationCost(request);

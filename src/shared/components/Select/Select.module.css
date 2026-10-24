@@ -26,6 +26,15 @@
   border-color: var(--colors-primary);
 }
 
+.invalid {
+  border-color: var(--colors-danger);
+}
+
+.placeholder {
+  color: var(--colors-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
 .select:disabled {
   opacity: var(--opacity-disabled);
   cursor: not-allowed;

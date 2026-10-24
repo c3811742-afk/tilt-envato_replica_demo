@@ -137,7 +137,7 @@ export const CheckoutForm = ({ purchase, onPaid }: CheckoutFormProps) => {
   const applyPromo = async () => {
     if (!promoInput.trim()) return;
     setCheckingPromo(true);
-    const result = await safeAsync(() => billingApi.checkPromo(promoInput));
+    const result = await safeAsync(() => billingApi.checkPromo(promoInput, purchase.kind === 'plan' ? purchase.plan.id : undefined));
     setCheckingPromo(false);
     setPromoError(result.ok ? undefined : requestError(result.error));
     if (result.ok) setPromo({ code: promoInput.trim().toUpperCase(), rate: result.data });

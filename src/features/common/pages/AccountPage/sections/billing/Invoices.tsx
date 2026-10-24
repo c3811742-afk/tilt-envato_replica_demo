@@ -28,7 +28,16 @@ export const Invoices = ({ invoices }: { invoices: Invoice[] }) => {
           cells: {
             number: <bdi>{invoice.number}</bdi>,
             date: formatDate(invoice.issuedAt, locale),
-            status: <Badge variant={invoice.status === 'paid' ? 'free' : 'neutral'}>{text.billingPage.invoiceStatuses[invoice.status]}</Badge>,
+            status: (
+              <Stack gap={vars.spacing[1]} align="flex-start">
+                <Badge variant={invoice.status === 'paid' ? 'free' : 'neutral'}>{text.billingPage.invoiceStatuses[invoice.status]}</Badge>
+                {invoice.refunded ? (
+                  <Text variant="bodySm" color={vars.colors.textMuted}>
+                    {fillText(text.billingPage.refunded, { amount: price(invoice.refunded) })}
+                  </Text>
+                ) : null}
+              </Stack>
+            ),
             total: price(invoice.total),
             actions: (
               <Stack direction="row" justify="flex-end" gap={vars.spacing[2]}>

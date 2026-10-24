@@ -7,4 +7,6 @@ export interface CheckboxProps {
   error?: string; // shown under the checkbox
   id?: string; // generated when not given
   disabled?: boolean;
+  description?: string; // a second, muted line under the label
+  hideLabel?: boolean; // for tick boxes in a grid whose row and column already say what they are; the label is read by screen readers
 }

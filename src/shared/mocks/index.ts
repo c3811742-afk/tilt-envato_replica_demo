@@ -6,3 +6,5 @@ export { mockCollections, mockDownloadedTogether } from './collections';
 export { mockLicenses } from './licenses';
 export { mockHelpArticles, mockLearnGuides } from './help';
 export { mockBlogPosts, mockCourses, mockJobs, mockNews } from './resources';
+export { mockBanners, mockOccasions } from './homepage';
+export { mockPrograms } from './programs';

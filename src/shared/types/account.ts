@@ -51,6 +51,19 @@ export interface Plan {
   models: AiModelId[]; // AI image models the plan includes
   videoModels: AiVideoModelId[]; // AI video models the plan includes
   studentPrice: boolean; // verified students get the student discount
+  active?: boolean; // false: no longer sold (hidden on the pricing page); current subscribers keep it
+}
+
+// A promo code: a share off the first payment, set up by the admin team.
+export interface PromoCode {
+  id: string;
+  code: string; // upper case
+  percent: number; // off the first payment, 1 to 100
+  planIds: PlanId[]; // the plans it works for; empty: every plan and project pass
+  expiresAt: string; // YYYY-MM-DD, the last day it works
+  maxUses: number | null; // null: no limit
+  uses: number;
+  active: boolean; // false: turned off by the team
 }
 
 export type PassId = 'week' | 'downloads10';
@@ -134,6 +147,7 @@ export interface Invoice {
   buyerName: string;
   buyerArabicName?: string;
   billingAddress: BillingAddress | null;
+  refunded?: number; // EGP the team refunded to the payment method
 }
 
 // One download. It's "preparing" for a moment after it's requested, then "ready".
@@ -261,7 +275,14 @@ export interface SupportRequest {
   subject: string;
   message: string;
   createdAt: string; // ISO date
-  status: 'open' | 'answered';
+  status: 'open' | 'answered' | 'closed';
+  replies?: SupportReply[]; // from the support team, oldest first
+}
+
+export interface SupportReply {
+  message: string;
+  by: string; // the team member's name
+  at: string; // ISO date
 }
 
 export interface CopyrightReport {
@@ -279,7 +300,8 @@ export interface CopyrightReport {
 export interface Suspension {
   reason: SuspensionReason;
   at: string; // ISO date
-  appeal: { message: string; at: string } | null; // under review once sent
+  banned?: boolean; // closed for good by an admin, not just suspended
+  appeal: { message: string; at: string; rejectedAt?: string } | null; // under review once sent, until an admin rejects it
 }
 
 // ---------- Subscriptions ----------
@@ -391,6 +413,6 @@ export interface License {
 export interface LicenseRecord extends License {
   ownerId: string;
   teamId?: string; // issued on a team plan: every member of the team can use it
-  revoked?: { reason: RevokeReason; at: string };
+  revoked?: { reason: RevokeReason; at: string; note?: string }; // note: what the team wrote down (not shown to the customer)
   itemRemoved?: string; // ISO date the item left the library (the license stays valid)
 }

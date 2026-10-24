@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Page, ReleaseNotesList, SegmentedControl } from '@/shared/components';
-import type { ReleaseNoteId } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { accountCredits, authApi, planUsage, safeAsync, unreadReleaseNotes } from '@/shared/utils';
@@ -17,7 +16,7 @@ export const NotificationsPage = () => {
   const { text } = useLocale();
   const { session, setAccount } = useSession();
   const user = session.status === 'signedIn' ? session.user : null;
-  const [unreadNotes] = useState<ReleaseNoteId[]>(() => (user ? unreadReleaseNotes(user).map((note) => note.id) : []));
+  const [unreadNotes] = useState<string[]>(() => (user ? unreadReleaseNotes(user).map((note) => note.id) : []));
   const [unreadAlerts] = useState<string[]>(() => (user ? user.alerts.filter((alert) => !alert.read).map((alert) => alert.id) : []));
   // Opens on the account notifications when there's something new there, otherwise on "What's new".
   const [tab, setTab] = useState<NotificationsTab>(() => (unreadAlerts.length || !unreadNotes.length ? 'alerts' : 'updates'));
