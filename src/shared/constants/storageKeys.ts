@@ -17,4 +17,5 @@ export const storageKeys = {
   pagingMode: 'tilt.pagingMode', // infinite scroll or pages
   fontView: 'tilt.fontView', // fonts as a grid or a list of samples
   volume: 'tilt.volume', // one volume for every preview
+  creatorOnboarding: 'tilt.creatorOnboarding', // the creator application in progress
 } as const;

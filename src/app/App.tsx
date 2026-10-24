@@ -46,6 +46,7 @@ import { CompanyPage } from '@/features/common/pages/CompanyPage';
 import { AuthorsPage, PartnersPage } from '@/features/common/pages/ProgramsPage';
 import { FairUsePage, LicenseTermsPage } from '@/features/common/pages/LegalPages';
 import { UnsubscribePage } from '@/features/common/pages/UnsubscribePage';
+import { CreatorOnboardingPage } from '@/features/creator/pages/CreatorOnboardingPage';
 import { AppErrorBoundary } from './AppErrorBoundary';
 import { AppLayout } from './layout';
 import { AppearanceProvider } from './providers/AppearanceProvider';
@@ -101,6 +102,7 @@ export const App = () => (
                   <Route path={routes.licenseTerms} element={<LicenseTermsPage />} />
                   <Route path={routes.fairUse} element={<FairUsePage />} />
                   <Route path={routes.unsubscribe} element={<UnsubscribePage />} />
+                  <Route path={routes.creatorOnboarding} element={<CreatorOnboardingPage />} />
 
                   {/* Onboarding: each page is only shown at its step; anyone else is sent to theirs. */}
                   <Route element={<OnboardingGate allow="guest" />}>
