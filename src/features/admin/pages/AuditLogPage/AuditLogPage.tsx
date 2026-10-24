@@ -12,7 +12,7 @@ import {
 } from '@/features/admin/components';
 import { auditActions, auditActionTone } from '@/features/admin/constants';
 import type { AuditAction, AuditEntry } from '@/features/admin/types';
-import { describeAuditDetails, isOneOf } from '@/features/admin/utils';
+import { describeAuditDetails, isOneOf, localized } from '@/features/admin/utils';
 import { AsyncContent, Button, EmptyState, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -62,7 +62,7 @@ const AuditLog = () => {
       render: (entry) => (
         <Stack gap={vars.spacing[1]}>
           <Text as="span" autoDirection>
-            {entry.target.label}
+            {entry.target.labels ? localized(entry.target.labels, locale) : entry.target.label}
           </Text>
           <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
             {t.audit.targets[entry.target.kind]}

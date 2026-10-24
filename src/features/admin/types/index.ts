@@ -2,6 +2,7 @@ export type { Admin, AdminRole, NewAdminInput } from './admin';
 export type {
   CatalogElement,
   ElementCategory,
+  ElementDeprecation,
   ElementFile,
   ElementFlag,
   ElementReview,
@@ -22,4 +23,123 @@ export type {
   UnpublishInput,
   UnpublishReason,
 } from './element';
-export type { AuditAction, AuditDetails, AuditEntry, AuditTarget } from './audit';
+export type {
+  AuditAction,
+  AuditArea,
+  AuditChange,
+  AuditDetails,
+  AuditEntry,
+  AuditTarget,
+  AuditTargetKind,
+} from './audit';
+export type {
+  AttributeInput,
+  AttributeType,
+  Category,
+  CategoryAttribute,
+  CategoryInput,
+  DeprecateInput,
+  DeprecateReason,
+  LocalizedText,
+  MoveDirection,
+  Tag,
+} from './catalog';
+export type {
+  Banner,
+  BannerInput,
+  Collection,
+  FeaturedKind,
+  FeaturedSlot,
+  FreeElements,
+  Occasion,
+  OccasionInput,
+  ScheduleStatus,
+} from './homepage';
+export type { NoClickSearch, ReportResolution, ReportStatus, SearchReport } from './search';
+export type {
+  Article,
+  ArticleInput,
+  ArticleKind,
+  ArticleStatus,
+  Faq,
+  FaqInput,
+  LegalPage,
+  LegalPageId,
+} from './content';
+export type { LanguageInput, SiteLanguage, TextDirection, TranslationEntry, Translations } from './languages';
+export type {
+  Announcement,
+  AnnouncementInput,
+  Audience,
+  MessageStatus,
+  Newsletter,
+  NewsletterInput,
+  NewsletterOverview,
+} from './messages';
+export type { Program, ProgramInput, ProgramKind, ProgramStatus } from './programs';
+export type {
+  BillingPeriod,
+  CancelInput,
+  CancelReason,
+  CancelTiming,
+  Customer,
+  DiscountType,
+  FailedPayment,
+  FailureReason,
+  LicenseScope,
+  PaymentMethod,
+  Plan,
+  PlanInput,
+  PromoCode,
+  PromoCodeInput,
+  RefundInput,
+  RefundReason,
+  Subscription,
+  SubscriptionStatus,
+  Transaction,
+  TransactionStatus,
+} from './billing';
+export type {
+  Invoice,
+  InvoiceInput,
+  InvoiceKind,
+  InvoiceStatus,
+  Payout,
+  PayoutDecision,
+  PayoutMethod,
+  PayoutRules,
+  PayoutStatus,
+  Report,
+  ReportKind,
+} from './finance';
+export type {
+  ClaimDecision,
+  ClaimStatus,
+  CopyrightClaim,
+  License,
+  LicenseStatus,
+  RevokeInput,
+  RevokeReason,
+} from './licensing';
+export type {
+  ItemReport,
+  ItemReportKind,
+  ItemReportResolution,
+  ItemReportStatus,
+  RequesterKind,
+  Ticket,
+  TicketMessage,
+  TicketStatus,
+  TicketTopic,
+} from './support';
+export type {
+  AiTool,
+  AiToolKey,
+  BlockedGeneration,
+  BlockedStage,
+  ContentRuleKey,
+  ContentRules,
+  GenerationCost,
+  GenerationType,
+} from './ai';
+export type { DashboardStats, Metric } from './dashboard';

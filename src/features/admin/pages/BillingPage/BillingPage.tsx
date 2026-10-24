@@ -1,0 +1,41 @@
+import { PageHeader, RequirePermission, Stack, Tabs } from '@/features/admin/components';
+import { billingTabs } from '@/features/admin/constants';
+import { useTabParam } from '@/features/admin/hooks';
+import { useLocale } from '@/shared/hooks';
+import { vars } from '@/shared/theme';
+import { FailedPaymentsTab } from './FailedPaymentsTab';
+import { SubscriptionsTab } from './SubscriptionsTab';
+import { TransactionsTab } from './TransactionsTab';
+
+const tabContent = {
+  transactions: TransactionsTab,
+  failedPayments: FailedPaymentsTab,
+  subscriptions: SubscriptionsTab,
+};
+
+const Billing = () => {
+  const { text } = useLocale();
+  const [tab, setTab] = useTabParam(billingTabs);
+  const t = text.admin.billing;
+  const Content = tabContent[tab];
+
+  return (
+    <Stack gap={vars.spacing[6]}>
+      <PageHeader title={t.title} description={t.description} />
+      <Tabs
+        label={t.tabsLabel}
+        tabs={billingTabs.map((value) => ({ value, label: t.tabs[value] }))}
+        value={tab}
+        onChange={setTab}
+      >
+        <Content />
+      </Tabs>
+    </Stack>
+  );
+};
+
+export const BillingPage = () => (
+  <RequirePermission permission="manageBilling">
+    <Billing />
+  </RequirePermission>
+);

@@ -7,7 +7,9 @@ export type AsyncState<T> =
   | { status: 'empty'; data: T }
   | { status: 'success'; data: T };
 
-export type AsyncResult<T> = AsyncState<T> & { retry: () => void };
+// retry: loads again from scratch (shows the loading state).
+// update: replaces the data with a newer copy the caller already has (e.g. returned by a save), without reloading.
+export type AsyncResult<T> = AsyncState<T> & { retry: () => void; update: (data: T) => void };
 
 // Loads data and tracks loading / error / empty / success. Render the result with <AsyncContent>.
 // `deps` works like useEffect's: the call reruns when they change.
@@ -34,6 +36,10 @@ export const useAsync = <T>(
   }, [...deps, attempt]);
 
   const retry = useCallback(() => setAttempt((count) => count + 1), []);
+  const update = useCallback(
+    (data: T) => setState({ status: isEmpty(data) ? 'empty' : 'success', data }),
+    [isEmpty],
+  );
 
-  return { ...state, retry };
+  return { ...state, retry, update };
 };

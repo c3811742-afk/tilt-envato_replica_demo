@@ -21,6 +21,10 @@ export const TextField = (props: TextFieldProps) => {
     hideLabel,
     autoComplete,
     autoDirection,
+    lang,
+    direction,
+    min,
+    max,
   } = withDefaults(textFieldDefaults, props);
   const id = useId();
 
@@ -30,7 +34,8 @@ export const TextField = (props: TextFieldProps) => {
     placeholder,
     disabled,
     autoComplete,
-    dir: autoDirection ? 'auto' : undefined,
+    lang,
+    dir: direction ?? (autoDirection ? 'auto' : undefined),
     'aria-label': hideLabel ? label : undefined,
     'aria-required': required || undefined,
     'aria-invalid': error ? true : undefined,
@@ -49,6 +54,8 @@ export const TextField = (props: TextFieldProps) => {
         <input
           {...controlProps}
           type={type}
+          min={min}
+          max={max}
           className={fieldControlClassName}
           onChange={(event) => onChange?.(event.target.value)}
         />

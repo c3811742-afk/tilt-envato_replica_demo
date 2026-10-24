@@ -1,4 +1,6 @@
-export type TextFieldType = 'text' | 'email' | 'search' | 'url';
+import type { Direction, Locale } from '@/shared/theme';
+
+export type TextFieldType = 'text' | 'email' | 'search' | 'url' | 'number' | 'date' | 'month' | 'datetime-local';
 
 export interface TextFieldProps {
   label: string;
@@ -14,4 +16,8 @@ export interface TextFieldProps {
   hideLabel?: boolean;
   autoComplete?: string;
   autoDirection?: boolean; // for text the user may type in either language
+  lang?: Locale | string; // the language the text must be written in (e.g. the Arabic half of a two-language field)
+  direction?: Direction; // fixes the direction, e.g. 'rtl' for an Arabic-only field on the English page
+  min?: string; // for number, date and month fields
+  max?: string;
 }

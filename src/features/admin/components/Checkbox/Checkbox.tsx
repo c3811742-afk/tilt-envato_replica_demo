@@ -8,7 +8,7 @@ import styles from './Checkbox.module.css';
 
 // A tick box with its label. The whole row is clickable.
 export const Checkbox = (props: CheckboxProps) => {
-  const { label, checked, onChange, description, disabled, color } = withDefaults(checkboxDefaults, props);
+  const { label, checked, onChange, description, disabled, color, hideLabel } = withDefaults(checkboxDefaults, props);
   const id = useId();
   const style = { '--checkbox-color': color } as CSSProperties;
 
@@ -21,15 +21,18 @@ export const Checkbox = (props: CheckboxProps) => {
         checked={checked}
         disabled={disabled}
         onChange={(event) => onChange?.(event.target.checked)}
+        aria-label={hideLabel ? label : undefined}
       />
-      <span className={styles.text}>
-        <Text as="span">{label}</Text>
-        {description && (
-          <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
-            {description}
-          </Text>
-        )}
-      </span>
+      {!hideLabel && (
+        <span className={styles.text}>
+          <Text as="span">{label}</Text>
+          {description && (
+            <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
+              {description}
+            </Text>
+          )}
+        </span>
+      )}
     </label>
   );
 };

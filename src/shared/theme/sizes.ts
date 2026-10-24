@@ -26,6 +26,8 @@ export const sizes = {
   textarea: { minHeight: '7.5rem' }, // 120
   checkbox: { size: '1.25rem' }, // 20
   mediaPreview: { maxHeight: '60dvh' }, // element previews never take more than most of the screen
+  statCard: { minHeight: '8.5rem' }, // 136; dashboard number tiles line up in a row
+  picker: { maxHeight: '20rem' }, // 320; long tick-box lists scroll inside this height
   tag: { height: '1.375rem', paddingX: spacing[2] }, // 22
   card: { padding: spacing[5], minWidth: 'min(17.5rem, 100%)' }, // 280, never wider than its column
   badge: { size: '5rem' }, // 80

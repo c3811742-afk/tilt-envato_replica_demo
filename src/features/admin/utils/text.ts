@@ -12,6 +12,6 @@ const isolateEnd = String.fromCharCode(0x2069);
 // "By أحمد نبيل" stays left to right in English, and an English name stays readable in Arabic.
 export const isolate = (value: string) => `${isolateStart}${value}${isolateEnd}`;
 
-// ['A', 'B', 'C'] -> "A, B, and C" / "A وB وC"
-export const formatList = (items: string[], locale: Locale) =>
-  new Intl.ListFormat(locale, { type: 'conjunction' }).format(items);
+// ['A', 'B', 'C'] -> "A, B, and C" / "A وB وC". With type 'unit': "A, B, C" (for lists of choices).
+export const formatList = (items: string[], locale: Locale, type: Intl.ListFormatType = 'conjunction') =>
+  new Intl.ListFormat(locale, { type }).format(items);

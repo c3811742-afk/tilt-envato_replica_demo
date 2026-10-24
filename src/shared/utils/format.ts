@@ -2,6 +2,10 @@ import type { Locale } from '@/shared/theme';
 
 export const formatNumber = (value: number, locale: Locale) => new Intl.NumberFormat(locale).format(value);
 
+// 0.8 -> "80%" / "٨٠٪". Pass fractionDigits for small shares: 0.031 -> "3.1%".
+export const formatPercent = (share: number, locale: Locale, fractionDigits = 0) =>
+  new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: fractionDigits }).format(share);
+
 export const formatPrice = (amount: number, currency: string, locale: Locale) =>
   new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
 

@@ -1,0 +1,10 @@
+.languages {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+@media (--md-up) {
+  .languages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

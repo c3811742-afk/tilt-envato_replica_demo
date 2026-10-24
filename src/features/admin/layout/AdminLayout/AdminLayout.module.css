@@ -12,10 +12,22 @@
   background: var(--colors-surface-muted);
 }
 
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
 .navList {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-2);
+  flex-direction: column;
+  gap: var(--spacing-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -45,6 +57,33 @@
   color: var(--colors-on-primary);
 }
 
+/* Phones and tablets: a "Menu" toggle. Desktop: the links are always shown. */
+.menuToggle {
+  padding-block: var(--spacing-3);
+  padding-inline: var(--spacing-4);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  font-family: var(--text-styles-label-font-family);
+  font-size: var(--text-styles-label-font-size);
+  font-weight: var(--text-styles-label-font-weight);
+  letter-spacing: var(--text-styles-label-letter-spacing);
+  text-transform: var(--text-styles-label-text-transform);
+  cursor: pointer;
+}
+
+.menuToggle:focus-visible {
+  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
+  outline-offset: 0;
+}
+
+.menu[open] > .menuToggle {
+  margin-block-end: var(--spacing-5);
+}
+
+.desktopNav {
+  display: none;
+}
+
 .session {
   display: flex;
   flex-direction: column;
@@ -71,8 +110,12 @@
     border-inline-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
   }
 
-  .navList {
-    flex-direction: column;
+  .menu {
+    display: none;
+  }
+
+  .desktopNav {
+    display: block;
   }
 
   .session {

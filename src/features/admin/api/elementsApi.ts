@@ -1,5 +1,5 @@
 import { decisionAuditAction, decisionStatus } from '@/features/admin/constants';
-import type { CatalogElement, FlagInput, ReviewInput, UnpublishInput } from '@/features/admin/types';
+import type { Admin, CatalogElement, FlagInput, ReviewInput, UnpublishInput } from '@/features/admin/types';
 import { AdminApiError } from './errors';
 import { authorize, db, logAction, now, respond } from './mockServer';
 
@@ -59,18 +59,24 @@ export const flagElement = (actorId: string, elementId: string, input: FlagInput
     return element;
   });
 
+// Unpublishes inside another action the admin is already allowed to do (a copyright claim, an item report).
+// Does nothing if the element is no longer live.
+export const takeElementDown = (actor: Admin, elementId: string, input: UnpublishInput) => {
+  const element = findElement(elementId);
+  if (element.status !== 'live') return element;
+  element.status = 'unpublished';
+  element.unpublish = { ...input, adminId: actor.id, at: now() };
+  logAction(actor, 'elementUnpublished', elementTarget(element), {
+    unpublishReason: input.reason,
+    note: input.note || undefined,
+  });
+  return element;
+};
+
 // Takes a live element off the site. The reason is kept so the creator can be told why.
 export const unpublishElement = (actorId: string, elementId: string, input: UnpublishInput) =>
   respond(() => {
     const actor = authorize(actorId, 'unpublish');
-    const element = findElement(elementId);
-    if (element.status !== 'live') throw new AdminApiError('notLive');
-
-    element.status = 'unpublished';
-    element.unpublish = { ...input, adminId: actor.id, at: now() };
-    logAction(actor, 'elementUnpublished', elementTarget(element), {
-      unpublishReason: input.reason,
-      note: input.note || undefined,
-    });
-    return element;
+    if (findElement(elementId).status !== 'live') throw new AdminApiError('notLive');
+    return takeElementDown(actor, elementId, input);
   });

@@ -1,0 +1,81 @@
+import type { CopyrightClaim, License } from '@/features/admin/types';
+
+export const seedLicenses: License[] = [
+  {
+    id: 'lic-1',
+    code: 'TILT-7K2M-94QX',
+    element: { id: 'el-203', title: 'Wedding Invitation Bundle' },
+    customer: { name: 'Rana Hamdy', email: 'rana@example.com' },
+    project: 'Rana and Karim wedding cards',
+    issuedAt: '2026-10-02T12:00:00Z',
+    status: 'valid',
+  },
+  {
+    id: 'lic-2',
+    code: 'TILT-3PZD-18LW',
+    element: { id: 'el-201', title: 'Koshary Restaurant Menu' },
+    customer: { name: 'محمد سعيد', email: 'msaeed@example.com' },
+    project: 'مطعم أبو طارق',
+    issuedAt: '2026-10-08T15:20:00Z',
+    status: 'valid',
+  },
+  {
+    id: 'lic-3',
+    code: 'TILT-Q8VN-55HC',
+    element: { id: 'el-204', title: 'Nile Drone Footage' },
+    customer: { name: 'Nile Studio', email: 'billing@nilestudio.example.com' },
+    project: 'Tourism ad for a Nile cruise',
+    issuedAt: '2026-10-12T10:45:00Z',
+    status: 'valid',
+  },
+  {
+    id: 'lic-4',
+    code: 'TILT-M4TA-02RB',
+    element: { id: 'el-202', title: 'Eid Greeting Stories' },
+    customer: { name: 'Omar Zaki', email: 'omar.z@example.com' },
+    project: 'Company Eid posts',
+    issuedAt: '2026-09-20T09:00:00Z',
+    status: 'valid',
+  },
+  {
+    id: 'lic-5',
+    code: 'TILT-X1EF-77GU',
+    element: { id: 'el-206', title: 'Tabla Groove Loop' },
+    customer: { name: 'Unknown Buyer', email: 'quickdeals@example.com' },
+    project: 'Resale bundle',
+    issuedAt: '2026-08-30T22:10:00Z',
+    status: 'revoked',
+    revoke: { reason: 'fraud', note: 'Paid with a stolen card.', adminId: 'admin-1', at: '2026-09-02T10:00:00Z' },
+  },
+];
+
+export const seedClaims: CopyrightClaim[] = [
+  {
+    id: 'claim-1',
+    claimant: { name: 'Ahmed Fawzy', email: 'ahmed@fawzy-design.example.com', company: 'Fawzy Design' },
+    element: { id: 'el-205', title: 'عرض تقديمي لملف شركة' },
+    originalLink: 'https://fawzy-design.example.com/company-profile',
+    description: 'The slide layouts and icons are copied from our template sold since 2023.',
+    receivedAt: '2026-10-21T08:30:00Z',
+    status: 'new',
+  },
+  {
+    id: 'claim-2',
+    claimant: { name: 'Studio Masr', email: 'legal@studiomasr.example.com', company: 'Studio Masr' },
+    element: { id: 'el-208', title: 'Alexandria Corniche Timelapse' },
+    originalLink: 'https://studiomasr.example.com/alex-timelapse',
+    description: 'This footage was filmed by our team. The creator worked with us and took it without permission.',
+    receivedAt: '2026-10-16T13:00:00Z',
+    status: 'investigating',
+  },
+  {
+    id: 'claim-3',
+    claimant: { name: 'Sara Lotfy', email: 'sara.lotfy@example.com' },
+    element: { id: 'el-207', title: 'Back to School Social Pack' },
+    originalLink: 'https://example.com/sara/school-pack',
+    description: 'The pencil illustration is mine.',
+    receivedAt: '2026-09-30T10:00:00Z',
+    status: 'rejected',
+    decisionNote: 'The creator showed the original working files from 2024.',
+  },
+];

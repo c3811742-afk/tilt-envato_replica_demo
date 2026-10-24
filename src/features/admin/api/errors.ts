@@ -1,4 +1,24 @@
-export type AdminErrorCode = 'notAllowed' | 'notFound' | 'alreadyReviewed' | 'notLive' | 'emailTaken' | 'ownRole';
+export type AdminErrorCode =
+  | 'notAllowed'
+  | 'notFound'
+  | 'alreadyReviewed'
+  | 'notLive'
+  | 'emailTaken'
+  | 'ownRole'
+  | 'tagExists'
+  | 'sameTag'
+  | 'languageExists'
+  | 'alreadyFeatured'
+  | 'tooManyFree'
+  | 'alreadyClosed'
+  | 'notScheduled'
+  | 'codeTaken'
+  | 'refundTooLarge'
+  | 'notActive'
+  | 'payoutChanged'
+  | 'invoiceExists'
+  | 'alreadyRevoked'
+  | 'ticketClosed';
 
 // An expected failure (e.g. "already reviewed"). Pages show the matching text from text.admin.errors.
 export class AdminApiError extends Error {

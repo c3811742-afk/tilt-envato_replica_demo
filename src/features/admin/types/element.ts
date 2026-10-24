@@ -1,3 +1,5 @@
+import type { DeprecateReason } from './catalog';
+
 export type ElementType =
   | 'photo'
   | 'video'
@@ -18,7 +20,7 @@ export type ElementCategory =
   | 'landmarks'
   | 'calligraphy';
 
-export type ElementStatus = 'pending' | 'live' | 'softRejected' | 'hardRejected' | 'unpublished';
+export type ElementStatus = 'pending' | 'live' | 'softRejected' | 'hardRejected' | 'unpublished' | 'deprecated';
 
 export type SoftRejectReason = 'lowQualityPreview' | 'missingFiles' | 'wrongCategory' | 'weakTitle' | 'missingDeclarations';
 export type HardRejectReason = 'belowQuality' | 'copyright' | 'duplicate' | 'contentGuidelines';
@@ -66,6 +68,13 @@ export interface ElementUnpublish {
   at: string;
 }
 
+export interface ElementDeprecation {
+  reason: DeprecateReason;
+  note: string;
+  adminId: string;
+  at: string;
+}
+
 // An element submitted by a creator, at any stage: waiting for review, live, rejected or unpublished.
 export interface CatalogElement {
   id: string;
@@ -88,6 +97,9 @@ export interface CatalogElement {
   review?: ElementReview;
   publishedAt?: string;
   unpublish?: ElementUnpublish;
+  deprecation?: ElementDeprecation; // old element taken out of search; existing licenses stay valid
+  downloads?: number; // all time, live elements only
+  lastDownloadedAt?: string;
 }
 
 export interface ReviewInput {
