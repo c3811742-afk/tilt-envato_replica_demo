@@ -1,0 +1,46 @@
+.option {
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  background: var(--colors-surface);
+}
+
+.selected {
+  border-color: var(--option-selected-border);
+  background: var(--option-selected-background);
+}
+
+.button {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  inline-size: 100%;
+  padding: var(--spacing-4);
+  border: none;
+  background: transparent;
+  color: var(--colors-text);
+  text-align: start;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+/* The radio dot: an empty ring, filled with the selected color when the card is chosen. */
+.radio {
+  flex-shrink: 0;
+  inline-size: var(--sizes-icon-sm);
+  block-size: var(--sizes-icon-sm);
+  margin-block-start: var(--spacing-1);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--radii-full);
+}
+
+.selected .radio {
+  border: var(--borders-width-thick) var(--borders-style) var(--option-selected-border);
+  background: var(--option-selected-border);
+}
+
+.details {
+  padding: 0 var(--spacing-4) var(--spacing-4);
+}

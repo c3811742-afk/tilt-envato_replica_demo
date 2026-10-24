@@ -1,0 +1,43 @@
+.scroller {
+  max-inline-size: 100%;
+  overflow-x: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-styles-body-sm-font-size);
+  line-height: var(--text-styles-body-sm-line-height);
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table thead th {
+  background: var(--colors-surface-muted);
+  font-weight: var(--text-styles-title-font-weight);
+}
+
+.table tbody tr:last-child > * {
+  border-block-end: none;
+}
+
+.rowHeaders tbody th {
+  inline-size: var(--table-first-column);
+  font-weight: var(--text-styles-title-font-weight);
+}
+
+.table .end {
+  text-align: end;
+}
+
+.table .center {
+  text-align: center;
+}

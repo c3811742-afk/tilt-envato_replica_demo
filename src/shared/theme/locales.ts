@@ -1,18 +1,16 @@
+// `intl` is the tag passed to Intl formatters: Egyptian region, Western digits (0-9) in both languages.
 export const locales = {
-  en: { lang: 'en', dir: 'ltr' },
-  ar: { lang: 'ar', dir: 'rtl' },
+  en: { lang: 'en', dir: 'ltr', intl: 'en-EG' },
+  ar: { lang: 'ar', dir: 'rtl', intl: 'ar-EG-u-nu-latn' },
 } as const;
 
 export type Locale = keyof typeof locales;
 export type Direction = (typeof locales)[Locale]['dir'];
 
-export const defaultLocale: Locale = 'en';
+// Arabic first: the demo is built for the Egyptian market.
+export const defaultLocale: Locale = 'ar';
 
 const localeList = Object.keys(locales) as Locale[];
 
 export const isLocale = (value: unknown): value is Locale =>
   typeof value === 'string' && localeList.includes(value as Locale);
-
-// The locale after `current`, cycling through all locales (used by the language switch).
-export const nextLocale = (current: Locale): Locale =>
-  localeList[(localeList.indexOf(current) + 1) % localeList.length];

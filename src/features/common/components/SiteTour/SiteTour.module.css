@@ -1,0 +1,76 @@
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-modal);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+/* No element to point at: the whole page is dimmed. */
+.dimmed {
+  background: var(--colors-overlay);
+}
+
+/* A frame around the highlighted element; its shadow darkens the rest of the page. */
+.spotlight {
+  position: absolute;
+  inset-block-start: calc(var(--spot-top) - var(--spacing-2));
+  inset-inline-start: calc(var(--spot-start) - var(--spacing-2));
+  inline-size: calc(var(--spot-width) + 2 * var(--spacing-2));
+  block-size: calc(var(--spot-height) + 2 * var(--spacing-2));
+  border: var(--borders-width-thick) var(--borders-style) var(--colors-highlight);
+  box-shadow: var(--shadows-spotlight);
+  pointer-events: none;
+  transition-property: inset-block-start, inset-inline-start, inline-size, block-size;
+  transition-duration: var(--motion-base);
+  transition-timing-function: var(--motion-ease);
+}
+
+.card {
+  --tour-gap: var(--spacing-4);
+
+  position: absolute;
+  inline-size: var(--sizes-tour-width);
+  padding: var(--spacing-5);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  box-shadow: var(--shadows-hard);
+}
+
+/* Next to the element, lined up with its start and kept inside the screen. */
+.below,
+.above,
+.inside {
+  inset-inline-start: max(var(--spacing-4), min(var(--spot-start), calc(100% - var(--sizes-tour-width) - var(--spacing-4))));
+}
+
+.below {
+  inset-block-start: calc(var(--card-edge) + var(--spacing-4));
+}
+
+.above {
+  inset-block-end: calc(var(--card-edge) + var(--spacing-4));
+}
+
+/* No room above or below (a very tall element): the card sits at the bottom of the screen. */
+.inside {
+  inset-block-end: var(--spacing-4);
+}
+
+.measuring {
+  visibility: hidden; /* until its height is known and it can be placed */
+}
+
+.centered {
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+}
+
+:dir(rtl) .centered {
+  translate: 50% -50%;
+}

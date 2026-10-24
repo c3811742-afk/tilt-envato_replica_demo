@@ -1,0 +1,4 @@
+/* Nested collections are indented one step per level. */
+.row {
+  padding-inline-start: calc(var(--depth) * var(--spacing-5));
+}

@@ -1,0 +1,7 @@
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  background: var(--icon-note-background);
+}

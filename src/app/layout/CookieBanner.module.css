@@ -1,0 +1,16 @@
+/* Sits above the phone tab bar, and at the bottom of the screen from tablet width up. */
+.banner {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: var(--sizes-bottom-nav-height);
+  z-index: var(--z-index-overlay);
+  padding-block: var(--spacing-4);
+  border-block-start: var(--borders-width-thick) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+@media (--md-up) {
+  .banner {
+    inset-block-end: 0;
+  }
+}

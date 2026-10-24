@@ -1,0 +1,19 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: var(--borders-width-thick) var(--borders-style) var(--colors-border);
+  background: var(--colors-highlight);
+}
+
+/* The number reads first, the label under it. */
+.stat {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-5) var(--spacing-2);
+}
+
+.stat + .stat {
+  border-inline-start: var(--borders-width-thick) var(--borders-style) var(--colors-border);
+}

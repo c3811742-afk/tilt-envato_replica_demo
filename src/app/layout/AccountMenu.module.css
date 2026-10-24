@@ -1,0 +1,14 @@
+/* Only the icon until the header has room for the name (wide screens), next to the search tools. */
+.name {
+  display: none;
+  max-inline-size: var(--sizes-sidebar-width);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (--xl-up) {
+  .name {
+    display: inline;
+  }
+}

@@ -1,11 +1,14 @@
 import type { CSSProperties } from 'react';
-import { withDefaults } from '@/shared/utils';
+import { cx, withDefaults } from '@/shared/utils';
 import { textDefaults, textStyleVars } from './Text.defaults';
 import type { TextProps } from './Text.types';
 import styles from './Text.module.css';
 
 export const Text = (props: TextProps) => {
-  const { children, as: Element, variant, color, align, autoDirection } = withDefaults(textDefaults, props);
+  const { children, as: Element, variant, color, align, autoDirection, maxLines, id, htmlFor } = withDefaults(
+    textDefaults,
+    props,
+  );
   const textStyle = textStyleVars[variant];
 
   const style = {
@@ -17,10 +20,17 @@ export const Text = (props: TextProps) => {
     '--text-transform': textStyle.textTransform,
     '--text-color': color,
     '--text-align': align,
+    '--text-max-lines': maxLines,
   } as CSSProperties;
 
   return (
-    <Element className={styles.text} style={style} dir={autoDirection ? 'auto' : undefined}>
+    <Element
+      id={id}
+      htmlFor={Element === 'label' ? htmlFor : undefined}
+      className={cx(styles.text, maxLines !== undefined && styles.clamp)}
+      style={style}
+      dir={autoDirection ? 'auto' : undefined}
+    >
       {children}
     </Element>
   );

@@ -1,0 +1,48 @@
+.bottomNav {
+  position: fixed;
+  inset-block-end: 0;
+  inset-inline: 0;
+  z-index: var(--z-index-sticky);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  min-block-size: var(--sizes-bottom-nav-height);
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  min-inline-size: 0;
+  border-block-start: var(--borders-width-thick) var(--borders-style) transparent;
+  color: var(--colors-text-muted);
+  text-decoration: none;
+}
+
+.label {
+  max-inline-size: 100%;
+  overflow: hidden;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.active {
+  border-block-start-color: var(--colors-primary);
+  color: var(--colors-primary);
+}
+
+/* Inset, so the ring isn't cut off by the screen edge. */
+.tab:focus-visible {
+  outline-offset: calc(-1 * var(--borders-width-thick));
+}
+
+@media (--md-up) {
+  .bottomNav {
+    display: none;
+  }
+}

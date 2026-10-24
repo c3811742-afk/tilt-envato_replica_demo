@@ -1,0 +1,21 @@
+.layout {
+  display: grid;
+  gap: var(--split-gap);
+}
+
+.column {
+  min-inline-size: 0;
+}
+
+@media (--lg-up) {
+  .layout {
+    grid-template-columns: var(--split-columns);
+    align-items: start;
+  }
+
+  /* Stays under the sticky header while the main column scrolls. */
+  .sticky {
+    position: sticky;
+    inset-block-start: calc(var(--sizes-header-height) + var(--spacing-5));
+  }
+}

@@ -1,0 +1,1 @@
+export { UserCollectionCard } from './UserCollectionCard';

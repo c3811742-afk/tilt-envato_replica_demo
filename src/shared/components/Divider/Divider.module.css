@@ -1,0 +1,20 @@
+.line {
+  inline-size: 100%;
+  margin: 0;
+  border: none;
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--divider-color);
+}
+
+/* A line on each side of the text. */
+.labelled {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.labelled::before,
+.labelled::after {
+  content: '';
+  flex: 1;
+  border-block-start: var(--borders-width-thin) var(--borders-style) var(--divider-color);
+}

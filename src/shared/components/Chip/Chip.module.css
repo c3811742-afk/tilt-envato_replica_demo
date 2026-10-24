@@ -1,0 +1,21 @@
+.chip {
+  composes: lift from '@/shared/styles/interactions.module.css';
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-block-size: var(--sizes-chip-height);
+  padding-inline: var(--sizes-chip-padding-x);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--chip-radius);
+  background: var(--chip-background);
+  color: var(--chip-color);
+  font-family: var(--text-styles-body-sm-font-family);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--text-styles-body-sm-line-height);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
