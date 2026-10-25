@@ -51,12 +51,16 @@ export const colors = {
   overlay: 'rgba(0, 0, 0, 0.6)',
   shadow: palette.black, // the hard hover shadow
 
-  // The admin sidebar: always SYNC blue with lime for the current page, whatever accent the user picked.
-  nav: palette.royalBlue,
-  onNav: palette.white,
-  navHover: palette.royalBlueDark,
+  // The admin sidebar: white, with lime for the current page, whatever accent the user picked.
+  nav: palette.white,
+  onNav: palette.black,
+  navMuted: palette.gray500, // its group headings
+  navHover: palette.gray100,
   navAccent: palette.lime,
   onNavAccent: palette.black,
+  // The "Admin" tag in the admin's top bar: the two SYNC colors together.
+  adminTag: palette.royalBlue,
+  onAdminTag: palette.lime,
 } as const;
 
 export type ColorName = keyof typeof colors;
@@ -84,6 +88,11 @@ export const darkColors: Partial<Record<ColorName, string>> = {
 
   overlay: 'rgba(0, 0, 0, 0.8)',
   shadow: palette.white,
+
+  nav: palette.gray900,
+  onNav: palette.white,
+  navMuted: palette.gray400,
+  navHover: palette.gray800,
 };
 
 // The main brand color the user can pick: it replaces `primary` (buttons, links, the home banner).

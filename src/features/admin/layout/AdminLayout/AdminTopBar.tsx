@@ -32,7 +32,7 @@ export const AdminTopBar = ({ alerts }: AdminTopBarProps) => {
       accentWidth={vars.borders.width.thick}
       tag={
         <span className={styles.tag}>
-          <Badge background={vars.colors.nav} color={vars.colors.navAccent}>
+          <Badge background={vars.colors.adminTag} color={vars.colors.onAdminTag}>
             {text.admin.layout.title}
           </Badge>
         </span>
