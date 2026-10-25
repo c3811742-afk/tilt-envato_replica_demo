@@ -53,9 +53,11 @@ export const studioLimits = {
 export const studioEarnings = {
   perDownload: 6, // EGP the creator earns for each paid download of their element
   pendingDays: 30, // earnings wait this long (for refunds and claims) before they can be paid out
-  payoutMinimum: 500, // EGP: a payout can be requested from this balance
   periodMonths: 6, // months shown in "Earnings per period"
 } as const;
+
+// The payout rules until the admin team changes them (Admin › Payouts › Rules).
+export const defaultPayoutRules = { creatorShare: 50, minimumPayout: 500, payoutDay: 5 } as const;
 
 // Occasions in Egypt creators are reminded about, 6 to 8 weeks before. Dates move each year (several follow
 // the Islamic or Coptic calendar), so they are listed per year. Labels: text.studio.occasions.

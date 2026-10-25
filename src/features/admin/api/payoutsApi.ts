@@ -1,12 +1,13 @@
 import { seedDownloadsByType, seedEarnings } from '@/features/admin/mocks';
-import type { PayoutDecision, PayoutRules, PayoutStatus, Report, ReportKind } from '@/features/admin/types';
+import type { Payout, PayoutDecision, PayoutMethod, PayoutRules, PayoutStatus, Report, ReportKind } from '@/features/admin/types';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, now, respond } from './mockServer';
 import { allPlans } from './plansApi';
 import { allTransactions } from './billingApi';
 import { typeOfCategory } from './elementsApi';
 import { mockItems } from '@/shared/mocks';
-import { readAccounts } from '@/shared/utils';
+import type { PayoutMethod as CreatorPayoutMethod, StudioPayout, StudioPayoutStatus } from '@/shared/types';
+import { applyStudioPayoutDecision, findAccountById, payoutRulesStore, readAccounts, readStudioPayouts } from '@/shared/utils';
 
 // Downloads customers made on the site in a month, with the item each one was for.
 const siteDownloads = (month: string) =>
@@ -35,28 +36,51 @@ const siteEarnings = (month: string) => {
   const revenue = allTransactions()
     .filter((transaction) => transaction.source === 'site' && transaction.at.startsWith(month))
     .reduce((total, transaction) => total + transaction.amount - transaction.refunded, 0);
-  const pool = (revenue * db.payoutRules.creatorShare) / 100;
+  const pool = (revenue * payoutRulesStore.get().creatorShare) / 100;
   const byCreator = countBy(downloads, ({ item }) => item.creator.name);
   return [...byCreator].map(([creator, count]): [string, number, number] => [creator, count, Math.round((pool * count) / downloads.length)]);
 };
 
-export const fetchPayoutRules = () => respond(() => db.payoutRules);
+// Saved where the creator studio reads them: the minimum payout and the payout day show to creators right away.
+export const fetchPayoutRules = () => respond(() => payoutRulesStore.get());
 
 // New rules apply to earnings from the next payout on.
 export const savePayoutRules = (actorId: string, rules: PayoutRules) =>
   respond(() => {
     const actor = authorize(actorId, 'managePayouts');
-    db.payoutRules = { ...rules };
+    payoutRulesStore.set({ ...rules });
     logAction(actor, 'payoutRulesSaved', { kind: 'payoutRules', id: 'rules', label: `${rules.creatorShare}%` }, {
       amount: rules.minimumPayout,
     });
-    return db.payoutRules;
+    return payoutRulesStore.get();
   });
+
+// ---------- Creators' payout requests ----------
+// Requests creators made in the creator studio, alongside the demo ones. Decisions are saved on the creator's
+// request and they are told.
+
+const creatorMethod: Record<CreatorPayoutMethod, PayoutMethod> = { bankTransfer: 'bank', instapay: 'instapay', vodafoneCash: 'vodafoneCash' };
+const studioStatus: Record<StudioPayoutStatus, PayoutStatus> = { requested: 'pending', approved: 'approved', paid: 'paid', failed: 'failed', rejected: 'rejected' };
+
+const fromStudio = (payout: StudioPayout): Payout => ({
+  id: payout.id,
+  creator: { id: payout.creatorId, name: findAccountById(payout.creatorId)?.name ?? '' },
+  amount: payout.amount,
+  method: payout.method ? creatorMethod[payout.method] : 'bank',
+  account: payout.accountEnding ? `•••• ${payout.accountEnding}` : '',
+  requestedAt: payout.requestedAt,
+  status: studioStatus[payout.status],
+  note: payout.note,
+  updatedAt: payout.updatedAt ?? payout.requestedAt,
+  source: 'site',
+});
+
+export const allPayouts = () => [...readStudioPayouts().map(fromStudio), ...db.payouts];
 
 // Requests waiting for a decision first, then newest first.
 export const fetchPayouts = () =>
   respond(() =>
-    [...db.payouts].sort(
+    allPayouts().sort(
       (a, b) =>
         Number(b.status === 'pending') - Number(a.status === 'pending') || b.requestedAt.localeCompare(a.requestedAt),
     ),
@@ -73,12 +97,18 @@ const allowedFrom: Record<PayoutDecision, PayoutStatus> = {
 export const decidePayout = (actorId: string, id: string, decision: PayoutDecision, note = '') =>
   respond(() => {
     const actor = authorize(actorId, 'managePayouts');
-    const payout = findById(db.payouts, id);
+    const payout = findById(allPayouts(), id);
     if (payout.status !== allowedFrom[decision]) throw new AdminApiError('payoutChanged');
 
-    payout.status = decision;
-    payout.note = note.trim() || undefined;
-    payout.updatedAt = now();
+    if (payout.source === 'site') {
+      const saved = applyStudioPayoutDecision(id, decision, note);
+      if (!saved) throw new AdminApiError('notFound');
+      Object.assign(payout, fromStudio(saved));
+    } else {
+      payout.status = decision;
+      payout.note = note.trim() || undefined;
+      payout.updatedAt = now();
+    }
     logAction(actor, 'payoutUpdated', { kind: 'payout', id: payout.id, label: payout.creator.name }, {
       change: decision,
       amount: payout.amount,
@@ -128,7 +158,7 @@ const buildReport: Record<ReportKind, (month: string) => Pick<Report, 'columns' 
   }),
   payouts: (month) => ({
     columns: ['date', 'creator', 'method', 'amount', 'status'],
-    rows: db.payouts
+    rows: allPayouts()
       .filter((payout) => inMonth(payout.requestedAt, month))
       .map((payout) => [payout.requestedAt.slice(0, 10), payout.creator.name, payout.method, payout.amount, payout.status]),
   }),

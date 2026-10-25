@@ -23,7 +23,7 @@ import {
   type SessionAccount,
 } from './accountStore';
 import { ApiError } from './apiError';
-import { withOccasionReminders } from './studioApi';
+import { withDueAnnouncements, withOccasionReminders } from './studioApi';
 import { nameFromEmail } from './session';
 import { storage } from './storage';
 
@@ -49,7 +49,14 @@ export const authApi = {
   // A due renewal reminder is added here, since the demo has no server running in the background.
   currentAccount: (): SessionAccount | null => {
     const account = signedInAccountOrNull();
-    return account ? toSessionAccount(saveAccount(withOccasionReminders(withDueReminders(account)))) : null;
+    return account ? toSessionAccount(saveAccount(withDueAnnouncements(withOccasionReminders(withDueReminders(account))))) : null;
+  },
+
+  // The signed-in account as saved, without writing anything: for following changes made in another tab. Writing
+  // here would let two open tabs overwrite each other's newer copy of the account.
+  readCurrentAccount: (): SessionAccount | null => {
+    const account = signedInAccountOrNull();
+    return account ? toSessionAccount(account) : null;
   },
 
   // Demo only: the code that would have been emailed or texted, so the page can show it. A real server never exposes this.

@@ -34,8 +34,13 @@ export const alertKinds = [
   'brokenFileReported',
   'copyrightClaim',
   'payoutPaid',
+  'payoutRejected',
+  'identityApproved',
+  'identityRejected',
   'policyUpdate',
   'occasionReminder',
+  'appealAccepted',
+  'appealRejected',
   // Customers who licensed an element whose files were replaced
   'elementUpdated',
 ] as const;

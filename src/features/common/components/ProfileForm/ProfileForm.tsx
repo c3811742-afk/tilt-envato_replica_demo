@@ -1,9 +1,9 @@
 import { ChipGroup, FormFooter, PhoneField, Stack, TextField } from '@/shared/components';
 import { categoryIcons, notificationChannels, useCases, type NotificationChannel, type UseCase } from '@/shared/constants';
-import { useForm, useLocale, useMessages } from '@/shared/hooks';
+import { useForm, useLocale, useMessages, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { categoryIds, type CategoryId, type NotificationSettings, type User, type UserProfile } from '@/shared/types';
-import { normalizeEgyptianMobile, validateEgyptianMobile, validateRequired } from '@/shared/utils';
+import type { CategoryId, NotificationSettings, User, UserProfile } from '@/shared/types';
+import { categorySettingsStore, normalizeEgyptianMobile, shownCategoryIds, validateEgyptianMobile, validateRequired } from '@/shared/utils';
 
 type ProfileValues = {
   fullName: string;
@@ -25,6 +25,7 @@ interface ProfileFormProps {
 // Used right after sign-up ("Gather user information") and in the account settings ("Edit profile").
 export const ProfileForm = ({ user, submitLabel, showChannels, onSubmit }: ProfileFormProps) => {
   const { text } = useLocale();
+  useStoredValue(categorySettingsStore); // shows the team's category order and hides hidden ones as they change
   const { fieldError } = useMessages();
   const profile = user.profile;
   // Google, Apple and Facebook share the user's real name; an email sign-up's name is only its email prefix.
@@ -83,7 +84,7 @@ export const ProfileForm = ({ user, submitLabel, showChannels, onSubmit }: Profi
       <ChipGroup<CategoryId>
         label={text.profile.interests}
         multiple
-        options={categoryIds.map((id) => ({ value: id, label: text.categories[id].name, icon: categoryIcons[id] }))}
+        options={shownCategoryIds(form.values.interests).map((id) => ({ value: id, label: text.categories[id].name, icon: categoryIcons[id] }))}
         value={form.values.interests}
         onChange={(interests) => form.setValue('interests', interests)}
         hint={text.profile.interestsHint}

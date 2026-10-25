@@ -1,3 +1,4 @@
+import type { PayoutMethod } from './creator';
 import type { StudioDetailKey, StudioSourceKind, StudioStatus, TrackVersionKind } from '@/shared/constants';
 import type { Locale } from '@/shared/theme';
 import type { CategoryId, LocalizedText } from './catalog';
@@ -25,6 +26,15 @@ export interface StudioReview {
   at: string; // ISO date
 }
 
+// A creator's appeal against a copyright takedown, and the team's answer (with a note when it stays down).
+export interface StudioAppeal {
+  message: string;
+  at: string;
+  status: 'open' | 'accepted' | 'rejected';
+  note?: string;
+  decidedAt?: string;
+}
+
 // A creator's element, from first draft to live (and after).
 export interface StudioElement {
   id: string;
@@ -50,6 +60,7 @@ export interface StudioElement {
   fileVersion: number; // goes up each time the files of a live element are replaced
   review?: StudioReview;
   unpublish?: { reason: string; note: string; at: string };
+  appeal?: StudioAppeal; // the creator's appeal against a copyright takedown
   // While a live element is being updated (edited, in review or sent back), the accepted version customers still see.
   liveVersion?: Omit<StudioElement, 'liveVersion'>;
   createdAt: string;
@@ -59,14 +70,27 @@ export interface StudioElement {
 }
 
 // Money paid out to a creator.
+// A creator's payout request, and what the admin team did with it: approved, then paid or failed; or rejected.
+export type StudioPayoutStatus = 'requested' | 'approved' | 'paid' | 'failed' | 'rejected';
+
 export interface StudioPayout {
   id: string;
   creatorId: string;
   amount: number; // EGP
-  method: string; // the payout method from the creator application
+  method: PayoutMethod | ''; // from the creator application ('' when it had none)
+  accountEnding?: string; // the last digits of the account or wallet the money goes to
   requestedAt: string;
-  status: 'requested' | 'paid';
+  status: StudioPayoutStatus;
+  note?: string; // why it was rejected or failed (the creator sees it)
+  updatedAt?: string;
   paidAt?: string;
+}
+
+// How creators are paid, as the admin team sets it (Admin › Payouts › Rules).
+export interface PayoutRules {
+  creatorShare: number; // percent of subscription revenue shared with creators
+  minimumPayout: number; // EGP: creators can request a payout from this balance
+  payoutDay: number; // day of the month payouts are sent (1 to 28)
 }
 
 // A copyright claim against one of the creator's elements (from a customer's report), and the creator's answer.

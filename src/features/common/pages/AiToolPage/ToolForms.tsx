@@ -2,9 +2,7 @@ import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Button, Checkbox, FileInput, IconNote, OptionCardGroup, Stack, Text, TextField } from '@/shared/components';
 import {
   aiGeneration,
-  aiModelCredits,
   aiModels,
-  aiVideoModelCredits,
   aiVideoModels,
   type AiAspectRatio,
   type AiEditMode,
@@ -25,13 +23,16 @@ import { vars } from '@/shared/theme';
 import type { AiRequest } from '@/shared/types';
 import {
   aiApi,
+  aiCost,
   averageColor,
+  type CreditAllowance,
   editImage,
   eraseArea,
   fillText,
-  formatCount,
   fitImage,
+  formatCount,
   formatNumber,
+  type GeneratedFile,
   generatedImage,
   generationCost,
   isApiError,
@@ -46,8 +47,6 @@ import {
   swapBackground,
   upscaleImage,
   voiceFor,
-  type CreditAllowance,
-  type GeneratedFile,
 } from '@/shared/utils';
 import { sourceBlob, sourceName, type ImageSource } from './imageSource';
 import { ChoiceChips, CostFooter, MarkCanvas, SourcePicker, type MarkCanvasHandle } from './ToolParts';
@@ -141,7 +140,7 @@ export const ImageForm = ({ tool, allowance }: { tool: 'image' | 'graphics'; all
             options={aiModels.map((option) => ({
               value: option,
               title: option === aiModels[aiModels.length - 1] ? `${text.ai.models[option]} (${text.ai.newest})` : text.ai.models[option],
-              description: formatCount(text.ai.modelCost, aiModelCredits[option], locale),
+              description: formatCount(text.ai.modelCost, aiCost(option), locale),
               disabled: !allowance.models.includes(option),
               disabledReason: text.ai.modelLocked,
             }))}
@@ -166,7 +165,11 @@ export const ImageForm = ({ tool, allowance }: { tool: 'image' | 'graphics'; all
         />
       )}
       {tool === 'image' && (
-        <Checkbox label={fillText(text.ai.burst, { count: formatNumber(aiGeneration.burstCount, locale) })} checked={burst} onChange={setBurst} />
+        <Checkbox
+          label={fillText(text.ai.burst, { count: formatNumber(aiGeneration.burstCount, locale), credits: formatCount(text.ai.burstCredits, aiCost('burst'), locale) })}
+          checked={burst}
+          onChange={setBurst}
+        />
       )}
       <Stack gap={vars.spacing[2]}>
         <Text as="span" variant="title">
@@ -382,7 +385,7 @@ export const VideoForm = ({
           options={aiVideoModels.map((option) => ({
             value: option,
             title: option === aiVideoModels[aiVideoModels.length - 1] ? `${text.ai.models[option]} (${text.ai.newest})` : text.ai.models[option],
-            description: fillText(text.ai.videoModelCost, { credits: formatNumber(aiVideoModelCredits[option], locale) }),
+            description: fillText(text.ai.videoModelCost, { credits: formatNumber(aiCost(option), locale) }),
             disabled: !allowance.videoModels.includes(option),
             disabledReason: text.ai.modelLocked,
           }))}

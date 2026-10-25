@@ -2,9 +2,7 @@ import { useState, type CSSProperties } from 'react';
 import { Checkbox, FieldGroup, Text, TextField } from '@/shared/components';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { matchesText, withDefaults } from '@/shared/utils';
-
-
+import { cx, matchesText, withDefaults } from '@/shared/utils';
 import { itemPickerDefaults } from './ItemPicker.defaults';
 import type { ItemPickerProps } from './ItemPicker.types';
 import styles from './ItemPicker.module.css';
@@ -19,14 +17,14 @@ export const ItemPicker = (props: ItemPickerProps) => {
   const style = { '--item-picker-max-height': maxHeight } as CSSProperties;
 
   return (
-    <FieldGroup label={label} hint={hint} error={error}>
-      <TextField type="search" label={text.admin.common.search} value={query} onChange={setQuery} />
+    <FieldGroup label={label} hint={hint} error={error} gap={vars.spacing[3]}>
+      <TextField type="search" label={text.admin.common.search} placeholder={text.admin.common.search} hideLabel value={query} onChange={setQuery} />
       {visible.length > 0 ? (
         <ul className={styles.list} style={style}>
           {visible.map((item) => {
             const checked = selectedIds.includes(item.id);
             return (
-              <li key={item.id}>
+              <li key={item.id} className={cx(styles.row, checked && styles.chosen)}>
                 <Checkbox
                   label={item.title}
                   description={item.description}

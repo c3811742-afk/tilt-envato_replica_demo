@@ -176,9 +176,24 @@ const replaceTag = (from: string, to: string | null) => {
   });
 };
 
+// Tags creators used on their submissions join the list the first time it's shown, so the team can rename or ban them.
+const addCreatorTags = () => {
+  const known = new Set(db.tags.map((tag) => tag.name.toLocaleLowerCase()));
+  allElements()
+    .filter((element) => element.source === 'creator')
+    .flatMap((element) => element.tags)
+    .forEach((name) => {
+      if (known.has(name.toLocaleLowerCase())) return;
+      known.add(name.toLocaleLowerCase());
+      db.tags.push({ id: newId(), name, banned: false });
+    });
+};
+
 // Most used first. Every tag change returns the whole list, since usage counts change too.
-const listTags = (): Tag[] =>
-  db.tags.map((tag) => ({ ...tag, usage: tagUsage(tag.name) })).sort((a, b) => b.usage - a.usage);
+const listTags = (): Tag[] => {
+  addCreatorTags();
+  return db.tags.map((tag) => ({ ...tag, usage: tagUsage(tag.name) })).sort((a, b) => b.usage - a.usage);
+};
 
 export const fetchTags = () => respond(listTags);
 

@@ -64,13 +64,11 @@ const TicketView = ({ ticket, onChange }: TicketViewProps) => {
           kind: t.requesterKinds[ticket.requester.kind],
           topic: t.topics[ticket.topic],
         })}
+        badges={<Badge variant={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>}
         actions={
-          <>
-            <Badge variant={ticketStatusTone[ticket.status]}>{t.statuses[ticket.status]}</Badge>
-            <Button variant="muted" size="sm" disabled={status.busy} onClick={toggleClosed}>
-              {closed ? t.reopen : t.close}
-            </Button>
-          </>
+          <Button variant="muted" size="sm" disabled={status.busy} onClick={toggleClosed}>
+            {closed ? t.reopen : t.close}
+          </Button>
         }
       />
       {notice && (

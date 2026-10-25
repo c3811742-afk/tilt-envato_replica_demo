@@ -62,7 +62,7 @@ const fromStudio = (current: StudioElement): CatalogElement => {
     id: element.id,
     title: element.title[element.language],
     description: element.description[element.language],
-    tags: element.tags[element.language],
+    tags: editedTags(element.tags[element.language]),
     type: typeOfCategory[element.categoryId],
     category: element.categoryId,
     software: element.software,
@@ -78,16 +78,22 @@ const fromStudio = (current: StudioElement): CatalogElement => {
   };
 };
 
+// Elements customers can see: the site's library and creators' submissions (the rest is the admin's demo data).
+const onSite = (element: CatalogElement) => element.source === 'site' || element.source === 'creator';
+
+// A reviewer's flag on a site or creator element (those are built fresh on each read, so the flag is kept apart).
+const withFlag = (element: CatalogElement): CatalogElement => (db.elementFlags[element.id] ? { ...element, flag: db.elementFlags[element.id] } : element);
+
 // Drafts are the creator's own until they submit them.
-const studioElements = () => readStudioElements().filter((element) => element.status !== 'draft').map(fromStudio);
+const studioElements = () => readStudioElements().filter((element) => element.status !== 'draft').map(fromStudio).map(withFlag);
 
 // Site items still in the library, creators' submissions, then every demo element.
 export const allElements = () => {
   const removed = readCatalogEvents().removedItemIds;
-  return [...mockItems.filter((item) => !removed[item.id]).map(fromSite), ...studioElements(), ...db.elements];
+  return [...mockItems.filter((item) => !removed[item.id]).map(fromSite).map(withFlag), ...studioElements(), ...db.elements];
 };
 
-const pendingQueue = () =>
+export const pendingQueue = () =>
   [...studioElements(), ...db.elements]
     .filter((element) => element.status === 'pending')
     .sort((a, b) => a.submittedAt.localeCompare(b.submittedAt));
@@ -106,12 +112,16 @@ export const fetchReviewQueue = () => respond(pendingQueue);
 // null when the element doesn't exist: the page shows "Element not found".
 export const fetchElement = (id: string) => respond(() => allElements().find((element) => element.id === id) ?? null);
 
-export const fetchLiveElements = () =>
-  respond(() =>
-    allElements()
-      .filter((element) => element.status === 'live')
-      .sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '')),
-  );
+const liveElements = () =>
+  allElements()
+    .filter((element) => element.status === 'live')
+    .sort((a, b) => (b.publishedAt ?? '').localeCompare(a.publishedAt ?? ''));
+
+export const fetchLiveElements = () => respond(liveElements);
+
+// Live elements customers can actually see on the site (the site's library and creators' elements), for choosing
+// what the homepage shows. The demo's own elements exist only in the admin.
+export const fetchSiteElements = () => respond(() => liveElements().filter(onSite));
 
 // Accept, soft reject or hard reject. Returns the next element in the queue so the reviewer can keep going.
 export const reviewElement = (actorId: string, elementId: string, input: ReviewInput) =>
@@ -141,6 +151,7 @@ export const flagElement = (actorId: string, elementId: string, input: FlagInput
     if (element.status !== 'pending') throw new AdminApiError('alreadyReviewed');
 
     element.flag = { ...input, adminId: actor.id, at: now() };
+    if (onSite(element)) db.elementFlags[element.id] = element.flag;
     logAction(actor, 'elementFlagged', elementTarget(element), { flagKind: input.kind, note: input.note || undefined });
     return element;
   });

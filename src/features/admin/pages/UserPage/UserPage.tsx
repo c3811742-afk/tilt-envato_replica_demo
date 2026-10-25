@@ -57,9 +57,9 @@ const UserView = ({ details, onChange }: UserViewProps) => {
         title={account.name}
         subtitle={account.email}
         autoDirection
+        badges={<Badge variant={accountStatusTone[account.status]}>{t.statuses[account.status]}</Badge>}
         actions={
           <Stack direction="row" wrap gap={vars.spacing[2]} align="center">
-            <Badge variant={accountStatusTone[account.status]}>{t.statuses[account.status]}</Badge>
             {actionsFor[account.status].map((next) => (
               <Button key={next} size="sm" variant={next === 'reactivate' ? 'primary' : 'danger'} onClick={() => setAction(next)}>
                 {t[next]}

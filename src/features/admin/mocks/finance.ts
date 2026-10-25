@@ -1,10 +1,4 @@
-import type { Invoice, Payout, PayoutRules } from '@/features/admin/types';
-
-export const seedPayoutRules: PayoutRules = {
-  creatorShare: 50,
-  minimumPayout: 500,
-  payoutDay: 5,
-};
+import type { Invoice, Payout } from '@/features/admin/types';
 
 export const seedPayouts: Payout[] = [
   {

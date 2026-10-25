@@ -104,10 +104,11 @@ export interface IdentityCheck {
   document: IdDocument;
   nameOnDocument: string;
   numberEnding: string; // last digits only; the full number is never shown
-  expiresAt: string;
+  expiresAt?: string; // the demo's documents have one; the site's application doesn't ask for it
   submittedAt: string;
   status: ApplicationStatus;
   decision?: { reason?: IdRejectReason; note: string; adminName: string; at: string };
+  source?: 'site'; // sent with a creator application on the site (the rest is demo data)
 }
 
 export interface DecisionInput<R extends string> {

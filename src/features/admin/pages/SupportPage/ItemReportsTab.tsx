@@ -67,9 +67,10 @@ export const ItemReportsTab = () => {
     {
       key: 'actions',
       label: text.admin.columns.actions,
+      align: 'end',
       render: (report) =>
         report.status === 'open' && (
-          <Stack direction="row" wrap gap={vars.spacing[2]}>
+          <Stack direction="row" justify="flex-end" wrap gap={vars.spacing[2]}>
             <Button size="sm" disabled={action.busy} onClick={() => resolve(report, 'fixed')}>
               {t.markFixed}
             </Button>

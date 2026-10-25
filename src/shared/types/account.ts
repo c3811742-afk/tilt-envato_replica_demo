@@ -148,6 +148,23 @@ export interface Invoice {
   buyerArabicName?: string;
   billingAddress: BillingAddress | null;
   refunded?: number; // EGP the team refunded to the payment method
+  taxDocuments?: TaxDocument[]; // e-invoices or e-receipts the team sent for this payment (Admin › Invoices)
+}
+
+// An e-invoice (company, with a tax ID) or e-receipt (person) sent to the tax authority. Demo: not really sent.
+export interface TaxDocument {
+  id: string;
+  number: string; // e.g. EINV-2026-00042
+  kind: 'invoice' | 'receipt';
+  transactionId: string;
+  customerName: string;
+  taxId?: string; // the company's tax registration number, for e-invoices
+  amount: number; // EGP, before VAT
+  vat: number; // EGP
+  issuedAt: string;
+  status: 'accepted' | 'rejected';
+  etaUuid?: string; // given by the tax authority when accepted
+  rejectReason?: 'taxIdNotRegistered'; // the tax authority's reason; the admin page shows it in words
 }
 
 // One download. It's "preparing" for a moment after it's requested, then "ready".

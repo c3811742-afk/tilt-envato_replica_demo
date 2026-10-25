@@ -8,6 +8,7 @@ export type AdminErrorCode =
   | 'tagExists'
   | 'sameTag'
   | 'languageExists'
+  | 'lastLanguage'
   | 'alreadyFeatured'
   | 'tooManyFree'
   | 'alreadyClosed'

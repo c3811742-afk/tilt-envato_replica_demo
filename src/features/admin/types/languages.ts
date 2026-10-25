@@ -6,6 +6,7 @@ export interface SiteLanguage {
   nativeName: string; // in the language itself
   direction: TextDirection;
   isSource: boolean; // English: every other language is translated from it
+  published: boolean; // in the site's language menu
   translated: number; // how many texts have a translation
   total: number;
 }

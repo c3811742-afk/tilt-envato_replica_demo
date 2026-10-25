@@ -225,3 +225,18 @@ export interface EmptySearch {
   term: string;
   at: string; // ISO date
 }
+
+// An announcement the admin team sent or scheduled (Admin › Messages). Each account gets it in its notifications
+// once its time has come, if it's in the audience.
+export type AnnouncementAudience = 'customers' | 'creators' | 'everyone';
+
+export interface SiteAnnouncement {
+  id: string;
+  audience: AnnouncementAudience;
+  title: string;
+  body: string;
+  status: 'scheduled' | 'sent' | 'canceled';
+  sendAt: string;
+  recipients: number;
+  sentBy: string;
+}

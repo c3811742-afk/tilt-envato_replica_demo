@@ -1,6 +1,7 @@
-import { storageKeys } from '@/shared/constants';
+import { defaultPayoutRules, storageKeys } from '@/shared/constants';
 import { mockPlans, mockPrograms, mockPromoCodes } from '@/shared/mocks';
-import type { CategoryId, EmptySearch, Plan, Program, PromoCode, SentSearchReport } from '@/shared/types';
+import { categoryIds, type CategoryId, type EmptySearch, type PayoutRules, type Plan, type SiteAnnouncement, type Program, type PromoCode, type SentSearchReport } from '@/shared/types';
+import { isLocale, localeCodes, type Direction, type Locale } from '@/shared/theme';
 import { createStoredValue } from './storedValue';
 
 // What the admin team changes on the site, kept in this browser's storage. Until the team saves something,
@@ -32,11 +33,69 @@ export const categorySettingsStore = createStoredValue<CategorySettings>(storage
   hidden: [],
 }));
 
+// Announcements the admin team sent or scheduled. The site delivers each one to the accounts in its audience.
+export const announcementStore = createStoredValue<SiteAnnouncement[]>(
+  storageKeys.announcements,
+  (value): value is SiteAnnouncement[] => Array.isArray(value),
+  () => [],
+);
+
+// How creators are paid (Admin › Payouts › Rules): the creator studio uses the minimum and the payout day.
+const isPayoutRules = (value: unknown): value is PayoutRules =>
+  typeof value === 'object' && value !== null && 'creatorShare' in value && 'minimumPayout' in value && 'payoutDay' in value;
+
+export const payoutRulesStore = createStoredValue<PayoutRules>(storageKeys.payoutRules, isPayoutRules, () => ({ ...defaultPayoutRules }));
+
+// Languages the team added besides English and Arabic. A published one is in the site's language menu: its texts
+// show where they are translated, English everywhere else.
+export interface AddedLanguage {
+  code: string;
+  name: string; // in English
+  nativeName: string; // in the language itself
+  direction: Direction;
+  published: boolean;
+}
+
+const isAddedLanguages = (value: unknown): value is AddedLanguage[] =>
+  Array.isArray(value) && value.every((language) => typeof language === 'object' && language !== null && 'code' in language && 'published' in language);
+
+export const addedLanguagesStore = createStoredValue<AddedLanguage[]>(storageKeys.addedLanguages, isAddedLanguages, () => []);
+
+// English or Arabic, when the team took it out of the site's language menu (the admin always keeps one language).
+export const hiddenLocalesStore = createStoredValue<Locale[]>(
+  storageKeys.hiddenLocales,
+  (value): value is Locale[] => Array.isArray(value) && value.every(isLocale),
+  () => [],
+);
+
+// A language in the site's language menu. `locale` is the built-in language whose layout, fonts and texts it uses
+// where it isn't translated (its own for English and Arabic).
+export interface SiteLanguageOption {
+  code: string;
+  locale: Locale;
+  added?: AddedLanguage;
+}
+
+export const siteLanguageOptions = (hidden: Locale[], added: AddedLanguage[]): SiteLanguageOption[] => [
+  ...localeCodes.filter((code) => !hidden.includes(code)).map((code) => ({ code, locale: code })),
+  ...added
+    .filter((language) => language.published)
+    .map((language) => ({ code: language.code, locale: language.direction === 'rtl' ? ('ar' as const) : ('en' as const), added: language })),
+];
+
 // Sorts by the team's order; categories it hasn't placed keep their usual order after the placed ones.
 export const byCategoryOrder = <T extends { id: CategoryId }>(list: T[]) => {
   const { order } = categorySettingsStore.get();
   const rank = (id: CategoryId) => (order.includes(id) ? order.indexOf(id) : order.length);
   return [...list].sort((a, b) => rank(a.id) - rank(b.id));
+};
+
+// The site's categories in the team's order, without the hidden ones (keeping any in `keep`, e.g. already chosen).
+export const shownCategoryIds = (keep: readonly CategoryId[] = []) => {
+  const { hidden } = categorySettingsStore.get();
+  return byCategoryOrder(categoryIds.map((id) => ({ id })))
+    .map(({ id }) => id)
+    .filter((id) => !hidden.includes(id) || keep.includes(id));
 };
 
 // Tags the team renamed or merged (old -> new) or banned (old -> null). Items show their tags with these applied.

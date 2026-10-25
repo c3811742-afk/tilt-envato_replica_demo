@@ -99,8 +99,9 @@ const Categories = () => {
       {
         key: 'actions',
         label: text.admin.columns.actions,
+        align: 'end',
         render: (category) => (
-          <Stack direction="row" gap={vars.spacing[2]}>
+          <Stack direction="row" justify="flex-end" gap={vars.spacing[2]}>
             <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setModal({ kind: 'edit', category })}>
               <Icon name="pencil" size={vars.sizes.icon.sm} />
             </Button>

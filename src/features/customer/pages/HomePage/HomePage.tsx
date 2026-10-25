@@ -23,9 +23,9 @@ import {
   routes,
   searchPath,
 } from '@/shared/constants';
-import { useAsync, useCategories, useLocale, useSession } from '@/shared/hooks';
+import { useAsync, useCategories, useLocale, useSession, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { api, currentOccasion, faqGroups, fillText, unreadReleaseNotes } from '@/shared/utils';
+import { api, currentOccasion, faqGroups, fillText, homepageStore, unreadReleaseNotes } from '@/shared/utils';
 import { ChipLinks, HowItWorksSteps, ItemRowSection, SearchBox } from '@/features/customer/components';
 import styles from './HomePage.module.css';
 
@@ -38,6 +38,8 @@ export const HomePage = () => {
   const faqPreview = faqGroups(locale).flatMap((group) => group.items).slice(0, catalog.faqPreviewSize);
   const signedIn = session.status === 'signedIn';
   const occasion = currentOccasion();
+  // What the team set up in Admin › Homepage: the rows it feeds load again as soon as it's saved.
+  const [homepage] = useStoredValue(homepageStore);
 
   return (
     <>
@@ -99,7 +101,7 @@ export const HomePage = () => {
               </Section>
             </div>
 
-            <ItemRowSection title={text.home.featuredTitle} load={() => api.getFeaturedItems()} />
+            <ItemRowSection title={text.home.featuredTitle} load={() => api.getFeaturedItems()} deps={[homepage]} />
             <ItemRowSection
               title={text.home.trendingTitle}
               load={() => api.getTrendingItems()}
@@ -116,6 +118,7 @@ export const HomePage = () => {
               title={text.home.freeTitle}
               subtitle={signedIn ? text.home.freeMember : text.home.freeGuest}
               load={() => api.getFreeItems()}
+              deps={[homepage]}
               actionLabel={signedIn ? undefined : text.common.signUp}
               actionTo={signedIn ? undefined : routes.signUp}
             />

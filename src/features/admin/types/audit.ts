@@ -27,6 +27,7 @@ export type AuditAction =
   | 'contentSaved'
   | 'contentDeleted'
   | 'languageAdded'
+  | 'languageUpdated'
   | 'translationUpdated'
   | 'messageSent'
   | 'messageScheduled'

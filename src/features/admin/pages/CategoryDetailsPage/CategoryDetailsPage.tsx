@@ -99,8 +99,9 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
     {
       key: 'actions',
       label: text.admin.columns.actions,
+      align: 'end',
       render: (attribute) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" justify="flex-end" gap={vars.spacing[2]}>
           <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setEditing(attribute)}>
             <Icon name="pencil" size={vars.sizes.icon.sm} />
           </Button>
@@ -130,7 +131,7 @@ const CategoryDetailsView = ({ category, onChange }: CategoryDetailsViewProps) =
         title={localized(category.name, locale)}
         subtitle={t.description}
         autoDirection
-        actions={category.hidden && <Badge>{text.admin.categoryList.hidden}</Badge>}
+        badges={category.hidden && <Badge>{text.admin.categoryList.hidden}</Badge>}
       />
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>

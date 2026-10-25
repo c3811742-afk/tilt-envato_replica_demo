@@ -4,7 +4,7 @@ import { call, planAccess, readLicenses, saveAccount, signedInAccount, teamOf, t
 import { creditAllowance, generationCost, imageOutputCount, newSeed } from './ai';
 import { ApiError } from './apiError';
 import { fileStore } from './fileStore';
-import { aiBlockedStore, aiToolSetting, blockedPhraseIn } from './siteAi';
+import { aiBlockedStore, aiToolAccess, aiToolSetting, blockedPhraseIn } from './siteAi';
 import { createLicenseCode } from './license';
 
 // A result the browser made for the request (an edited image, a video, music): kept in the browser's file store.
@@ -28,8 +28,9 @@ export const aiApi = {
       if (!allowance.total) throw new ApiError('noAiAccess');
       // The team's settings (admin): the tool must be on, and included in the plan.
       const toolSetting = aiTools.includes(request.tool as AiTool) ? aiToolSetting(request.tool as AiTool) : undefined;
-      if (toolSetting && !toolSetting.enabled) throw new ApiError('aiToolOff');
-      if (toolSetting && access.subscription && !toolSetting.planIds.includes(access.subscription.planId)) throw new ApiError('aiToolNotInPlan');
+      const toolAccess = toolSetting ? aiToolAccess(toolSetting.key, access.subscription?.planId ?? null) : 'included';
+      if (toolAccess === 'off') throw new ApiError('aiToolOff');
+      if (toolAccess === 'notInPlan') throw new ApiError('aiToolNotInPlan');
       // Prompts with a blocked word are refused, and the team sees them in the admin.
       const blocked = blockedPhraseIn(request.prompt);
       if (blocked) {

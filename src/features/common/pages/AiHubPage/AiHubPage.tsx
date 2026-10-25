@@ -1,14 +1,16 @@
-import { Button, Card, FaqAccordion, Grid, Icon, Page, Section, Stack, Text } from '@/shared/components';
+import { Badge, Button, Card, FaqAccordion, Grid, Icon, Page, Section, Stack, Text } from '@/shared/components';
 import { aiToolGroupKeys, aiToolGroups, aiToolIcons, aiToolPath, routes } from '@/shared/constants';
-import { useLocale, useSession } from '@/shared/hooks';
+import { useLocale, useSession, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { accountCredits, isAiToolOn } from '@/shared/utils';
+import { accountCredits, aiSettingsStore, aiToolAccess, isAiToolOn } from '@/shared/utils';
 
 // "AI hub": open to everyone. A page for each AI tool, grouped, then the AI FAQ and the prompt guides.
 export const AiHubPage = () => {
   const { text } = useLocale();
   const { session } = useSession();
   const hasCredits = session.status === 'signedIn' && accountCredits(session).total > 0;
+  useStoredValue(aiSettingsStore); // tools the team turns on or off in the admin show here right away
+  const planId = session.status === 'signedIn' ? (session.subscription?.planId ?? null) : null;
 
   return (
     <Page title={text.ai.title} subtitle={text.ai.subtitle} gap={vars.spacing[8]}>
@@ -37,6 +39,7 @@ export const AiHubPage = () => {
                   <Text as="h3" variant="h4">
                     {text.ai.tools[tool].name}
                   </Text>
+                  {aiToolAccess(tool, planId) === 'notInPlan' && <Badge>{text.ai.notInPlan}</Badge>}
                   <Text color={vars.colors.textMuted}>{text.ai.tools[tool].description}</Text>
                 </Card>
               </li>

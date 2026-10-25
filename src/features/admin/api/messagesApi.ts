@@ -1,40 +1,41 @@
 import { audienceSizes, newsletterSubscribers } from '@/features/admin/mocks';
 import type { Announcement, AnnouncementInput, Audience, NewsletterInput, NewsletterOverview } from '@/features/admin/types';
 import { storageKeys } from '@/shared/constants';
-import { readAccounts, readList, withAlert, writeAccounts } from '@/shared/utils';
+import { announcementStore, isApprovedCreator, readAccounts, readList, withDueAnnouncements, writeAccounts } from '@/shared/utils';
 import { AdminApiError } from './errors';
 import { authorize, db, findById, logAction, newId, now, respond } from './mockServer';
 
-// Site accounts are customers: they get announcements for customers and for everyone.
-const reachesSite = (audience: Audience) => audience !== 'creators';
-
-// The demo's audiences, plus the customers who signed up on the site in this browser.
+// The demo's audiences, plus the people who signed up on the site in this browser (and its approved creators).
 const reach = (): Record<Audience, number> => {
-  const site = readAccounts().length;
-  return { customers: audienceSizes.customers + site, creators: audienceSizes.creators, everyone: audienceSizes.everyone + site };
+  const accounts = readAccounts();
+  const creators = accounts.filter((account) => isApprovedCreator(account.id)).length;
+  return {
+    customers: audienceSizes.customers + accounts.length,
+    creators: audienceSizes.creators + creators,
+    everyone: audienceSizes.everyone + accounts.length,
+  };
 };
 
-// Shows the announcement in each site customer's notifications (the email is the demo's pretend part).
-const deliver = (announcement: Announcement) => {
-  if (!reachesSite(announcement.audience)) return;
-  writeAccounts(
-    readAccounts().map((account) => withAlert(account, 'announcement', { title: announcement.title, message: announcement.body })),
-  );
-};
+// Announcements sent from this admin are saved where the site reads them: each account in the audience gets it in
+// its notifications once its time has come (the email is the demo's pretend part). The demo's own are listed after.
+const allAnnouncements = () => [...announcementStore.get(), ...db.announcements];
+
+const saveAnnouncement = (saved: Announcement) =>
+  announcementStore.set(announcementStore.get().map((current) => (current.id === saved.id ? saved : current)));
 
 // The demo's subscribers, plus the email addresses signed up from the site's newsletter form.
 const subscriberCount = () => newsletterSubscribers + readList<string>(storageKeys.newsletter).length;
 
 const messageTarget = (id: string, label: string) => ({ kind: 'message' as const, id, label });
 
-// Scheduled announcements whose time has come count as sent (the demo has no real sending queue).
+// Scheduled announcements whose time has come count as sent (the site delivers them to each account when it's due).
 const markDue = () => {
   const current = now();
+  announcementStore.get().forEach((announcement) => {
+    if (announcement.status === 'scheduled' && announcement.sendAt <= current) saveAnnouncement({ ...announcement, status: 'sent' });
+  });
   db.announcements.forEach((announcement) => {
-    if (announcement.status === 'scheduled' && announcement.sendAt <= current) {
-      announcement.status = 'sent';
-      deliver(announcement);
-    }
+    if (announcement.status === 'scheduled' && announcement.sendAt <= current) announcement.status = 'sent';
   });
 };
 
@@ -45,10 +46,10 @@ export const fetchAudienceSizes = () => respond(reach);
 export const fetchAnnouncements = () =>
   respond(() => {
     markDue();
-    return [...db.announcements].sort((a, b) => b.sendAt.localeCompare(a.sendAt));
+    return allAnnouncements().sort((a, b) => b.sendAt.localeCompare(a.sendAt));
   });
 
-// Sends now, or schedules it when sendAt is in the future. Site customers see it in their notifications; no email is sent.
+// Sends now, or schedules it when sendAt is in the future. The accounts in its audience see it in their notifications; no email is sent.
 export const sendAnnouncement = (actorId: string, input: AnnouncementInput) =>
   respond((): Announcement => {
     const actor = authorize(actorId, 'sendMessages');
@@ -64,8 +65,9 @@ export const sendAnnouncement = (actorId: string, input: AnnouncementInput) =>
       recipients: reach()[input.audience],
       sentBy: actor.name,
     };
-    db.announcements.push(announcement);
-    if (!scheduled) deliver(announcement);
+    announcementStore.set([...announcementStore.get(), announcement]);
+    // Sent now: it goes into the notifications of everyone in the audience right away (scheduled ones arrive when due).
+    if (!scheduled) writeAccounts(readAccounts().map((account) => withDueAnnouncements(account)));
     logAction(actor, scheduled ? 'messageScheduled' : 'messageSent', messageTarget(announcement.id, announcement.title), {
       area: 'announcements',
       recipients: announcement.recipients,
@@ -77,10 +79,12 @@ export const cancelAnnouncement = (actorId: string, id: string) =>
   respond(() => {
     const actor = authorize(actorId, 'sendMessages');
     markDue();
-    const announcement = findById(db.announcements, id);
-    if (announcement.status !== 'scheduled') throw new AdminApiError('notScheduled');
+    const found = findById(allAnnouncements(), id);
+    if (found.status !== 'scheduled') throw new AdminApiError('notScheduled');
 
-    announcement.status = 'canceled';
+    const announcement: Announcement = { ...found, status: 'canceled' };
+    if (announcementStore.get().some((current) => current.id === id)) saveAnnouncement(announcement);
+    else db.announcements = db.announcements.map((current) => (current.id === id ? announcement : current));
     logAction(actor, 'messageCanceled', messageTarget(announcement.id, announcement.title), { area: 'announcements' });
     return announcement;
   });

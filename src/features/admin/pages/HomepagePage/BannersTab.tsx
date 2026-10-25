@@ -65,8 +65,9 @@ export const BannersTab = () => {
     {
       key: 'actions',
       label: text.admin.columns.actions,
+      align: 'end',
       render: (banner) => (
-        <Stack direction="row" gap={vars.spacing[2]}>
+        <Stack direction="row" justify="flex-end" gap={vars.spacing[2]}>
           <Button size="sm" variant="outline" iconOnly tooltip={text.admin.common.edit} onClick={() => setEditing(banner)}>
             <Icon name="pencil" size={vars.sizes.icon.sm} />
           </Button>

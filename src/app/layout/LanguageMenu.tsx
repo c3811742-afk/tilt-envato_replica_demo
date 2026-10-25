@@ -1,15 +1,21 @@
 import { Divider, Dropdown, Icon, Select, Stack, Text } from '@/shared/components';
 import { displayCurrencyCodes } from '@/shared/constants';
-import { useLocale } from '@/shared/hooks';
-import { locales, vars, type Locale } from '@/shared/theme';
-import { fillText, formatCurrencyName, isDisplayCurrency } from '@/shared/utils';
+import { useLocale, useStoredValue } from '@/shared/hooks';
+import { isLocale, vars } from '@/shared/theme';
+import { addedLanguagesStore, fillText, formatCurrencyName, hiddenLocalesStore, isDisplayCurrency, siteLanguageOptions } from '@/shared/utils';
 import styles from './LanguageMenu.module.css';
 
-const localeList = Object.keys(locales) as Locale[];
-
 // "A guest can choose the site's language from a language list", and the currency prices are shown in.
+// English and Arabic (unless the team hid one), then the languages the team added and published in the admin.
 export const LanguageMenu = () => {
-  const { text, locale, setLocale, currency, setCurrency } = useLocale();
+  const { text, locale, language, setLanguage, currency, setCurrency } = useLocale();
+  const [addedLanguages] = useStoredValue(addedLanguagesStore);
+  const [hiddenLocales] = useStoredValue(hiddenLocalesStore);
+  const options = siteLanguageOptions(hiddenLocales, addedLanguages).map((option) => ({
+    code: option.code,
+    name: option.added ? option.added.nativeName : text.languageNames[option.locale],
+  }));
+  const current = isLocale(language) ? text.languageCodes[locale] : language.toUpperCase();
 
   return (
     <Dropdown
@@ -19,7 +25,7 @@ export const LanguageMenu = () => {
           <Icon name="globe" size={vars.sizes.icon.sm} />
           {/* The two-letter code, not the full name, to leave the search box room. Phones show the globe only. */}
           <span className={styles.wideOnly} lang="en">
-            {text.languageCodes[locale]}
+            {current}
           </span>
         </>
       }
@@ -31,21 +37,21 @@ export const LanguageMenu = () => {
               {text.languageMenu.language}
             </Text>
             <ul role="radiogroup" aria-label={text.languageMenu.language} className={styles.languages}>
-              {localeList.map((option) => (
-                <li key={option}>
+              {options.map((option) => (
+                <li key={option.code}>
                   <button
                     type="button"
                     role="radio"
-                    aria-checked={option === locale}
-                    lang={option}
+                    aria-checked={option.code === language}
+                    lang={option.code}
                     className={styles.language}
                     onClick={() => {
-                      setLocale(option);
+                      setLanguage(option.code);
                       close();
                     }}
                   >
-                    {text.languageNames[option]}
-                    {option === locale && <Icon name="check" size={vars.sizes.icon.sm} />}
+                    {option.name}
+                    {option.code === language && <Icon name="check" size={vars.sizes.icon.sm} />}
                   </button>
                 </li>
               ))}

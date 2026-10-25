@@ -6,6 +6,9 @@ import { vars } from '@/shared/theme';
 import type { Invoice } from '@/shared/types';
 import { buildInvoiceText, downloadTextFile, fillText, formatDate, formatPercent, invoiceAddress, invoiceBuyer, invoiceLineLabel } from '@/shared/utils';
 
+// The e-invoice or e-receipt the team sent to the tax authority for this payment, if any.
+const acceptedDocuments = (invoice: Invoice) => (invoice.taxDocuments ?? []).filter((document) => document.status === 'accepted');
+
 // Every payment's e-invoice: view it, or download it.
 export const Invoices = ({ invoices }: { invoices: Invoice[] }) => {
   const { text, locale, price } = useLocale();
@@ -72,6 +75,7 @@ export const Invoices = ({ invoices }: { invoices: Invoice[] }) => {
               { label: text.invoice.number, value: viewing.number },
               { label: text.invoice.date, value: formatDate(viewing.issuedAt, locale) },
               { label: text.invoice.taxUuid, value: viewing.taxUuid },
+              ...acceptedDocuments(viewing).map((document) => ({ label: text.invoice.taxDocuments[document.kind], value: <bdi>{document.number}</bdi> })),
               { label: text.invoice.seller, value: `${text.brand.name}, ${text.invoice.sellerTaxId} ${seller.taxRegistrationNumber}` },
               { label: text.invoice.buyer, value: invoiceBuyer(viewing), autoDirection: true },
               ...(viewing.billingAddress ? [{ label: text.invoice.address, value: invoiceAddress(viewing, text), autoDirection: true }] : []),

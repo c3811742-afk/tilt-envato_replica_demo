@@ -1,7 +1,9 @@
 import { dashboardHistory } from '@/features/admin/mocks';
 import type { DashboardStats } from '@/features/admin/types';
 import { readAccounts } from '@/shared/utils';
-import { db, respond } from './mockServer';
+import { respond } from './mockServer';
+import { pendingQueue } from './elementsApi';
+import { allPayouts } from './payoutsApi';
 import { allPlans } from './plansApi';
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -12,14 +14,14 @@ const siteDownloads = () => {
   return readAccounts().reduce((total, account) => total + account.downloads.filter((download) => new Date(download.requestedAt).getTime() >= since).length, 0);
 };
 
-// Key numbers. Subscribers, revenue, pending reviews and pending payouts come from the demo data,
-// so they change as admins work; the rest are fixed demo numbers.
+// Key numbers. Subscribers, revenue, pending reviews and pending payouts include what customers and creators did
+// on the site, so they change as people use it and admins work; the rest are fixed demo numbers.
 export const fetchDashboard = () =>
   respond((): DashboardStats => {
     const plans = allPlans();
     const subscribers = plans.reduce((total, plan) => total + plan.subscribers, 0);
     const mrr = plans.reduce((total, plan) => total + plan.subscribers * (plan.monthlyPrice ?? 0), 0);
-    const pendingPayouts = db.payouts.filter((payout) => payout.status === 'pending');
+    const pendingPayouts = allPayouts().filter((payout) => payout.status === 'pending');
 
     return {
       activeSubscribers: { value: subscribers, previous: dashboardHistory.previousSubscribers },
@@ -28,7 +30,7 @@ export const fetchDashboard = () =>
       // The demo's numbers plus downloads made on the site in this browser in the last 30 days.
       downloads: { ...dashboardHistory.downloads, value: dashboardHistory.downloads.value + siteDownloads() },
       newItems: dashboardHistory.newItems,
-      pendingReviews: db.elements.filter((element) => element.status === 'pending').length,
+      pendingReviews: pendingQueue().length,
       pendingPayouts: {
         count: pendingPayouts.length,
         amount: pendingPayouts.reduce((total, payout) => total + payout.amount, 0),

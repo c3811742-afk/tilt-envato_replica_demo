@@ -4,6 +4,7 @@ export {
   fetchReviewQueue,
   fetchElement,
   fetchLiveElements,
+  fetchSiteElements,
   reviewElement,
   flagElement,
   unpublishElement,
@@ -53,7 +54,7 @@ export {
   saveArticle,
   deleteArticle,
 } from './contentApi';
-export { fetchLanguages, addLanguage, fetchTranslations, saveTranslation } from './languagesApi';
+export { fetchLanguages, addLanguage, setLanguagePublished, fetchTranslations, saveTranslation } from './languagesApi';
 export {
   fetchAudienceSizes,
   fetchAnnouncements,
@@ -74,7 +75,7 @@ export {
 } from './billingApi';
 export { fetchPayoutRules, savePayoutRules, fetchPayouts, decidePayout, exportReport } from './payoutsApi';
 export { fetchInvoices, fetchUninvoicedTransactions, issueInvoice } from './invoicesApi';
-export { fetchLicenses, findLicense, revokeLicense, fetchClaims, decideClaim } from './licensesApi';
+export { fetchLicenses, findLicense, revokeLicense, fetchClaims, decideClaim, fetchElementAppeals, decideElementAppeal } from './licensesApi';
 export {
   fetchTickets,
   fetchTicket,

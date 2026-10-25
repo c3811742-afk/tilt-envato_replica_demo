@@ -12,7 +12,7 @@ export {
   seedSubscriptions,
   seedTransactions,
 } from './billing';
-export { seedEarnings, seedInvoices, seedPayoutRules, seedPayouts } from './finance';
+export { seedEarnings, seedInvoices, seedPayouts } from './finance';
 export { seedClaims, seedLicenses } from './licensing';
 export { seedItemReports, seedTickets } from './support';
 export { seedBlockedGenerations } from './ai';

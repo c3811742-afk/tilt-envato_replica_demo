@@ -32,6 +32,7 @@ import {
   type StoredAccount,
 } from '@/shared/utils';
 import { AdminApiError } from './errors';
+import { pendingQueue } from './elementsApi';
 import { allTickets } from './supportApi';
 import { authorize, db, findById, logAction, now, respond } from './mockServer';
 
@@ -319,16 +320,60 @@ export const decideCreatorApplication = (actorId: string, id: string, input: Dec
 
 // ---------- Identity checks ----------
 
-export const fetchIdentityChecks = () =>
-  respond(() => pendingFirst(db.identityChecks, (check) => check.submittedAt));
+// The ID creators sent with their application on the site (kept with the application), then the demo ones.
+const identityId = (reference: string) => `ID-${reference}`;
 
+const siteIdentityChecks = (): IdentityCheck[] =>
+  readApplications().flatMap((application) => {
+    if (application.kind !== 'author' || !application.identity || !application.accountId) return [];
+    const { identity } = application;
+    return [
+      {
+        id: identityId(application.reference),
+        creator: { id: application.accountId, name: application.name, email: application.email },
+        document: identity.document,
+        nameOnDocument: identity.nameOnDocument,
+        numberEnding: identity.numberEnding,
+        submittedAt: application.at,
+        status: identity.status,
+        decision: identity.decision as IdentityCheck['decision'],
+        source: 'site' as const,
+      },
+    ];
+  });
+
+const allIdentityChecks = () => [...siteIdentityChecks(), ...db.identityChecks];
+
+export const fetchIdentityChecks = () =>
+  respond(() => pendingFirst(allIdentityChecks(), (check) => check.submittedAt));
+
+// The creator is told the result; a rejected ID says why.
 export const decideIdentityCheck = (actorId: string, id: string, input: DecisionInput<IdRejectReason>) =>
   respond((): IdentityCheck => {
     const actor = authorize(actorId, 'reviewCreators');
-    const check = findById(db.identityChecks, id);
+    const check = findById(allIdentityChecks(), id);
     if (check.status !== 'pending') throw new AdminApiError('alreadyDecided');
     const saved: IdentityCheck = { ...check, status: input.approve ? 'approved' : 'rejected', decision: decisionOf(actor, input) };
-    db.identityChecks = db.identityChecks.map((current) => (current.id === id ? saved : current));
+    if (check.source === 'site') {
+      const list = readApplications();
+      saveApplications(
+        list.map((current) =>
+          current.kind === 'author' && current.identity && identityId(current.reference) === id
+            ? { ...current, identity: { ...current.identity, status: saved.status, decision: saved.decision } }
+            : current,
+        ),
+      );
+      const creator = findAccountById(check.creator.id);
+      if (creator) {
+        saveAccount(
+          input.approve
+            ? withAlert(creator, 'identityApproved', {}, routes.creatorEarnings)
+            : withAlert(creator, 'identityRejected', { reason: saved.decision?.reason ?? 'other' }, routes.support),
+        );
+      }
+    } else {
+      db.identityChecks = db.identityChecks.map((current) => (current.id === id ? saved : current));
+    }
     logAction(actor, 'identityDecided', { kind: 'identityCheck', id, label: check.creator.name }, {
       change: input.approve ? 'approved' : 'rejected',
       idReason: saved.decision?.reason,
@@ -342,10 +387,10 @@ export const decideIdentityCheck = (actorId: string, id: string, input: Decision
 // How many things are waiting for each kind of admin. The top bar shows the ones the signed-in admin can act on.
 export const fetchAdminAlerts = () =>
   respond((): AdminAlerts => ({
-    reviews: db.elements.filter((element) => element.status === 'pending').length,
+    reviews: pendingQueue().length,
     appeals: allUsers().filter((user) => user.status !== 'active' && user.appeal && !user.appeal.rejectedAt).length,
     downloadAlerts: downloadAlerts().length,
     applications: allApplications().filter((application) => application.status === 'pending').length,
-    identityChecks: db.identityChecks.filter((check) => check.status === 'pending').length,
+    identityChecks: allIdentityChecks().filter((check) => check.status === 'pending').length,
     tickets: allTickets().filter((ticket) => ticket.status === 'open').length,
   }));

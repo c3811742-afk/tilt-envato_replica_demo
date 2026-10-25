@@ -10,7 +10,7 @@ export type Direction = (typeof locales)[Locale]['dir'];
 // Arabic first: the demo is built for the Egyptian market.
 export const defaultLocale: Locale = 'ar';
 
-const localeList = Object.keys(locales) as Locale[];
+export const localeCodes = Object.keys(locales) as Locale[];
 
 export const isLocale = (value: unknown): value is Locale =>
-  typeof value === 'string' && localeList.includes(value as Locale);
+  typeof value === 'string' && localeCodes.includes(value as Locale);

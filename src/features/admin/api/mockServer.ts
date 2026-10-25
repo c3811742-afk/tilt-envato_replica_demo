@@ -8,7 +8,6 @@ import {
   seedInvoices,
   seedItemReports,
   seedLicenses,
-  seedPayoutRules,
   seedPayouts,
   seedSubscriptions,
   seedTickets,
@@ -18,7 +17,6 @@ import {
   seedCategories,
   seedElements,
   seedExtraTags,
-  seedLanguages,
   seedNewsletters,
   seedNoClickSearches,
   seedSearchReports,
@@ -27,7 +25,7 @@ import {
   seedUserDownloads,
   seedUsers,
 } from '@/features/admin/mocks';
-import type { Admin, AuditAction, AuditDetails, AuditTarget } from '@/features/admin/types';
+import type { Admin, AuditAction, AuditDetails, AuditTarget, ElementFlag } from '@/features/admin/types';
 import { hasPermission } from '@/features/admin/utils/permissions';
 import { mockItems } from '@/shared/mocks';
 import { editedTags } from '@/shared/utils';
@@ -54,13 +52,11 @@ export const db = {
   tags: seedTags(),
   noClickSearches: structuredClone(seedNoClickSearches),
   searchReports: structuredClone(seedSearchReports),
-  languages: structuredClone(seedLanguages),
   announcements: structuredClone(seedAnnouncements),
   newsletters: structuredClone(seedNewsletters),
   transactions: structuredClone(seedTransactions),
   failedPayments: structuredClone(seedFailedPayments),
   subscriptions: structuredClone(seedSubscriptions),
-  payoutRules: structuredClone(seedPayoutRules),
   payouts: structuredClone(seedPayouts),
   invoices: structuredClone(seedInvoices),
   licenses: structuredClone(seedLicenses),
@@ -71,6 +67,7 @@ export const db = {
   users: structuredClone(seedUsers),
   userDownloads: structuredClone(seedUserDownloads),
   dismissedAlerts: {} as Record<string, string>, // user id -> when an admin last dismissed their download alert
+  elementFlags: {} as Record<string, ElementFlag>, // site and creator element id -> the reviewer's flag (demo elements keep theirs)
   creatorApplications: structuredClone(seedCreatorApplications),
   identityChecks: structuredClone(seedIdentityChecks),
 };

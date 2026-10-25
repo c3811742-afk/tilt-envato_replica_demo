@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Card, FieldMessage, FileInput, IconNote, Select, Stack, TextLink } from '@/shared/components';
 import { creatorElementPath, routes, studioLimits } from '@/shared/constants';
 import { useAction, useLocale } from '@/shared/hooks';
-import { locales, vars, type Locale } from '@/shared/theme';
+import { localeCodes, vars, type Locale } from '@/shared/theme';
 import { fillText, formatFileSize, formatNumber, studioApi } from '@/shared/utils';
 import { CreatorArea } from '@/features/creator/components';
 
-const languageList = Object.keys(locales) as Locale[];
 
 // "Upload elements": one file or several at once. Each file becomes a draft, with its category guessed from the file,
 // written in the language the creator chooses.
@@ -28,7 +27,7 @@ export const CreatorUploadPage = () => {
           label={text.studio.writeIn}
           value={language}
           onChange={(value) => setLanguage(value as Locale)}
-          options={languageList.map((option) => ({ value: option, label: text.languageNames[option] }))}
+          options={localeCodes.map((option) => ({ value: option, label: text.languageNames[option] }))}
         />
         <FileInput
           label={text.studio.chooseFiles}

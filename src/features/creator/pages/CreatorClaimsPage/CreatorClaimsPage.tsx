@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { AsyncContent, Button, Card, EmptyState, Stack, Text, TextField } from '@/shared/components';
-import { routes, studioLimits } from '@/shared/constants';
+import { AsyncContent, Button, Card, EmptyState, Stack, Text, TextField, TextLink } from '@/shared/components';
+import { creatorElementPath, routes, studioLimits } from '@/shared/constants';
 import { useAction, useAsync, useLocale, useMessages } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import type { StudioClaim } from '@/shared/types';
-import { fillText, formatDate, studioApi, validateMessage } from '@/shared/utils';
+import type { StudioClaim, StudioElement } from '@/shared/types';
+import { canAppeal, fillText, formatDate, studioApi, validateMessage } from '@/shared/utils';
 import { CreatorArea } from '@/features/creator/components';
 
-// "Copyright claims": claims customers made against the creator's elements, and the creator's reply.
+// "Copyright claims": claims customers made against the creator's elements, the creator's reply, and a way to
+// appeal when an element was taken down because of one.
 export const CreatorClaimsPage = () => {
   const { text } = useLocale();
-  const claims = useAsync(studioApi.claims, []);
+  const claims = useAsync(async () => {
+    const [list, elements] = await Promise.all([studioApi.claims(), studioApi.myElements()]);
+    return list.map((claim) => ({ claim, element: elements.find((element) => element.id === claim.elementId) }));
+  }, []);
   const t = text.studio;
 
   return (
@@ -21,8 +25,8 @@ export const CreatorClaimsPage = () => {
       >
         {(data) => (
           <Stack as="ul" gap={vars.spacing[3]}>
-            {data.map((claim) => (
-              <ClaimCard key={claim.id} claim={claim} onReplied={claims.retry} />
+            {data.map(({ claim, element }) => (
+              <ClaimCard key={claim.id} claim={claim} element={element} onReplied={claims.retry} />
             ))}
           </Stack>
         )}
@@ -36,7 +40,7 @@ export const CreatorClaimsPage = () => {
   );
 };
 
-const ClaimCard = ({ claim, onReplied }: { claim: StudioClaim; onReplied: () => void }) => {
+const ClaimCard = ({ claim, element, onReplied }: { claim: StudioClaim; element?: StudioElement; onReplied: () => void }) => {
   const { text, locale } = useLocale();
   const { fieldError } = useMessages();
   const { run, busy, error, setError } = useAction();
@@ -64,6 +68,11 @@ const ClaimCard = ({ claim, onReplied }: { claim: StudioClaim; onReplied: () => 
         </Text>
       </Stack>
       <Text autoDirection>{claim.details}</Text>
+      {element && (
+        <TextLink to={creatorElementPath(element.id)} variant="bodySm">
+          {canAppeal(element) ? t.appealTitle : t.viewElement}
+        </TextLink>
+      )}
       {claim.response ? (
         <Stack gap={vars.spacing[1]}>
           <Text variant="label" color={vars.colors.textMuted}>

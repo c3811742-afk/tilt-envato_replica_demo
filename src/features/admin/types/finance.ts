@@ -1,9 +1,6 @@
-// How creator earnings are worked out and when they can be paid.
-export interface PayoutRules {
-  creatorShare: number; // percent of subscription revenue shared with creators
-  minimumPayout: number; // EGP: creators can request a payout from this balance
-  payoutDay: number; // day of the month payouts are sent (1 to 28)
-}
+import type { TaxDocument } from '@/shared/types';
+// How creator earnings are worked out and when they can be paid (shared with the creator studio).
+export type { PayoutRules } from '@/shared/types';
 
 export type PayoutMethod = 'bank' | 'instapay' | 'vodafoneCash';
 export type PayoutStatus = 'pending' | 'approved' | 'paid' | 'failed' | 'rejected';
@@ -18,6 +15,7 @@ export interface Payout {
   status: PayoutStatus;
   note?: string; // why it was rejected or failed
   updatedAt: string;
+  source?: 'site'; // requested by a creator in the creator studio (the rest is demo data)
 }
 
 export type PayoutDecision = 'approved' | 'rejected' | 'paid' | 'failed';
@@ -32,24 +30,11 @@ export interface Report {
   rows: (string | number)[][];
 }
 
-export type InvoiceKind = 'invoice' | 'receipt'; // e-invoice for companies (B2B), e-receipt for people (B2C)
-export type InvoiceStatus = 'accepted' | 'rejected';
+export type InvoiceKind = TaxDocument['kind']; // e-invoice for companies (B2B), e-receipt for people (B2C)
+export type InvoiceStatus = TaxDocument['status'];
 
 // An e-invoice or e-receipt sent to the Egyptian Tax Authority (ETA). Demo: not connected to the real system.
-export interface Invoice {
-  id: string;
-  number: string;
-  kind: InvoiceKind;
-  transactionId: string;
-  customerName: string;
-  taxId?: string; // the company's tax registration number, for e-invoices
-  amount: number; // EGP, before VAT
-  vat: number; // EGP
-  issuedAt: string;
-  status: InvoiceStatus;
-  etaUuid?: string; // given by the ETA when accepted
-  rejectReason?: 'taxIdNotRegistered'; // the Tax Authority's reason; the page shows it in words
-}
+export type Invoice = TaxDocument;
 
 export interface InvoiceInput {
   transactionId: string;

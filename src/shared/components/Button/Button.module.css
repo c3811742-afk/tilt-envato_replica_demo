@@ -71,7 +71,9 @@
   letter-spacing: var(--letter-spacing-normal);
   text-transform: none;
   white-space: nowrap;
-  visibility: hidden;
+
+  /* Out of the layout until shown: a hidden label would still make a table or panel scroll. */
+  display: none;
   pointer-events: none;
 }
 
@@ -82,7 +84,7 @@
 
 .tooltip:hover::after,
 .tooltip:focus-visible::after {
-  visibility: visible;
+  display: block;
 }
 
 /* The hover lift puts the button in its own layer, so the label's z-index alone only counts inside it:

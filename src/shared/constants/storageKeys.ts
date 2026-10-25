@@ -1,5 +1,10 @@
 export const storageKeys = {
   locale: 'tilt.locale',
+  language: 'tilt.language', // the chosen language, when it's one the team added (its layout follows `locale`)
+  addedLanguages: 'tilt.addedLanguages', // languages the team added in the admin, besides English and Arabic
+  announcements: 'tilt.announcements', // announcements the admin team sent or scheduled
+  payoutRules: 'tilt.payoutRules', // how creators are paid, as the admin team set it
+  hiddenLocales: 'tilt.hiddenLocales', // English or Arabic, when the team took it out of the site's language menu
   modePreference: 'tilt.modePreference', // light / dark / system
   accentTheme: 'tilt.accentTheme',
   cookieConsent: 'tilt.cookieConsent', // which optional cookies the user allowed

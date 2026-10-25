@@ -12,7 +12,7 @@ import { vars } from '@/shared/theme';
 import { fillText, formatDate, isolate } from '@/shared/utils';
 import { DecisionModal } from './DecisionModal';
 
-const isExpired = (check: IdentityCheck) => fromDateKey(check.expiresAt).getTime() < Date.now();
+const isExpired = (check: IdentityCheck) => check.expiresAt !== undefined && fromDateKey(check.expiresAt).getTime() < Date.now();
 
 // Creators' ID documents, checked before their first payout. Waiting ones first.
 export const IdentityTab = () => {
@@ -24,9 +24,10 @@ export const IdentityTab = () => {
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.creators;
 
+  // The site's application doesn't ask for the expiry date; the reviewer reads it on the document.
   const expiry = (check: IdentityCheck) => (
     <Stack gap={vars.spacing[1]} align="flex-start">
-      <span>{formatDate(fromDateKey(check.expiresAt), locale)}</span>
+      <span>{check.expiresAt ? formatDate(fromDateKey(check.expiresAt), locale) : t.expiryNotGiven}</span>
       {isExpired(check) && <Badge variant="danger">{t.expired}</Badge>}
     </Stack>
   );

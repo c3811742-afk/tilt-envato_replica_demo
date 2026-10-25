@@ -1,6 +1,7 @@
 import { storageKeys, type PartnerProgram } from '@/shared/constants';
 import { call, normalizeEmail, randomDigits } from './accountStore';
 import { storage } from './storage';
+import type { CreatorIdentity, CreatorPayoutAccount } from '@/shared/types';
 
 // The newsletter list and program applications, kept in this browser for the demo.
 
@@ -28,6 +29,8 @@ export interface AuthorApplication {
   categories: string[];
   about?: string; // what they make, in their words
   accountId?: string; // the applicant's account, so the decision reaches them
+  identity?: CreatorIdentity; // the ID they sent, checked by the team before their first payout
+  payout?: CreatorPayoutAccount; // where their earnings are sent
 }
 
 export interface PartnerApplication {

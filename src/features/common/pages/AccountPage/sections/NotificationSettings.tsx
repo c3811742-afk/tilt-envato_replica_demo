@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { Card, Checkbox, SegmentedControl, Stack, Text } from '@/shared/components';
 import { notificationChannels, notificationTopics, phoneCountryCode, texts } from '@/shared/constants';
 import { useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
-import { locales, vars, type Locale } from '@/shared/theme';
+import { localeCodes, locales, vars, type Locale } from '@/shared/theme';
 import type { NotificationSettings as Settings } from '@/shared/types';
 import { authApi, fillText } from '@/shared/utils';
 import { SettingsForm } from '../SettingsForm';
 import { useSignedInUser } from '../useSignedInUser';
 import { NewsletterSetting } from './NewsletterSetting';
 
-const localeList = Object.keys(locales) as Locale[];
 
 // "Choose how to get notifications", "edit notification preferences" and "notifications in my language".
 export const NotificationSettings = () => {
@@ -92,7 +91,7 @@ export const NotificationSettings = () => {
               label={text.account.notifications.languageTitle}
               value={form.values.language}
               onChange={(language) => form.setValue('language', language)}
-              options={localeList.map((locale) => ({ value: locale, label: text.languageNames[locale] }))}
+              options={localeCodes.map((locale) => ({ value: locale, label: text.languageNames[locale] }))}
             />
           </div>
         </Stack>

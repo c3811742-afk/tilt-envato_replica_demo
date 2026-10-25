@@ -67,7 +67,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
         title={element.title}
         subtitle={fillText(t.byCreator, { name: isolate(element.creator.name) })}
         autoDirection
-        actions={
+        badges={
           <>
             <Badge variant={statusTone[element.status]}>{text.admin.statuses[element.status]}</Badge>
             <Badge>{text.admin.elementTypes[element.type]}</Badge>

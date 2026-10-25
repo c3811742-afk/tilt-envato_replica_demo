@@ -21,14 +21,14 @@ import {
 import { categoryIds } from '@/shared/types';
 import { musicMoods, routes, studioDetailFields, studioLimits, studioNumberDetails, studioSoftware, type StudioDetailKey } from '@/shared/constants';
 import { useAction, useAsync, useLocale } from '@/shared/hooks';
-import { locales, vars, type Locale } from '@/shared/theme';
+import { localeCodes, vars, type Locale } from '@/shared/theme';
 import type { CategoryId, StudioElement } from '@/shared/types';
 import { fillText, formatNumber, isEditableElement, missingForReview, studioApi, type StudioChanges } from '@/shared/utils';
 import { CreatorArea, elementTitle, StudioStatusBadge } from '@/features/creator/components';
+import { ElementAppeal } from './ElementAppeal';
 import { ElementFiles } from './ElementFiles';
 import { ElementSources } from './ElementSources';
 
-const languageList = Object.keys(locales) as Locale[];
 const otherLanguage = (language: Locale): Locale => (language === 'en' ? 'ar' : 'en');
 
 // Tags are typed as one line, "ramadan, lantern, gold".
@@ -176,6 +176,7 @@ const ElementEditor = ({ initial }: { initial: StudioElement }) => {
           {element.unpublish.note && <Text autoDirection>{element.unpublish.note}</Text>}
         </Card>
       )}
+      <ElementAppeal element={element} onChange={setElement} />
       {lockedNote && <IconNote text={lockedNote} />}
       {(live || element.liveVersion) && <IconNote text={t.liveNote} />}
 
@@ -195,7 +196,7 @@ const ElementEditor = ({ initial }: { initial: StudioElement }) => {
           value={own}
           disabled={!editable}
           onChange={(value) => update({ language: value as Locale })}
-          options={languageList.map((option) => ({ value: option, label: text.languageNames[option] }))}
+          options={localeCodes.map((option) => ({ value: option, label: text.languageNames[option] }))}
         />
         <TextField label={t.titleLabel} value={form.title[own]} onChange={(value) => setText('title', own, value)} maxLength={studioLimits.titleMaxLength} disabled={!editable} />
         <TextField

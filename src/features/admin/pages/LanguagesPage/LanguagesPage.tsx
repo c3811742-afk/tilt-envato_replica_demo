@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { generatePath } from 'react-router';
-import { fetchLanguages } from '@/features/admin/api';
+import { fetchLanguages, setLanguagePublished } from '@/features/admin/api';
 import { RequirePermission } from '@/features/admin/components';
-import { useAdminSession } from '@/features/admin/hooks';
+import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { SiteLanguage } from '@/features/admin/types';
-import { AsyncContent, Badge, Button, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextLink } from '@/shared/components';
+import { AsyncContent, Badge, Button, Icon, Notice, type RecordColumn, recordRows, SectionHeader, Stack, Table, Text, TextLink } from '@/shared/components';
 import { routes } from '@/shared/constants';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -13,8 +13,9 @@ import { AddLanguageModal } from './AddLanguageModal';
 
 const Languages = () => {
   const { text, locale } = useLocale();
-  const { can } = useAdminSession();
+  const { can, currentAdmin } = useAdminSession();
   const languages = useAsync(fetchLanguages, []);
+  const publish = useAdminAction();
   const [adding, setAdding] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const t = text.admin.languages;
@@ -28,7 +29,16 @@ const Languages = () => {
     });
   };
 
-  const columns: RecordColumn<SiteLanguage>[] = [
+  // Shows a language the team added in the site's language menu, or takes it out.
+  const setPublished = async (list: SiteLanguage[], language: SiteLanguage, published: boolean) => {
+    setNotice(null);
+    const result = await publish.run(() => setLanguagePublished(currentAdmin.id, language.code, published));
+    if (!result.ok) return;
+    languages.update(list.map((current) => (current.code === language.code ? result.data : current)));
+    setNotice(fillText(published ? t.shownNotice : t.hiddenNotice, { name: isolate(language.name) }));
+  };
+
+  const columns = (list: SiteLanguage[]): RecordColumn<SiteLanguage>[] => [
     {
       key: 'language',
       label: text.admin.columns.language,
@@ -69,14 +79,37 @@ const Languages = () => {
         ),
     },
     {
+      key: 'onSite',
+      label: t.onSite,
+      render: (language) => (language.published ? <Badge variant="success">{t.shown}</Badge> : <Badge>{t.hidden}</Badge>),
+    },
+    {
       key: 'actions',
       label: text.admin.columns.actions,
-      render: (language) =>
-        !language.isSource && (
-          <TextLink to={generatePath(routes.adminTranslations, { languageCode: language.code })}>
-            {t.review}
-          </TextLink>
-        ),
+      align: 'end',
+      // Every row ends with the same icon button, so the links before it line up too.
+      render: (language) => (
+        <Stack direction="row" justify="flex-end" align="center" gap={vars.spacing[3]}>
+          {!language.isSource && (
+            <TextLink to={generatePath(routes.adminTranslations, { languageCode: language.code })}>
+              {t.review}
+            </TextLink>
+          )}
+          {can('addLanguages') && (
+            <Button
+              size="sm"
+              variant="outline"
+              iconOnly
+              tooltip={language.published ? t.hide : t.show}
+              tooltipAlign="end"
+              disabled={publish.busy}
+              onClick={() => setPublished(list, language, !language.published)}
+            >
+              <Icon name={language.published ? 'eyeOff' : 'eye'} size={vars.sizes.icon.sm} />
+            </Button>
+          )}
+        </Stack>
+      ),
     },
   ];
 
@@ -86,7 +119,12 @@ const Languages = () => {
         title={t.title}
         subtitle={t.description}
         actions={can('addLanguages') && <Button onClick={() => setAdding(true)}>{t.add}</Button>}
-      />
+      >
+        <Text variant="bodySm" color={vars.colors.textMuted}>
+          {t.fallbackNote}
+        </Text>
+      </SectionHeader>
+      {publish.error && <Notice tone="danger">{publish.error}</Notice>}
       {notice && (
         <Notice tone="success" onDismiss={() => setNotice(null)}>
           {notice}
@@ -95,7 +133,7 @@ const Languages = () => {
       <AsyncContent state={languages}>
         {(list) => (
           <>
-            <Table label={t.title} columns={columns} rows={recordRows(list, (language) => language.code, columns)} stackOnMobile />
+            <Table label={t.title} columns={columns(list)} rows={recordRows(list, (language) => language.code, columns(list))} stackOnMobile />
             {adding && (
               <AddLanguageModal
                 onClose={() => setAdding(false)}

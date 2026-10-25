@@ -9,15 +9,18 @@ import styles from './SectionHeader.module.css';
 
 // The heading at the top of a page or section, with an optional "View all" link at the end.
 export const SectionHeader = (props: SectionHeaderProps) => {
-  const { title, subtitle, as, variant, actionLabel, actionTo, children, actions, autoDirection } = withDefaults(sectionHeaderDefaults, props);
+  const { title, subtitle, as, variant, actionLabel, actionTo, children, actions, badges, autoDirection } = withDefaults(sectionHeaderDefaults, props);
 
   return (
     <div className={styles.header}>
       <div className={styles.text}>
         {title && (
-          <Text as={as} variant={variant} autoDirection={autoDirection}>
-            {title}
-          </Text>
+          <div className={styles.title}>
+            <Text as={as} variant={variant} autoDirection={autoDirection}>
+              {title}
+            </Text>
+            {badges}
+          </div>
         )}
         {subtitle && <Text color={vars.colors.textMuted}>{subtitle}</Text>}
         {children}

@@ -3,7 +3,7 @@ import { revokeReasons, type RevokeReason } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Alert, PlanId } from '@/shared/types';
-import { fillText, formatDate } from '@/shared/utils';
+import { fillText, formatDate, isolate } from '@/shared/utils';
 
 const dateTimeFormat: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
 
@@ -47,8 +47,16 @@ export const AlertsList = ({ alerts, unread }: { alerts: Alert[]; unread: string
         const occasions: Record<string, string> = text.studio.occasions;
         return fillText(text.alerts.occasionReminder, { occasion: occasions[params.occasion] ?? '', date: formatDate(params.date, locale) });
       }
+      // The team writes these in either language: each part keeps its own direction.
+      case 'announcement':
+        return fillText(text.alerts.announcement, { title: isolate(params.title), message: isolate(params.message) });
       case 'payoutPaid':
-        return fillText(text.alerts.payoutPaid, { amount: price(Number(params.amount)) });
+      case 'payoutRejected':
+        return fillText(text.alerts[kind], { amount: price(Number(params.amount)) });
+      case 'identityRejected': {
+        const reasons: Record<string, string> = text.admin.creators.idReasons;
+        return fillText(text.alerts.identityRejected, { reason: reasons[params.reason] ?? params.reason });
+      }
       default:
         return fillText(text.alerts[kind], params);
     }

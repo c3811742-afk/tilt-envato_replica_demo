@@ -3,6 +3,7 @@ import type {
   CancelReason,
   ClaimStatus,
   ContentRuleKey,
+  ElementAppealStatus,
   InvoiceKind,
   InvoiceStatus,
   ItemReportKind,
@@ -40,7 +41,7 @@ export const contentRuleKeys: readonly ContentRuleKey[] = [
 export const planTabs = ['plans', 'promoCodes'] as const;
 export const billingTabs = ['transactions', 'failedPayments', 'subscriptions'] as const;
 export const payoutTabs = ['requests', 'rules', 'reports'] as const;
-export const licenseTabs = ['lookup', 'claims'] as const;
+export const licenseTabs = ['lookup', 'claims', 'appeals'] as const;
 export const supportTabs = ['tickets', 'itemReports'] as const;
 export const aiTabs = ['tools', 'costs', 'rules'] as const;
 
@@ -63,6 +64,7 @@ export const payoutStatusTone: Record<PayoutStatus, BadgeVariant> = {
 };
 export const invoiceStatusTone: Record<InvoiceStatus, BadgeVariant> = { accepted: 'success', rejected: 'danger' };
 export const licenseStatusTone: Record<LicenseStatus, BadgeVariant> = { valid: 'success', revoked: 'danger' };
+export const appealStatusTone: Record<ElementAppealStatus, BadgeVariant> = { open: 'info', accepted: 'success', rejected: 'neutral' };
 export const claimStatusTone: Record<ClaimStatus, BadgeVariant> = {
   new: 'info',
   investigating: 'warning',

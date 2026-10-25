@@ -47,6 +47,7 @@ export const apiErrorCodes = [
   'elementLocked',
   'elementIncomplete',
   'payoutBelowMinimum',
+  'appealNotAllowed',
 ] as const;
 export type ApiErrorCode = (typeof apiErrorCodes)[number];
 

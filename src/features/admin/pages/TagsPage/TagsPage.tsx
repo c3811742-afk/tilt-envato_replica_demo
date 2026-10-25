@@ -60,13 +60,14 @@ const Tags = () => {
     {
       key: 'actions',
       label: text.admin.columns.actions,
+      align: 'end',
       render: (tag) =>
         tag.banned ? (
           <Button size="sm" variant="muted" disabled={action.busy} onClick={() => setBanned(tag, false)}>
             {t.unban}
           </Button>
         ) : (
-          <Stack direction="row" wrap gap={vars.spacing[2]}>
+          <Stack direction="row" justify="flex-end" wrap gap={vars.spacing[2]}>
             <Button size="sm" variant="muted" onClick={() => openDialog({ kind: 'rename', tag })}>
               {t.rename}
             </Button>

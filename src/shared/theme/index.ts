@@ -4,7 +4,7 @@ export { vars, toCssVariables, applyTheme } from './cssVariables';
 export { fontsUrl, previewFonts } from './typography';
 export type { PreviewFont } from './typography';
 export { mediaQuery, customMedia } from './breakpoints';
-export { locales, defaultLocale, isLocale } from './locales';
+export { locales, localeCodes, defaultLocale, isLocale } from './locales';
 export type { Locale, Direction } from './locales';
 export { colorModes, accentThemes, defaultAccentTheme } from './colors';
 export type { AccentName, AccentTheme, ColorMode } from './colors';

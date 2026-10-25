@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fetchFreeElements, fetchLiveElements, saveFreeElements } from '@/features/admin/api';
+import { fetchFreeElements, fetchSiteElements, saveFreeElements } from '@/features/admin/api';
 import { ItemPicker } from '@/features/admin/components';
 import { maxFreeElements } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
@@ -82,7 +82,7 @@ export const FreeElementsTab = () => {
   const { text } = useLocale();
   const [month, setMonth] = useState(toMonthKey());
   const data = useAsync(async () => {
-    const [elements, chosen] = await Promise.all([fetchLiveElements(), fetchFreeElements(month)]);
+    const [elements, chosen] = await Promise.all([fetchSiteElements(), fetchFreeElements(month)]);
     return { elements, chosen };
   }, [month]);
   const t = text.admin.homepage.freeElements;

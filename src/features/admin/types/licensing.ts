@@ -38,3 +38,18 @@ export interface CopyrightClaim {
   reference?: string; // what the reporter was given, e.g. CR-104822 (site reports)
   source?: 'demo' | 'site'; // site: sent with the copyright report form on an item page
 }
+
+// A creator's appeal against a copyright takedown of their element (one per takedown).
+export type ElementAppealStatus = 'open' | 'accepted' | 'rejected';
+
+export interface ElementAppeal {
+  id: string; // the element's id
+  element: { id: string; title: string };
+  creator: { id: string; name: string };
+  claimReference?: string; // the claim that led to the takedown, e.g. CR-104822
+  takedownNote: string;
+  message: string;
+  receivedAt: string;
+  status: ElementAppealStatus;
+  decisionNote?: string;
+}

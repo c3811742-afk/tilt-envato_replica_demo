@@ -3,7 +3,7 @@ import { fetchSubscriptions } from '@/features/admin/api';
 import { subscriptionStatusTone } from '@/features/admin/constants';
 import type { Subscription } from '@/features/admin/types';
 import { replaceById } from '@/features/admin/utils';
-import { AsyncContent, Badge, Button, EmptyState, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, Icon, Notice, type RecordColumn, recordRows, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { fillText, formatDate, isolate } from '@/shared/utils';
@@ -60,8 +60,8 @@ export const SubscriptionsTab = () => {
       align: 'end',
       render: (row) =>
         row.status !== 'canceled' && (
-          <Button size="sm" variant="muted" onClick={() => setCanceling(row)}>
-            {t.cancel.button}
+          <Button size="sm" variant="outline" iconOnly tooltip={t.cancel.button} tooltipAlign="end" onClick={() => setCanceling(row)}>
+            <Icon name="close" size={vars.sizes.icon.sm} />
           </Button>
         ),
     },

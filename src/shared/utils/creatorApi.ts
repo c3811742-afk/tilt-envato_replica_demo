@@ -5,6 +5,12 @@ import { respondError } from './mockResponse';
 import { readApplications, resourcesApi } from './resourcesApi';
 import { storage } from './storage';
 
+// The last few characters of a number, the only part the demo keeps (and shows) of an ID or account.
+const lastDigits = (value: string) => value.replace(/\s+/g, '').slice(-4);
+
+const payoutAccountOf = (application: CreatorApplication) =>
+  ({ bankTransfer: application.iban, instapay: application.instapayAddress, vodafoneCash: application.walletNumber })[application.payoutMethod];
+
 // Demo stand-in for the creator application server. A submitted application goes into the same list the
 // admin team reviews (Admin › Creators › Applications), tied to the applicant's account.
 export const creatorApi = {
@@ -19,6 +25,13 @@ export const creatorApi = {
       categories: application.specialties,
       about: application.about,
       accountId: account.id,
+      identity: {
+        document: application.idType,
+        nameOnDocument: application.legalName.trim(),
+        numberEnding: lastDigits(application.idNumber),
+        status: 'pending',
+      },
+      payout: { method: application.payoutMethod, accountEnding: lastDigits(payoutAccountOf(application)) },
     });
     return { id, submittedAt: new Date().toISOString() };
   },

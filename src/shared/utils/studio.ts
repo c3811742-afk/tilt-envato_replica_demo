@@ -49,17 +49,21 @@ export interface StudioBalance {
   total: number; // everything earned
   pending: number; // earned in the last days, held for refunds and claims
   available: number; // can be paid out (earned before that, minus payouts)
-  paidOut: number; // paid or asked for
+  paidOut: number; // paid or asked for (a rejected or failed payout gives the money back)
   canRequest: boolean; // the available balance has reached the minimum
+  minimum: number; // the team's minimum payout
 }
 
-export const studioBalance = (days: StudioDay[], payouts: StudioPayout[], now: Date = new Date()): StudioBalance => {
+// Payouts that still take money out of the balance.
+const holdsMoney = (payout: StudioPayout) => payout.status !== 'rejected' && payout.status !== 'failed';
+
+export const studioBalance = (days: StudioDay[], payouts: StudioPayout[], minimum: number, now: Date = new Date()): StudioBalance => {
   const cutoff = dayKey(now.getTime() - studioEarnings.pendingDays * dayMs);
   const total = earningsOf(days.reduce((sum, day) => sum + day.downloads, 0));
   const pending = earningsOf(days.filter((day) => day.date > cutoff).reduce((sum, day) => sum + day.downloads, 0));
-  const paidOut = payouts.reduce((sum, payout) => sum + payout.amount, 0);
+  const paidOut = payouts.filter(holdsMoney).reduce((sum, payout) => sum + payout.amount, 0);
   const available = Math.max(0, total - pending - paidOut);
-  return { total, pending, available, paidOut, canRequest: available >= studioEarnings.payoutMinimum };
+  return { total, pending, available, paidOut, canRequest: available >= minimum, minimum };
 };
 
 // ---------- Translation ----------

@@ -1,6 +1,6 @@
 import { aiCredits, aiModelCredits, aiModels, aiTools, aiVideoModelCredits, storageKeys, type AiTool } from '@/shared/constants';
 import { mockPlans } from '@/shared/mocks';
-import type { AiCostKey, AiSettings, BlockedGeneration } from '@/shared/types';
+import type { AiCostKey, AiSettings, BlockedGeneration, PlanId } from '@/shared/types';
 import { createStoredValue } from './storedValue';
 
 // AI Studio as the team set it up in the admin: tools on or off by plan, credit costs and content rules.
@@ -44,6 +44,15 @@ export const aiToolSetting = (tool: AiTool) => aiSettingsStore.get().tools.find(
 
 // Tools shown in AI Studio (the team can turn a tool off).
 export const isAiToolOn = (tool: AiTool) => aiToolSetting(tool)?.enabled !== false;
+
+// Whether a plan can use a tool, as the team set it in the admin: 'off' (no plan can), 'notInPlan', or 'included'.
+// Without a plan (null) a tool that's on counts as included: AI Studio asks for a plan first anyway.
+export const aiToolAccess = (tool: AiTool, planId: PlanId | null): 'off' | 'notInPlan' | 'included' => {
+  const setting = aiToolSetting(tool);
+  if (setting?.enabled === false) return 'off';
+  if (setting && planId && !setting.planIds.includes(planId)) return 'notInPlan';
+  return 'included';
+};
 
 // The blocked phrase a prompt contains, if any (in any language, ignoring case).
 export const blockedPhraseIn = (prompt: string) => {

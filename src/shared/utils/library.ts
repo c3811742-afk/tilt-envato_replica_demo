@@ -13,12 +13,13 @@ export interface DownloadAllowance {
 
 const counts = (download: Download, since: Date) => !download.reportedBroken && new Date(download.requestedAt) >= since;
 
-// The start of the current month of a plan: plans count downloads and AI credits per month, from the day they started.
+// The start of the current month of a plan: plans count downloads and AI credits per month, on the day of the month
+// they started. A plan renewed early starts in the future, so this can also count back from the start.
 export const monthStart = (subscription: Pick<Subscription, 'startedAt'>, now: Date) => {
   const start = new Date(subscription.startedAt);
   const months = (now.getFullYear() - start.getFullYear()) * 12 + now.getMonth() - start.getMonth() - (now.getDate() < start.getDate() ? 1 : 0);
   const current = new Date(start);
-  current.setMonth(start.getMonth() + Math.max(0, months));
+  current.setMonth(start.getMonth() + months);
   return current;
 };
 

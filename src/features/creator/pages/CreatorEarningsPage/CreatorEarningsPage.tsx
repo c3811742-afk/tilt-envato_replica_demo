@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AsyncContent, Badge, Button, Card, FieldMessage, Grid, Icon, IconNote, Section, Stack, Table, Text } from '@/shared/components';
+import { AsyncContent, Badge, Button, Card, FieldMessage, Grid, Icon, IconNote, Section, Stack, Table, Text, type BadgeVariant } from '@/shared/components';
+import type { StudioPayoutStatus } from '@/shared/types';
 import { studioEarnings } from '@/shared/constants';
 import { useAction, useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -7,6 +8,8 @@ import { downloadTextFile, fillText, formatDate, formatNumber, studioApi } from 
 import { CreatorArea, elementTitle } from '@/features/creator/components';
 
 const monthFormat: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+
+const payoutTone: Record<StudioPayoutStatus, BadgeVariant> = { requested: 'info', approved: 'info', paid: 'success', failed: 'danger', rejected: 'danger' };
 
 // "Earnings": the pending and available balance, a payout request from the minimum, earnings per element and
 // per month, past payouts, and a statement to download.
@@ -27,7 +30,7 @@ export const CreatorEarningsPage = () => {
   return (
     <CreatorArea section="earnings" title={t.earningsTitle} subtitle={fillText(t.earningsSubtitle, { amount: price(studioEarnings.perDownload) })}>
       <AsyncContent state={earnings}>
-        {({ balance, perElement, perMonth, payouts }) => {
+        {({ balance, perElement, perMonth, payouts, payoutDay }) => {
           // A plain-text statement: balances, earnings per month and per element, and payouts.
           const statement = () =>
             [
@@ -73,7 +76,10 @@ export const CreatorEarningsPage = () => {
                 </Button>
               </Stack>
               {requested !== null && <IconNote icon="check" text={fillText(t.payoutRequested, { amount: price(requested) })} />}
-              {!balance.canRequest && <IconNote text={fillText(t.payoutMinimum, { amount: price(studioEarnings.payoutMinimum) })} />}
+              {!balance.canRequest && <IconNote text={fillText(t.payoutMinimum, { amount: price(balance.minimum) })} />}
+              <Text variant="bodySm" color={vars.colors.textMuted}>
+                {fillText(t.payoutDayNote, { day: formatNumber(payoutDay, locale) })}
+              </Text>
               <FieldMessage tone="error" message={error} />
 
               <Section title={t.perItemTitle} variant="h3" gap={vars.spacing[3]}>
@@ -124,7 +130,16 @@ export const CreatorEarningsPage = () => {
                     cells: {
                       date: formatDate(payout.paidAt ?? payout.requestedAt, locale),
                       amount: price(payout.amount),
-                      status: <Badge variant={payout.status === 'paid' ? 'free' : 'info'}>{t.payoutStatuses[payout.status]}</Badge>,
+                      status: (
+                        <Stack gap={vars.spacing[1]} align="flex-start">
+                          <Badge variant={payoutTone[payout.status]}>{t.payoutStatuses[payout.status]}</Badge>
+                          {payout.note && (
+                            <Text as="span" variant="bodySm" color={vars.colors.textMuted} autoDirection>
+                              {payout.note}
+                            </Text>
+                          )}
+                        </Stack>
+                      ),
                     },
                   }))}
                   emptyText={t.payoutsEmpty}

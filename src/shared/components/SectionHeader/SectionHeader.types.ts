@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import type { TextVariant } from '../Text';
 
 export interface SectionHeaderProps {
-  actions?: ReactNode; // buttons or badges at the end of the header, e.g. on an admin page
+  actions?: ReactNode; // buttons at the end of the header, e.g. on an admin page
+  badges?: ReactNode; // status badges beside the title, e.g. "Active" next to a user's name
   autoDirection?: boolean; // the title is user content that may be in either language
   title?: string;
   subtitle?: string;

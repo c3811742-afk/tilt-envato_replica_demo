@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { fetchPayouts } from '@/features/admin/api';
 import { payoutStatuses, payoutStatusTone } from '@/features/admin/constants';
+import type { IconName } from '@/shared/assets';
 import type { Payout, PayoutDecision, PayoutStatus } from '@/features/admin/types';
 import { replaceById } from '@/features/admin/utils';
-import { AsyncContent, Badge, Button, EmptyState, FilterBar, Notice, type RecordColumn, recordRows, Select, Stack, Table, Text } from '@/shared/components';
+import { AsyncContent, Badge, Button, EmptyState, FilterBar, Icon, Notice, type RecordColumn, recordRows, Select, Stack, Table, Text } from '@/shared/components';
 import { useAsync, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { fillText, formatDate, formatPrice, isolate, isOneOf } from '@/shared/utils';
@@ -16,6 +17,9 @@ const nextSteps: Partial<Record<PayoutStatus, PayoutDecision[]>> = {
   pending: ['approved', 'rejected'],
   approved: ['paid', 'failed'],
 };
+
+// Each decision's icon button: approve and pay go forward; reject and failed stop the payout.
+const decisionIcons: Record<PayoutDecision, IconName> = { approved: 'check', paid: 'wallet', rejected: 'close', failed: 'close' };
 
 export const RequestsTab = () => {
   const { text, locale } = useLocale();
@@ -66,16 +70,20 @@ export const RequestsTab = () => {
     {
       key: 'actions',
       label: text.admin.columns.actions,
+      align: 'end',
       render: (row) => (
-        <Stack direction="row" wrap gap={vars.spacing[2]}>
+        <Stack direction="row" justify="flex-end" wrap gap={vars.spacing[2]}>
           {(nextSteps[row.status] ?? []).map((decision) => (
             <Button
               key={decision}
               size="sm"
-              variant={decision === 'rejected' || decision === 'failed' ? 'muted' : 'primary'}
+              variant={decision === 'rejected' || decision === 'failed' ? 'outline' : 'primary'}
+              iconOnly
+              tooltip={t.decisions[decision].button}
+              tooltipAlign="end"
               onClick={() => setDeciding({ payout: row, decision })}
             >
-              {t.decisions[decision].button}
+              <Icon name={decisionIcons[decision]} size={vars.sizes.icon.sm} />
             </Button>
           ))}
         </Stack>

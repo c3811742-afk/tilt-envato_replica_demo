@@ -43,6 +43,21 @@ export interface CreatorApplication {
   avatar: FileInfo | null;
 }
 
+// The ID a creator sent with their application, and the team's check of it (needed before their first payout).
+export interface CreatorIdentity {
+  document: IdType;
+  nameOnDocument: string;
+  numberEnding: string; // the last digits only; the full number isn't kept
+  status: 'pending' | 'approved' | 'rejected';
+  decision?: { reason?: string; note: string; adminName: string; at: string };
+}
+
+// Where a creator's earnings are sent, as they gave it in their application.
+export interface CreatorPayoutAccount {
+  method: PayoutMethod;
+  accountEnding: string;
+}
+
 export interface CreatorApplicationReceipt {
   id: string;
   submittedAt: string; // ISO date

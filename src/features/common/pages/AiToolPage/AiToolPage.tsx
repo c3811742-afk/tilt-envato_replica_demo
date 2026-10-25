@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router';
 import { Button, Card, EmptyState, Meter, Page, Section, SplitLayout, Stack, Text, TextLink } from '@/shared/components';
 import { aiShortcuts, aiSourceParam, aiTools, routes, withReturnTo, type AiOperation } from '@/shared/constants';
-import { useLocale, useSession } from '@/shared/hooks';
+import { useLocale, useSession, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Session } from '@/shared/types';
-import { accountCredits, fillText, formatCount, formatNumber, planUsage, operationName } from '@/shared/utils';
+import { accountCredits, aiSettingsStore, aiToolAccess, fillText, formatCount, formatNumber, planUsage, operationName } from '@/shared/utils';
 import { findOutput, GenerationQueue } from '@/features/common/components';
 import { AudioForm, EditForm, ImageForm, MockupForm, VideoForm } from './ToolForms';
 import type { ImageSource } from './imageSource';
@@ -18,6 +18,7 @@ export const AiToolPage = () => {
   const { text } = useLocale();
   const { session } = useSession();
   const { tool } = useParams();
+  useStoredValue(aiSettingsStore); // follows the team's AI settings in the admin as they change
 
   if (!isOperation(tool)) {
     return (
@@ -29,10 +30,16 @@ export const AiToolPage = () => {
 
   const description = tool in text.ai.tools ? text.ai.tools[tool as keyof typeof text.ai.tools].description : text.ai.shortcutsTitle;
   const credits = session.status === 'signedIn' ? accountCredits(session) : null;
+  // The team's settings: a tool can be off for everyone, or not included in this plan.
+  const access = (aiTools as readonly string[]).includes(tool)
+    ? aiToolAccess(tool as (typeof aiTools)[number], session.status === 'signedIn' ? (session.subscription?.planId ?? null) : null)
+    : 'included';
 
   return (
     <Page title={operationName(text, tool)} subtitle={description} gap={vars.spacing[7]} backTo={routes.ai} backLabel={text.ai.title}>
-      {session.status !== 'signedIn' ? (
+      {access === 'off' ? (
+        <EmptyState title={text.ai.toolOffTitle} message={text.apiErrors.aiToolOff} action={<Button to={routes.ai}>{text.ai.title}</Button>} />
+      ) : session.status !== 'signedIn' ? (
         <EmptyState
           title={text.ai.noAccessTitle}
           message={text.ai.signInText}
@@ -40,6 +47,8 @@ export const AiToolPage = () => {
         />
       ) : !credits?.total ? (
         <EmptyState title={text.ai.noAccessTitle} message={text.ai.noAccessText} action={<Button to={routes.pricing}>{text.common.viewPlans}</Button>} />
+      ) : access === 'notInPlan' ? (
+        <EmptyState title={text.ai.notInPlan} message={text.apiErrors.aiToolNotInPlan} action={<Button to={routes.pricing}>{text.common.viewPlans}</Button>} />
       ) : (
         <ToolWorkspace key={tool} tool={tool} session={session} />
       )}

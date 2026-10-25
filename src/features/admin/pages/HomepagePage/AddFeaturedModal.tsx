@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { addFeatured, fetchCollections, fetchLiveElements } from '@/features/admin/api';
+import { addFeatured, fetchCollections, fetchSiteElements } from '@/features/admin/api';
 import { featuredKinds } from '@/features/admin/constants';
 import { useAdminAction, useAdminSession } from '@/features/admin/hooks';
 import type { FeaturedKind, FeaturedSlot } from '@/features/admin/types';
@@ -8,7 +8,7 @@ import { useAsync, useLocale } from '@/shared/hooks';
 import { isOneOf } from '@/shared/utils';
 
 const loadOptions = async () => {
-  const [elements, collections] = await Promise.all([fetchLiveElements(), fetchCollections()]);
+  const [elements, collections] = await Promise.all([fetchSiteElements(), fetchCollections()]);
   return { elements, collections };
 };
 

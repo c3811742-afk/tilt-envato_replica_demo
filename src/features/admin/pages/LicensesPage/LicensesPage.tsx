@@ -2,11 +2,12 @@ import { RequirePermission } from '@/features/admin/components';
 import { licenseTabs } from '@/features/admin/constants';
 import { useLocale, useTabParam } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import { AppealsTab } from './AppealsTab';
 import { ClaimsTab } from './ClaimsTab';
 import { LookupTab } from './LookupTab';
 import { SectionHeader, Stack, Tabs } from '@/shared/components';
 
-const tabContent = { lookup: LookupTab, claims: ClaimsTab };
+const tabContent = { lookup: LookupTab, claims: ClaimsTab, appeals: AppealsTab };
 
 const Licenses = () => {
   const { text } = useLocale();

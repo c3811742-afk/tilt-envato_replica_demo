@@ -1,4 +1,5 @@
 import {
+  creatorElementPath,
   occasionReminderWeeks,
   routes,
   studioLimits,
@@ -15,6 +16,7 @@ import { creatorApplicationDetails, creatorApplicationStatus, latestCreatorAppli
 import { fileStore } from './fileStore';
 import { readApplications, saveApplications } from './resourcesApi';
 import { earningsByMonth, earningsOf, studioActivity, studioBalance, studioItem, translateDraft, type StudioDay } from './studio';
+import { announcementStore, editedTags, payoutRulesStore } from './siteSettings';
 import { readStudioClaims, readStudioElements, readStudioPayouts, saveStudioElement, writeStudioClaims, writeStudioElements, writeStudioPayouts } from './studioStore';
 
 const now = () => new Date().toISOString();
@@ -114,6 +116,9 @@ export const missingForReview = (element: StudioElement): StudioMissing[] => {
     element.categoryId === 'music' && element.contentIdRegistered === null && 'contentId',
   ].filter((missing): missing is StudioMissing => Boolean(missing));
 };
+
+// A copyright takedown can be appealed once (until the element is taken down again).
+export const canAppeal = (element: StudioElement) => element.status === 'unpublished' && element.unpublish?.reason === 'copyright' && !element.appeal;
 
 // Which statuses the creator can edit (live elements go back to review when updated; disabled ones are turned on first).
 export const isEditableElement = (element: StudioElement) => ['draft', 'softRejected', 'live'].includes(element.status);
@@ -218,7 +223,8 @@ const applyChanges = (element: StudioElement, changes: StudioChanges): StudioEle
   ...changes,
   title: { ...element.title, ...changes.title },
   description: { ...element.description, ...changes.description },
-  tags: { ...element.tags, ...changes.tags },
+  // The team's tag changes apply here too: renamed tags take their new name, banned ones are dropped.
+  tags: { ...element.tags, ...Object.fromEntries(Object.entries(changes.tags ?? {}).map(([language, tags]) => [language, editedTags(tags ?? [])])) },
   details: changes.categoryId && changes.categoryId !== element.categoryId ? {} : { ...element.details, ...changes.details },
   software: changes.categoryId && changes.categoryId !== element.categoryId ? [] : (changes.software ?? element.software),
   updatedAt: now(),
@@ -353,6 +359,14 @@ export const studioApi = {
       return saveStudioElement({ ...element, status: disabled ? 'disabled' : 'live', updatedAt: now() });
     }),
 
+  // An appeal against a copyright takedown (one per takedown). The team reviews it and can put the element back.
+  appeal: (id: string, message: string) =>
+    call(() => {
+      const { element } = mine(id);
+      if (!canAppeal(element)) throw new ApiError('appealNotAllowed');
+      return saveStudioElement({ ...element, appeal: { message: message.trim(), at: now(), status: 'open' }, updatedAt: now() });
+    }),
+
   // Deletes an element and its files. Licenses customers already have stay valid.
   remove: (id: string) =>
     call(async () => {
@@ -378,7 +392,8 @@ export const studioApi = {
       const payouts = readStudioPayouts()
         .filter((payout) => payout.creatorId === account.id)
         .sort((a, b) => b.requestedAt.localeCompare(a.requestedAt));
-      return { perElement, perMonth: earningsByMonth(allDays), balance: studioBalance(allDays, payouts), payouts };
+      const rules = payoutRulesStore.get();
+      return { perElement, perMonth: earningsByMonth(allDays), balance: studioBalance(allDays, payouts, rules.minimumPayout), payouts, payoutDay: rules.payoutDay };
     }),
 
   // Asks for the available balance to be paid out (from the minimum up).
@@ -387,7 +402,19 @@ export const studioApi = {
       const account = approvedCreator();
       const { balance } = await studioApi.earnings();
       if (!balance.canRequest) throw new ApiError('payoutBelowMinimum');
-      const payout: StudioPayout = { id: crypto.randomUUID(), creatorId: account.id, amount: balance.available, method: '', requestedAt: now(), status: 'requested' };
+      // Paid to the account the creator gave in their application; the admin team approves and pays it.
+      const payoutAccount = readApplications()
+        .flatMap((application) => (application.kind === 'author' && application.accountId === account.id && application.payout ? [application] : []))
+        .sort((a, b) => b.at.localeCompare(a.at))[0]?.payout;
+      const payout: StudioPayout = {
+        id: crypto.randomUUID(),
+        creatorId: account.id,
+        amount: balance.available,
+        method: payoutAccount?.method ?? '',
+        accountEnding: payoutAccount?.accountEnding,
+        requestedAt: now(),
+        status: 'requested',
+      };
       writeStudioPayouts([payout, ...readStudioPayouts()]);
       return payout;
     }),
@@ -437,9 +464,9 @@ export const studioApi = {
 
 // ---------- Events from the rest of the site ----------
 
-const alertCreator = (element: StudioElement, kind: Parameters<typeof withAlert>[1], params: Record<string, string>) => {
+const alertCreator = (element: StudioElement, kind: Parameters<typeof withAlert>[1], params: Record<string, string>, link: string = routes.creatorElements) => {
   const creator = findById(element.creatorId);
-  if (creator) saveAccount(withAlert(creator, kind, { title: element.title[element.language], ...params }, routes.creatorElements));
+  if (creator) saveAccount(withAlert(creator, kind, { title: element.title[element.language], ...params }, link));
 };
 
 // The admin team's decision on a submitted element.
@@ -465,8 +492,37 @@ export const applyStudioReview = (elementId: string, review: StudioReview) => {
 export const applyStudioUnpublish = (elementId: string, reason: string, note: string) => {
   const element = readStudioElements().find((candidate) => candidate.id === elementId);
   if (!element) return;
-  saveStudioElement({ ...element, status: 'unpublished', unpublish: { reason, note, at: now() } });
-  alertCreator(element, 'elementUnpublished', { reason, note });
+  saveStudioElement({ ...element, status: 'unpublished', unpublish: { reason, note, at: now() }, appeal: undefined });
+  alertCreator(element, 'elementUnpublished', { reason, note }, creatorElementPath(element.id));
+};
+
+// The team's answer to a creator's appeal: accepted puts the element back on the site (the claim was a false
+// positive); rejected keeps it down, with a note the creator reads on the element.
+export const applyStudioAppealDecision = (elementId: string, accepted: boolean, note: string) => {
+  const element = readStudioElements().find((candidate) => candidate.id === elementId);
+  if (!element?.appeal || element.appeal.status !== 'open') return null;
+  const appeal = { ...element.appeal, status: accepted ? ('accepted' as const) : ('rejected' as const), note: note.trim() || undefined, decidedAt: now() };
+  const saved = saveStudioElement(
+    accepted ? { ...element, status: 'live', unpublish: undefined, appeal, updatedAt: now() } : { ...element, appeal, updatedAt: now() },
+  );
+  alertCreator(element, accepted ? 'appealAccepted' : 'appealRejected', {}, creatorElementPath(element.id));
+  return saved;
+};
+
+// The admin team's decision on a creator's payout request. The creator is told when it's paid, or why it wasn't;
+// a rejected or failed payout goes back to their available balance.
+export const applyStudioPayoutDecision = (payoutId: string, status: Exclude<StudioPayout['status'], 'requested'>, note: string) => {
+  const payout = readStudioPayouts().find((current) => current.id === payoutId);
+  if (!payout) return null;
+  const at = now();
+  const saved: StudioPayout = { ...payout, status, note: note.trim() || undefined, updatedAt: at, paidAt: status === 'paid' ? at : payout.paidAt };
+  writeStudioPayouts(readStudioPayouts().map((current) => (current.id === payoutId ? saved : current)));
+  const creator = findById(payout.creatorId);
+  if (creator && status !== 'approved') {
+    const kind = status === 'paid' ? 'payoutPaid' : 'payoutRejected';
+    saveAccount(withAlert(creator, kind, { amount: String(payout.amount), note: saved.note ?? '' }, routes.creatorEarnings));
+  }
+  return saved;
 };
 
 // A customer reported copyright infringement on a creator's element: the creator gets a claim to answer.
@@ -490,6 +546,23 @@ export const recordStudioClaim = (itemId: string, claimant: string, details: str
 export const reportStudioBrokenFile = (itemId: string) => {
   const element = readStudioElements().find((candidate) => candidate.id === itemId);
   if (element) alertCreator(element, 'brokenFileReported', {});
+};
+
+// Announcements from the admin team whose time has come, each added once to the notifications of the accounts in
+// its audience: everyone with an account for "customers" and "everyone", approved creators for "creators".
+export const withDueAnnouncements = (account: StoredAccount, today: Date = new Date()): StoredAccount => {
+  const creator = isApprovedCreator(account.id);
+  return announcementStore
+    .get()
+    .filter((announcement) => announcement.status !== 'canceled' && new Date(announcement.sendAt) <= today)
+    .filter((announcement) => announcement.audience !== 'creators' || creator)
+    .reduce(
+      (current, announcement) =>
+        current.alerts.some((alert) => alert.kind === 'announcement' && alert.params.announcementId === announcement.id)
+          ? current
+          : withAlert(current, 'announcement', { title: announcement.title, message: announcement.body, announcementId: announcement.id }),
+      account,
+    );
 };
 
 // Reminders 6 to 8 weeks before each occasion to upload content for it (once per occasion and year).
@@ -539,9 +612,9 @@ export const studioDemo = {
     call(() => {
       const account = approvedCreator();
       const payouts = readStudioPayouts();
-      const due = payouts.filter((payout) => payout.creatorId === account.id && payout.status === 'requested');
+      const due = payouts.filter((payout) => payout.creatorId === account.id && (payout.status === 'requested' || payout.status === 'approved'));
       if (!due.length) throw new ApiError('nothingToConfirm');
-      writeStudioPayouts(payouts.map((payout) => (due.includes(payout) ? { ...payout, status: 'paid' as const, paidAt: now() } : payout)));
+      writeStudioPayouts(payouts.map((payout) => (due.includes(payout) ? { ...payout, status: 'paid' as const, paidAt: now(), updatedAt: now() } : payout)));
       const amount = due.reduce((sum, payout) => sum + payout.amount, 0);
       return toSessionAccount(saveAccount(withAlert(signedInAccount(), 'payoutPaid', { amount: String(amount) }, routes.creatorEarnings)));
     }),

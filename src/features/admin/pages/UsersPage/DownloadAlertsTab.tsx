@@ -51,7 +51,7 @@ export const DownloadAlertsTab = () => {
       label: text.admin.columns.actions,
       align: 'end',
       render: (alert) => (
-        <Stack direction="row" wrap gap={vars.spacing[2]}>
+        <Stack direction="row" justify="flex-end" wrap gap={vars.spacing[2]}>
           <Button
             size="sm"
             variant="muted"

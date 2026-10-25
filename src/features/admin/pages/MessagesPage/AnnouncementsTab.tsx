@@ -84,6 +84,7 @@ export const AnnouncementsTab = () => {
     {
       key: 'actions',
       label: text.admin.columns.actions,
+      align: 'end',
       render: (announcement) =>
         announcement.status === 'scheduled' && (
           <Button

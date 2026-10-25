@@ -55,6 +55,7 @@ export {
   aiTabs,
   billingTabs,
   cancelReasons,
+  appealStatusTone,
   claimStatusTone,
   contentRuleKeys,
   invoiceKinds,

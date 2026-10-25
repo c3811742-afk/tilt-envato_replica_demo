@@ -23,8 +23,7 @@ export type {
   Collection,
   CollectionWithItems,
   SearchSuggestion,
-  SearchReport,
-} from './catalog';
+  SearchReport, AnnouncementAudience, SiteAnnouncement } from './catalog';
 export type {
   PlanId,
   PromoCode,
@@ -41,6 +40,7 @@ export type {
   InvoiceLine,
   InvoiceStatus,
   Invoice,
+  TaxDocument,
   Download,
   YoutubeChannel,
   UploadRef,
@@ -79,5 +79,5 @@ export type { Banner, FeaturedKind, FeaturedSlot, FreeElements, HomepageSettings
 export type { AiContentRules, AiCostKey, AiSettings, AiToolSetting, BlockedGeneration, BlockedStage, ContentRuleKey } from './aiSettings';
 export type { EmptySearch, SentSearchReport } from './catalog';
 export type { Program, ProgramInput, ProgramKind, ProgramStatus } from './programs';
-export type { IdType, PayoutMethod, TaxStatus, FileInfo, CreatorApplication, CreatorApplicationReceipt } from './creator';
-export type { StudioFile, StudioSource, StudioReview, StudioElement, StudioPayout, StudioClaim, StudioElementStats } from './studio';
+export type { IdType, PayoutMethod, TaxStatus, FileInfo, CreatorApplication, CreatorApplicationReceipt, CreatorIdentity, CreatorPayoutAccount } from './creator';
+export type { StudioFile, StudioSource, StudioReview, StudioAppeal, StudioElement, StudioPayout, StudioPayoutStatus, PayoutRules, StudioClaim, StudioElementStats } from './studio';

@@ -114,6 +114,8 @@ export type {
   ClaimDecision,
   ClaimStatus,
   CopyrightClaim,
+  ElementAppeal,
+  ElementAppealStatus,
   License,
   LicenseStatus,
   RevokeInput,

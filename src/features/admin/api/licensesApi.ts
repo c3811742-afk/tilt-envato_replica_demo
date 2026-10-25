@@ -1,6 +1,16 @@
-import type { ClaimDecision, ClaimStatus, CopyrightClaim, License, RevokeInput } from '@/features/admin/types';
-import type { LicenseRecord } from '@/shared/types';
-import { findAccountById, readAccounts, readLicenses, revokeLicenseRecord, saveAccount, withAlert } from '@/shared/utils';
+import type { AppealOutcome, ClaimDecision, ClaimStatus, CopyrightClaim, ElementAppeal, ElementAppealStatus, License, RevokeInput } from '@/features/admin/types';
+import type { LicenseRecord, StudioElement } from '@/shared/types';
+import {
+  applyStudioAppealDecision,
+  findAccountById,
+  readAccounts,
+  readLicenses,
+  readStudioClaims,
+  readStudioElements,
+  revokeLicenseRecord,
+  saveAccount,
+  withAlert,
+} from '@/shared/utils';
 import { sameText } from '@/features/admin/utils/lists';
 import { takeElementDown } from './elementsApi';
 import { AdminApiError } from './errors';
@@ -111,4 +121,49 @@ export const decideClaim = (actorId: string, id: string, decision: ClaimDecision
       note: claim.decisionNote,
     });
     return claim;
+  });
+
+// ---------- Takedown appeals ----------
+// Creators appeal copyright takedowns of their elements. Republishing puts the element back (the claim was a
+// false positive); keeping it down needs a note, because the creator reads it.
+
+const toAppeal = (element: StudioElement): ElementAppeal | null => {
+  if (!element.appeal) return null;
+  const title = element.title[element.language];
+  const claim = readStudioClaims().find((current) => current.elementId === element.id);
+  return {
+    id: element.id,
+    element: { id: element.id, title },
+    creator: { id: element.creatorId, name: element.creatorName },
+    claimReference: claim?.reference,
+    takedownNote: element.unpublish?.note ?? '',
+    message: element.appeal.message,
+    receivedAt: element.appeal.at,
+    status: element.appeal.status,
+    decisionNote: element.appeal.note,
+  };
+};
+
+const allAppeals = () => readStudioElements().flatMap((element) => toAppeal(element) ?? []);
+
+// Open appeals first, newest first in each group.
+const appealOrder: Record<ElementAppealStatus, number> = { open: 0, accepted: 1, rejected: 1 };
+
+export const fetchElementAppeals = () =>
+  respond(() => allAppeals().sort((a, b) => appealOrder[a.status] - appealOrder[b.status] || b.receivedAt.localeCompare(a.receivedAt)));
+
+export const decideElementAppeal = (actorId: string, elementId: string, outcome: AppealOutcome, note = '') =>
+  respond(() => {
+    const actor = authorize(actorId, 'manageLicenses');
+    const found = findById(allAppeals(), elementId);
+    if (found.status !== 'open') throw new AdminApiError('alreadyDecided');
+
+    const saved = applyStudioAppealDecision(elementId, outcome === 'accepted', note);
+    const appeal = saved && toAppeal(saved);
+    if (!appeal) throw new AdminApiError('notFound');
+    logAction(actor, 'appealDecided', { kind: 'element', id: elementId, label: found.element.title }, {
+      change: outcome === 'accepted' ? 'approved' : 'rejected',
+      note: note.trim() || undefined,
+    });
+    return appeal;
   });

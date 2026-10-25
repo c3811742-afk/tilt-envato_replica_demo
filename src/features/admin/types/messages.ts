@@ -1,17 +1,10 @@
-export type Audience = 'customers' | 'creators' | 'everyone';
-export type MessageStatus = 'scheduled' | 'sent' | 'canceled';
+import type { AnnouncementAudience, SiteAnnouncement } from '@/shared/types';
+
+export type Audience = AnnouncementAudience;
+export type MessageStatus = SiteAnnouncement['status'];
 
 // A message shown on the site and sent by email to customers, creators or both.
-export interface Announcement {
-  id: string;
-  audience: Audience;
-  title: string;
-  body: string;
-  status: MessageStatus;
-  sendAt: string;
-  recipients: number;
-  sentBy: string;
-}
+export type Announcement = SiteAnnouncement;
 
 export interface AnnouncementInput {
   audience: Audience;

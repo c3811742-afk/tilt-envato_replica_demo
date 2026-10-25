@@ -38,7 +38,15 @@ export const createStoredValue = <T>(key: string, isValid: (value: unknown) => v
     },
     subscribe: (listener) => {
       listeners.add(listener);
-      return () => listeners.delete(listener);
+      // Changed in another tab (e.g. the admin open next to the site): read it again.
+      const onStorage = (event: StorageEvent) => {
+        if (event.key === null || event.key === key) listener();
+      };
+      window.addEventListener('storage', onStorage);
+      return () => {
+        listeners.delete(listener);
+        window.removeEventListener('storage', onStorage);
+      };
     },
   };
 };

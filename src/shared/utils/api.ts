@@ -130,11 +130,10 @@ export const api = {
   getItems: (sort: SortOption, limit: number = catalog.railSize, categoryId?: CategoryId): Promise<Item[]> =>
     respond(sortItems(searchBase({ categoryId }), sort).slice(0, limit)),
 
-  // The team's featured items, in their order (set in the admin).
-  getFeaturedItems: (limit: number = catalog.railSize): Promise<Item[]> => {
+  // The team's featured items, all of them, in their order (set in the admin): the team decides how many there are.
+  getFeaturedItems: (): Promise<Item[]> => {
     const items = catalogItems();
-    const picked = featuredIds('element').flatMap((id) => items.filter((item) => item.id === id));
-    return respond(picked.slice(0, limit));
+    return respond(featuredIds('element').flatMap((id) => items.filter((item) => item.id === id)));
   },
 
   // Most downloaded in the last 30 days.
