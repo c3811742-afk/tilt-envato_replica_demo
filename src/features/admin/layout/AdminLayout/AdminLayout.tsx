@@ -39,7 +39,7 @@ const AdminShell = () => {
     <div className={styles.layout}>
       <PageBackground />
       <AdminTopBar alerts={counts} />
-      {/* The menu in the shared side panel, in the admin's blue; under one top bar row, with no footer to reach. */}
+      {/* The menu in the shared side panel, in the admin's colors; under one top bar row, with no footer to reach. */}
       <SidebarLayout
         label={text.admin.layout.navLabel}
         sidebar={<AdminMenu alerts={counts} />}

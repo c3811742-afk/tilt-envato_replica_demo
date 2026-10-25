@@ -29,7 +29,7 @@ export const AdminMenu = ({ alerts }: AdminMenuProps) => {
       {groups.map((group) => (
         <div key={group.key} className={styles.group}>
           <span className={styles.groupLabel}>
-            <Text as="span" variant="label" color={vars.colors.navAccent}>
+            <Text as="span" variant="label" color={vars.colors.navMuted}>
               {text.admin.navGroups[group.key]}
             </Text>
           </span>
@@ -43,7 +43,7 @@ export const AdminMenu = ({ alerts }: AdminMenuProps) => {
                       <>
                         <Icon name={item.icon} size={vars.sizes.icon.sm} />
                         <span className={styles.label}>{text.admin.nav[item.key]}</span>
-                        {/* Lime on the blue bar; the other way round on the lime current page. */}
+                        {/* A lime count in the menu; the other way round on the lime current page. */}
                         {count > 0 && (
                           <Badge
                             background={isActive ? vars.colors.onNavAccent : vars.colors.navAccent}
