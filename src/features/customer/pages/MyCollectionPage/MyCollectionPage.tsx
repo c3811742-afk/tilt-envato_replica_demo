@@ -112,20 +112,21 @@ const CollectionView = ({ collection, collections, scope }: { collection: UserCo
       {/* The main actions as icon buttons on the end, the rest in the "⋯" menu. */}
       <Stack direction="row" wrap align="center" justify="flex-end" gap={vars.spacing[3]}>
         <Stack direction="row" wrap gap={vars.spacing[2]}>
-          <Button size="sm" iconOnly tooltip={text.myCollections.downloadAll} onClick={() => setDialog('downloadAll')} disabled={collection.itemIds.length === 0}>
+          <Button size="sm" onClick={() => setDialog('downloadAll')} disabled={collection.itemIds.length === 0}>
             <Icon name="download" size={vars.sizes.icon.sm} />
+            {text.myCollections.downloadAll}
           </Button>
           <FileInput
             label={text.myCollections.upload}
             accept={uploadKinds.map((kind) => `${kind}/*`).join(',')}
             icon="upload"
             size="sm"
-            iconOnly
             busy={uploading ? text.myCollections.uploading : undefined}
             onSelect={(file) => void upload(file)}
           />
           {/* Share stays in view; New collection inside, Rename, Move, Pin and Delete are in the "⋯" menu. */}
           <CollectionActions
+            labelled
             pinned={collection.pinned}
             extraItems={
               depth < collectionMaxDepth ? [{ key: 'newInside', icon: 'plus', label: text.myCollections.newInside, onSelect: () => setDialog('newInside') }] : []

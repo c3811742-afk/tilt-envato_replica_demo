@@ -36,6 +36,8 @@ export type AiShortcut = (typeof aiShortcuts)[number];
 // Everything that makes a generation: a tool, or a shortcut on an earlier result.
 export type AiOperation = AiTool | AiShortcut;
 
+export const aiShortcutIcons: Record<AiShortcut, IconName> = { relight: 'sun', backgroundSwap: 'image', cameraMotion: 'video' };
+
 export const aiToolIcons: Record<AiTool, IconName> = {
   image: 'image',
   graphics: 'shapes',

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Badge, Icon, ItemCover, Text } from '@/shared/components';
 import { categoryIcons } from '@/shared/constants';
@@ -16,11 +17,12 @@ interface UserCollectionCardProps {
   selecting?: boolean; // select mode: clicking the card selects it instead of opening it
   selected?: boolean;
   onToggle?: (selected: boolean) => void;
+  actions?: ReactNode; // e.g. a menu of its actions, on the card's bottom end corner (not inside its link)
 }
 
 // One of the user's collections, the same shape and size as an item card so the two sit together in one grid:
 // a square cover (its first items, or a folder), then its name, how many items, and pinned / shared marks.
-export const UserCollectionCard = ({ collection, to, childCount = 0, selecting = false, selected = false, onToggle }: UserCollectionCardProps) => {
+export const UserCollectionCard = ({ collection, to, childCount = 0, selecting = false, selected = false, onToggle, actions }: UserCollectionCardProps) => {
   const { text, locale } = useLocale();
   const count = collection.itemIds.length + collection.uploads.length;
   const counts = [
@@ -57,7 +59,7 @@ export const UserCollectionCard = ({ collection, to, childCount = 0, selecting =
   );
 
   return (
-    <li>
+    <li className={styles.card}>
       {selecting ? (
         <button
           type="button"
@@ -72,6 +74,7 @@ export const UserCollectionCard = ({ collection, to, childCount = 0, selecting =
           {content}
         </Link>
       )}
+      {actions && !selecting && <div className={styles.actions}>{actions}</div>}
     </li>
   );
 };

@@ -16,6 +16,7 @@ export type RevokeReason = (typeof revokeReasons)[number];
 // supportReply, announcement and the creator application decisions are sent by the admin team.
 export const alertKinds = [
   'renewalReminder',
+  'planEnding',
   'paymentFailed',
   'itemRemoved',
   'licenseRevoked',

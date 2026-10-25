@@ -1,4 +1,5 @@
 import {
+  accountPath,
   card,
   cardPaymentMethods,
   fawry,
@@ -216,6 +217,28 @@ const chargeableMethod = (account: StoredAccount, subscription: Subscription) =>
   account.paymentMethods.find((method) => method.id === subscription.savedMethodId) ??
   account.paymentMethods.find((method) => method.isDefault) ??
   null;
+
+// The demo's declined card, saved: renewing with it fails.
+const isDeclinedCard = (method: SavedPaymentMethod) => method.kind === 'card' && method.summary === cardBrandSummary(card.declinedNumber);
+
+// A plan set to renew renews by itself when its period ends: charged to its saved method, with an invoice. When that
+// fails (the declined card, or no method left), the plan stops and the customer is told, once, to fix it in Billing.
+export const withAutoRenewal = (account: StoredAccount, now: Date = new Date()): StoredAccount => {
+  const current = account.subscription;
+  if (!current || current.status !== 'active' || !current.autoRenew || current.canceledAt || new Date(current.endsAt) > now) return account;
+  const method = chargeableMethod(account, current);
+  if (!method || isDeclinedCard(method)) {
+    const stopped: StoredAccount = { ...account, subscription: { ...current, autoRenew: false } };
+    return withAlert(stopped, 'paymentFailed', { method: method?.kind ?? 'card', date: current.endsAt }, accountPath('billing'));
+  }
+  const lines: InvoiceLine[] = [{ kind: 'plan', planId: current.planId, duration: current.duration, members: current.members, amount: current.total }, ...reductions(account, current.total)];
+  const invoice = makeInvoice(account, lines, method.kind, 'paid');
+  // The new period starts where the old one ended, or today when that one would be over too (the demo wasn't open).
+  const fromEnd = periodFrom(new Date(current.endsAt), current.duration);
+  const period = new Date(fromEnd.endsAt) > now ? fromEnd : periodFrom(now, current.duration);
+  const subscription: Subscription = { ...current, ...period, paid: invoice.total };
+  return { ...account, subscription, balance: account.balance - usedBalance(lines), invoices: [invoice, ...account.invoices] };
+};
 
 export const billingApi = {
   // Checks a promo code: the share it takes off the first payment.

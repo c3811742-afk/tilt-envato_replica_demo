@@ -2,6 +2,7 @@ import {
   accountPath,
   auth,
   defaultLicensingPreference,
+  itemPath,
   licenseCheckPath,
   notificationTopics,
   renewalReminderDays,
@@ -245,14 +246,17 @@ export const withAlert = (account: StoredAccount, kind: AlertKind, params: Alert
 
 const dayMs = 24 * 60 * 60 * 1000;
 
-// Adds the renewal reminder when a plan that renews is within the reminder window (once per renewal date).
+// Adds a reminder when a plan's period ends within the reminder window (once per end date): it renews on that day,
+// or, when it won't renew (auto-renew off or canceled), it ends then and can be renewed before it does.
 export const withDueReminders = (account: StoredAccount, now: Date = new Date()): StoredAccount => {
   const subscription = account.subscription;
-  if (!subscription || subscription.status !== 'active' || !subscription.autoRenew || subscription.canceledAt) return account;
+  if (!subscription || subscription.status !== 'active') return account;
+  const renews = subscription.autoRenew && !subscription.canceledAt;
+  const kind = renews ? 'renewalReminder' : 'planEnding';
   const daysLeft = (new Date(subscription.endsAt).getTime() - now.getTime()) / dayMs;
-  const alreadySent = account.alerts.some((alert) => alert.kind === 'renewalReminder' && alert.params.date === subscription.endsAt);
+  const alreadySent = account.alerts.some((alert) => alert.kind === kind && alert.params.date === subscription.endsAt);
   if (daysLeft < 0 || daysLeft > renewalReminderDays || alreadySent) return account;
-  return withAlert(account, 'renewalReminder', { plan: subscription.planId, date: subscription.endsAt, total: String(subscription.total) }, accountPath('plan'));
+  return withAlert(account, kind, { plan: subscription.planId, date: subscription.endsAt, total: String(subscription.total) }, accountPath('plan'));
 };
 
 // ---------- License server ----------
@@ -317,6 +321,14 @@ export const recordItemRemoved = (itemId: string, title: string) => {
     ),
   );
 };
+
+// A creator published something new: everyone who follows them is told, with a link to it.
+export const notifyFollowers = (creatorId: string, creatorName: string, itemId: string, title: string) =>
+  writeAccounts(
+    readAccounts().map((account) =>
+      account.following.includes(creatorId) ? withAlert(account, 'creatorPublished', { creator: creatorName, title }, itemPath(itemId)) : account,
+    ),
+  );
 
 // An item is back in the library (a creator's element turned on again or republished after an appeal).
 export const recordItemRestored = (itemId: string) => {

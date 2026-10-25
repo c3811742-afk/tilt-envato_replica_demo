@@ -1,10 +1,10 @@
 import { mockItems } from '@/shared/mocks';
-import { accountPath, itemPath, renewalReminderDays, type RevokeReason, type SuspensionReason } from '@/shared/constants';
+import { accountPath, renewalReminderDays, type RevokeReason, type SuspensionReason } from '@/shared/constants';
 import {
   call,
   findByEmail,
   newAccount,
-  readAccounts,
+  notifyFollowers,
   readCatalogEvents,
   readLicenses,
   recordItemRemoved,
@@ -15,7 +15,6 @@ import {
   teamOf,
   toSessionAccount,
   withAlert,
-  writeAccounts,
   writeCatalogEvents,
   withDueReminders,
 } from './accountStore';
@@ -76,13 +75,7 @@ export const demoApi = {
       if (!item) throw new ApiError('collectionNotFound');
       const events = readCatalogEvents();
       writeCatalogEvents({ ...events, publishedAt: { ...events.publishedAt, [item.id]: new Date().toISOString() } });
-      writeAccounts(
-        readAccounts().map((account) =>
-          account.following.includes(creatorId)
-            ? withAlert(account, 'creatorPublished', { creator: item.creator.name, title: originalTitle(item) }, itemPath(item.id))
-            : account,
-        ),
-      );
+      notifyFollowers(creatorId, item.creator.name, item.id, originalTitle(item));
       return toSessionAccount(signedInAccount());
     }),
 

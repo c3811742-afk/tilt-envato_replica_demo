@@ -1727,6 +1727,7 @@ export const ar: TextShape<typeof en> = {
   alerts: {
     empty: 'لا توجد إشعارات للحساب بعد.',
     renewalReminder: 'تتجدد باقة {plan} في {date} بسعر {price}.',
+    planEnding: 'تنتهي باقة {plan} في {date}. جدّدها لتستمر في التنزيل.',
     paymentFailed: 'لم تتم إحدى عمليات الدفع. راجع وسيلة الدفع في الفواتير والدفع.',
     itemRemoved: 'تمت إزالة "{title}" من المكتبة. ترخيصك لا يزال ساريًا.',
     licenseRevoked: 'تم سحب ترخيصك للعنصر "{title}": {reason}',
@@ -1784,10 +1785,16 @@ export const ar: TextShape<typeof en> = {
       soundEffect: { name: 'مؤثرات صوتية', description: 'اصنع مؤثرًا صوتيًا قصيرًا من وصفك.' },
     },
     shortcutsTitle: 'تعديلات سريعة',
+    shortcutsText: 'بنقرة واحدة على صورة أنشأتها أو رفعتها. تجدها أيضًا على كل نتيجة.',
     shortcuts: {
       relight: 'تغيير الإضاءة',
       backgroundSwap: 'تبديل الخلفية',
       cameraMotion: 'حركة كاميرا',
+    },
+    shortcutDescriptions: {
+      relight: 'غيّر الإضاءة في صورة.',
+      backgroundSwap: 'ضع خلفية جديدة خلف العنصر.',
+      cameraMotion: 'حوّل صورة إلى مقطع قصير بحركة كاميرا.',
     },
     open: 'فتح',
     history: 'السجل',

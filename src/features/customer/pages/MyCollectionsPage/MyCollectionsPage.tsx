@@ -4,6 +4,7 @@ import { Button, EmptyState, FieldMessage, Grid, Icon, Page, SearchBar, Segmente
 import { collectionScopeParam, myCollectionPath } from '@/shared/constants';
 import { useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
+import type { UserCollection } from '@/shared/types';
 import { collectionTree, fillText, formatNumber, libraryApi, matchesText, safeAsync } from '@/shared/utils';
 import {
   CollectionActions,
@@ -34,6 +35,8 @@ export const MyCollectionsPage = () => {
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [dialog, setDialog] = useState<Dialog>(null);
+  // The collection whose own menu was used (on its card); otherwise the dialogs act on the selection.
+  const [target, setTarget] = useState<UserCollection | null>(null);
   const [error, setError] = useState<string>();
   const collections = scope === 'team' ? (team?.collections ?? []) : session.status === 'signedIn' ? session.user.collections : [];
 
@@ -41,7 +44,23 @@ export const MyCollectionsPage = () => {
   const shown = query.trim()
     ? collectionTree(collections).filter(({ collection }) => matchesText(query, collection.name))
     : collectionTree(collections).filter(({ depth }) => depth === 0);
-  const single = selected.length === 1 ? collections.find((collection) => collection.id === selected[0]) : undefined;
+  const single = target ?? (selected.length === 1 ? collections.find((collection) => collection.id === selected[0]) : undefined);
+  const closeDialog = () => {
+    setDialog(null);
+    setTarget(null);
+  };
+
+  // A card's own menu: pin or unpin right away, or open the dialog for that one collection.
+  const cardAction = async (collection: UserCollection, action: Exclude<Dialog, 'new' | 'import' | null> | 'pin') => {
+    if (action !== 'pin') {
+      setTarget(collection);
+      setDialog(action);
+      return;
+    }
+    const result = await safeAsync(() => libraryApi.setPinned(collection.id, !collection.pinned));
+    if (result.ok) setAccount(result.data);
+    setError(result.ok ? undefined : requestError(result.error));
+  };
   const allPinned = selected.length > 0 && selected.every((id) => collections.find((collection) => collection.id === id)?.pinned);
 
   const toggle = (id: string, on: boolean) => setSelected((current) => (on ? [...current, id] : current.filter((other) => other !== id)));
@@ -76,29 +95,25 @@ export const MyCollectionsPage = () => {
           options={(['own', 'team'] as const).map((key) => ({ value: key, label: text.myCollections.scopes[key] }))}
         />
       )}
-      {/* The site's search bar (without the catalog's extra tools), then the page's actions as icon buttons. */}
-      <Stack direction="row" align="center" gap={vars.spacing[2]}>
+      {/* The site's search bar (without the catalog's extra tools), then the page's actions, named. */}
+      <Stack direction="row" wrap align="center" gap={vars.spacing[2]}>
         <Stack grow>
           <SearchBar suggest={false} label={text.myCollections.search} placeholder={text.myCollections.search} onChange={setQuery} onSearch={setQuery} />
         </Stack>
-        <Button iconOnly tooltip={text.myCollections.new} onClick={() => setDialog('new')}>
-          <Icon name="plus" size={vars.sizes.icon.md} />
+        <Button onClick={() => setDialog('new')}>
+          <Icon name="plus" size={vars.sizes.icon.sm} />
+          {text.myCollections.new}
         </Button>
         {scope === 'own' && (
-          <Button variant="outline" iconOnly tooltip={text.myCollections.import} tooltipAlign={collections.length > 0 ? 'center' : 'end'} onClick={() => setDialog('import')}>
-            <Icon name="upload" size={vars.sizes.icon.md} />
+          <Button variant="outline" onClick={() => setDialog('import')}>
+            <Icon name="upload" size={vars.sizes.icon.sm} />
+            {text.myCollections.import}
           </Button>
         )}
         {collections.length > 0 && (
-          <Button
-            variant="outline"
-            iconOnly
-            tooltip={selecting ? text.myCollections.cancelSelect : text.myCollections.select}
-            tooltipAlign="end"
-            pressed={selecting}
-            onClick={() => (selecting ? stopSelecting() : setSelecting(true))}
-          >
-            <Icon name="check" size={vars.sizes.icon.md} />
+          <Button variant="outline" pressed={selecting} onClick={() => (selecting ? stopSelecting() : setSelecting(true))}>
+            <Icon name={selecting ? 'close' : 'check'} size={vars.sizes.icon.sm} />
+            {selecting ? text.myCollections.cancelSelect : text.myCollections.select}
           </Button>
         )}
       </Stack>
@@ -114,6 +129,7 @@ export const MyCollectionsPage = () => {
           </TextLink>
           <span className={styles.spacer} />
           <CollectionActions
+            labelled
             shown={['share', 'delete']}
             pinned={allPinned}
             canEditOne={single !== undefined}
@@ -146,6 +162,7 @@ export const MyCollectionsPage = () => {
               selecting={selecting}
               selected={selected.includes(collection.id)}
               onToggle={(on) => toggle(collection.id, on)}
+              actions={<CollectionActions shown={[]} pinned={collection.pinned} onAction={(action) => void cardAction(collection, action)} />}
             />
           ))}
         </Grid>
@@ -153,10 +170,10 @@ export const MyCollectionsPage = () => {
 
       {dialog === 'new' && <CollectionNameDialog team={scope === 'team'} onClose={() => setDialog(null)} onCreated={(id) => navigate(myCollectionPath(id))} />}
       {dialog === 'import' && <ImportDialog onClose={() => setDialog(null)} onImported={(id) => navigate(myCollectionPath(id))} />}
-      {dialog === 'rename' && single && <CollectionNameDialog collection={single} onClose={() => setDialog(null)} />}
-      {dialog === 'move' && single && <MoveCollectionDialog collection={single} collections={collections} onClose={() => setDialog(null)} />}
-      {dialog === 'share' && single && <ShareCollectionDialog collection={single} onClose={() => setDialog(null)} />}
-      {dialog === 'delete' && <DeleteCollectionsDialog ids={selected} onClose={() => setDialog(null)} onDeleted={stopSelecting} />}
+      {dialog === 'rename' && single && <CollectionNameDialog collection={single} onClose={closeDialog} />}
+      {dialog === 'move' && single && <MoveCollectionDialog collection={single} collections={collections} onClose={closeDialog} />}
+      {dialog === 'share' && single && <ShareCollectionDialog collection={single} onClose={closeDialog} />}
+      {dialog === 'delete' && <DeleteCollectionsDialog ids={target ? [target.id] : selected} onClose={closeDialog} onDeleted={stopSelecting} />}
     </Page>
   );
 };

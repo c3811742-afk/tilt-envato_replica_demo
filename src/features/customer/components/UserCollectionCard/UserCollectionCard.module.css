@@ -1,3 +1,14 @@
+/* The card's own actions sit over its bottom end corner, next to (not inside) its link. */
+.card {
+  position: relative;
+}
+
+.actions {
+  position: absolute;
+  inset-block-end: var(--spacing-3);
+  inset-inline-end: var(--spacing-3);
+}
+
 /* The shared card shape, so a collection is the same size as the item cards next to it. */
 .tile {
   composes: tile from '@/shared/styles/cards.module.css';

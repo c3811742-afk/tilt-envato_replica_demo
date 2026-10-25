@@ -1728,6 +1728,7 @@ export const en = {
   alerts: {
     empty: 'No account notifications yet.',
     renewalReminder: 'Your {plan} plan renews on {date} for {price}.',
+    planEnding: 'Your {plan} plan ends on {date}. Renew it to keep downloading.',
     paymentFailed: "A payment didn't go through. Check your payment method in Billing.",
     itemRemoved: '"{title}" was removed from the library. Your license is still valid.',
     licenseRevoked: 'Your license for "{title}" was revoked: {reason}',
@@ -1785,10 +1786,16 @@ export const en = {
       soundEffect: { name: 'Sound effects', description: 'Make a short sound effect from a description.' },
     },
     shortcutsTitle: 'Quick edits',
+    shortcutsText: 'One click on an image you made or uploaded. You also find them on every result.',
     shortcuts: {
       relight: 'Relight',
       backgroundSwap: 'Swap background',
       cameraMotion: 'Camera motion',
+    },
+    shortcutDescriptions: {
+      relight: 'Change the light on an image.',
+      backgroundSwap: 'Put a new background behind the subject.',
+      cameraMotion: 'Turn an image into a short clip with a moving camera.',
     },
     open: 'Open',
     history: 'History',

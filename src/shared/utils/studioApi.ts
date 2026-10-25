@@ -10,7 +10,7 @@ import {
 import { mockItems } from '@/shared/mocks';
 import type { Locale } from '@/shared/theme';
 import type { CategoryId, Creator, Item, StudioClaim, StudioElement, StudioFile, StudioPayout, StudioReview, StudioSource } from '@/shared/types';
-import { call, findById, recordItemRemoved, recordItemRestored, randomDigits, readAccounts, saveAccount, signedInAccount, toSessionAccount, withAlert, writeAccounts, type StoredAccount } from './accountStore';
+import { call, findById, notifyFollowers, recordItemRemoved, recordItemRestored, randomDigits, readAccounts, saveAccount, signedInAccount, toSessionAccount, withAlert, writeAccounts, type StoredAccount } from './accountStore';
 import { ApiError } from './apiError';
 import { creatorApplicationDetails, creatorApplicationStatus, latestCreatorApplication } from './creatorApi';
 import { fileStore } from './fileStore';
@@ -484,6 +484,8 @@ export const applyStudioReview = (elementId: string, review: StudioReview) => {
     // An accepted update replaces the live version; files only the old version used are deleted.
     if (liveVersion) void removeFiles(unusedFiles(liveVersion, element));
     saveStudioElement({ ...element, status: 'live', review, liveVersion: undefined, publishedAt: element.publishedAt ?? review.at });
+    // Its first time live: the creator's followers are told (an accepted update isn't new).
+    if (!element.publishedAt) notifyFollowers(element.creatorId, element.creatorName, element.id, element.title[element.language]);
   } else if (review.decision === 'hardRejected' && liveVersion) {
     // An update that can't be accepted is dropped: the live version stays as it was.
     void removeFiles(unusedFiles(element, liveVersion));

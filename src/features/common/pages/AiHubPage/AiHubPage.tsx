@@ -1,5 +1,5 @@
 import { Badge, Button, Card, FaqAccordion, Grid, Icon, Page, Section, Stack, Text } from '@/shared/components';
-import { aiToolGroupKeys, aiToolGroups, aiToolIcons, aiToolPath, routes } from '@/shared/constants';
+import { aiShortcutIcons, aiShortcuts, aiToolGroupKeys, aiToolGroups, aiToolIcons, aiToolPath, routes } from '@/shared/constants';
 import { useLocale, useSession, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import { accountCredits, aiSettingsStore, aiToolAccess, isAiToolOn } from '@/shared/utils';
@@ -47,6 +47,23 @@ export const AiHubPage = () => {
           </Grid>
         </Section>
       ))}
+
+      {/* One-click edits on an image: they also show on every result, and open here with the image picked. */}
+      <Section title={text.ai.shortcutsTitle} subtitle={text.ai.shortcutsText}>
+        <Grid minColumnWidth={vars.sizes.card.minWidth} gap={vars.spacing[4]} ariaLabel={text.ai.shortcutsTitle}>
+          {aiShortcuts.map((shortcut) => (
+            <li key={shortcut}>
+              <Card to={aiToolPath(shortcut)} gap={vars.spacing[3]}>
+                <Icon name={aiShortcutIcons[shortcut]} size={vars.sizes.icon.lg} color={vars.colors.primary} />
+                <Text as="h3" variant="h4">
+                  {text.ai.shortcuts[shortcut]}
+                </Text>
+                <Text color={vars.colors.textMuted}>{text.ai.shortcutDescriptions[shortcut]}</Text>
+              </Card>
+            </li>
+          ))}
+        </Grid>
+      </Section>
 
       <Section title={text.ai.faqTitle}>
         <FaqAccordion entries={text.ai.faq} />

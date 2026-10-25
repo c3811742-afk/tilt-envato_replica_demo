@@ -23,6 +23,7 @@ import {
   type SessionAccount,
 } from './accountStore';
 import { ApiError } from './apiError';
+import { withAutoRenewal } from './billingApi';
 import { withDueAnnouncements, withOccasionReminders } from './studioApi';
 import { nameFromEmail } from './session';
 import { storage } from './storage';
@@ -49,7 +50,7 @@ export const authApi = {
   // A due renewal reminder is added here, since the demo has no server running in the background.
   currentAccount: (): SessionAccount | null => {
     const account = signedInAccountOrNull();
-    return account ? toSessionAccount(saveAccount(withDueAnnouncements(withOccasionReminders(withDueReminders(account))))) : null;
+    return account ? toSessionAccount(saveAccount(withDueAnnouncements(withOccasionReminders(withDueReminders(withAutoRenewal(account)))))) : null;
   },
 
   // The signed-in account as saved, without writing anything: for following changes made in another tab. Writing

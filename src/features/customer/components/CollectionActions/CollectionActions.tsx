@@ -7,7 +7,8 @@ export type CollectionAction = 'rename' | 'move' | 'share' | 'pin' | 'delete';
 
 interface CollectionActionsProps {
   onAction: (action: CollectionAction) => void;
-  shown?: CollectionAction[]; // as icon buttons (name on hover); the rest go in the "More actions" menu
+  shown?: CollectionAction[]; // as buttons; the rest go in the "More actions" menu
+  labelled?: boolean; // the shown buttons say their name (otherwise icons, with the name on hover)
   extraItems?: MenuItem[]; // more menu entries, listed first (e.g. "New collection inside")
   pinned?: boolean; // "Unpin" instead of "Pin"
   canEditOne?: boolean; // rename, move and share work on exactly one collection
@@ -25,6 +26,7 @@ export const CollectionActions = ({
   canEditOne = true,
   canEditAny = true,
   size = 'sm',
+  labelled = false,
 }: CollectionActionsProps) => {
   const { text } = useLocale();
 
@@ -47,8 +49,9 @@ export const CollectionActions = ({
       {actions
         .filter(({ key }) => shown.includes(key))
         .map(({ key, icon, label, enabled }) => (
-          <Button key={key} variant="outline" size={size} iconOnly tooltip={label} disabled={!enabled} onClick={() => onAction(key)}>
+          <Button key={key} variant="outline" size={size} iconOnly={!labelled} tooltip={labelled ? undefined : label} disabled={!enabled} onClick={() => onAction(key)}>
             <Icon name={icon} size={vars.sizes.icon.sm} />
+            {labelled && label}
           </Button>
         ))}
       {menuItems.length > 0 && <Menu label={text.common.moreActions} items={menuItems} />}

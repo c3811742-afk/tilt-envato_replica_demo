@@ -26,7 +26,8 @@ export const AlertsList = ({ alerts, unread }: { alerts: Alert[]; unread: string
   const message = ({ kind, params }: Alert) => {
     switch (kind) {
       case 'renewalReminder':
-        return fillText(text.alerts.renewalReminder, {
+      case 'planEnding':
+        return fillText(text.alerts[kind], {
           plan: text.pricing.plans[params.plan as PlanId]?.name ?? '',
           date: formatDate(params.date, locale),
           price: price(Number(params.total)),

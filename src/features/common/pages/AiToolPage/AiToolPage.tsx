@@ -37,7 +37,7 @@ export const AiToolPage = () => {
     );
   }
 
-  const description = tool in text.ai.tools ? text.ai.tools[tool as keyof typeof text.ai.tools].description : text.ai.shortcutsTitle;
+  const description = tool in text.ai.tools ? text.ai.tools[tool as keyof typeof text.ai.tools].description : text.ai.shortcutDescriptions[tool as keyof typeof text.ai.shortcutDescriptions];
   const credits = session.status === 'signedIn' ? accountCredits(session) : null;
   // The team's settings: a tool can be off for everyone, or not included in this plan.
   const access = (aiTools as readonly string[]).includes(tool)

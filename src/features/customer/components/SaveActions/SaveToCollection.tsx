@@ -86,6 +86,7 @@ const CollectionPicker = ({ itemId, collections, teamCollections }: CollectionPi
   const [nameError, setNameError] = useState<string>();
 
   const toggle = (collectionId: string) => run(() => libraryApi.toggleInCollection(collectionId, itemId));
+  const pinned = [...collections, ...(teamCollections ?? [])].filter((collection) => collection.pinned);
 
   const create = async () => {
     if (!name.trim()) {
@@ -104,21 +105,23 @@ const CollectionPicker = ({ itemId, collections, teamCollections }: CollectionPi
         </Text>
       ) : (
         <Stack gap={vars.spacing[4]}>
+          {/* Pinned collections first, on their own: saving to them is one click at the top of the panel. */}
           {[
-            { key: 'own' as const, list: collections },
-            { key: 'team' as const, list: teamCollections ?? [] },
+            { key: 'pinned', title: text.myCollections.pinned, rows: pinned.map((collection) => ({ collection, depth: 0 })) },
+            { key: 'own', title: text.myCollections.scopes.own, rows: collectionTree(collections) },
+            { key: 'team', title: text.myCollections.scopes.team, rows: collectionTree(teamCollections ?? []) },
           ]
-            .filter((group) => group.list.length > 0)
-            .map((group) => (
+            .filter((group) => group.rows.length > 0)
+            .map((group, _index, groups) => (
               <Stack key={group.key} gap={vars.spacing[2]}>
-                {teamCollections && (
+                {groups.length > 1 && (
                   <Text as="h3" variant="label" color={vars.colors.textMuted}>
-                    {text.myCollections.scopes[group.key]}
+                    {group.title}
                   </Text>
                 )}
                 <Stack as="ul" gap={vars.spacing[2]}>
-                  {collectionTree(group.list).map(({ collection, depth }) => (
-                    <li key={collection.id} className={styles.row} style={{ '--depth': depth } as CSSProperties}>
+                  {group.rows.map(({ collection, depth }) => (
+                    <li key={`${group.key}-${collection.id}`} className={styles.row} style={{ '--depth': depth } as CSSProperties}>
                       <Checkbox label={collection.name} checked={collection.itemIds.includes(itemId)} disabled={busy} onChange={() => void toggle(collection.id)} />
                     </li>
                   ))}
