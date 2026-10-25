@@ -1,0 +1,39 @@
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-index-behind);
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  pointer-events: none;
+}
+
+[dir='rtl'] .background {
+  transform: scaleX(-1);
+}
+
+.line {
+  fill: none;
+  stroke-width: var(--page-background-stroke-width);
+  vector-effect: non-scaling-stroke;
+}
+
+.lineStart {
+  stop-color: var(--page-background-color);
+  stop-opacity: var(--page-background-opacity);
+}
+
+.lineEnd {
+  stop-color: var(--page-background-color);
+  stop-opacity: var(--opacity-none);
+}
+
+.highlightStart {
+  stop-color: var(--page-background-highlight-color);
+  stop-opacity: var(--page-background-highlight-opacity);
+}
+
+.highlightEnd {
+  stop-color: var(--page-background-highlight-color);
+  stop-opacity: var(--opacity-none);
+}

@@ -1,0 +1,81 @@
+import { storageKeys, type PartnerProgram } from '@/shared/constants';
+import { call, normalizeEmail, randomDigits } from './accountStore';
+import { storage } from './storage';
+import type { CreatorIdentity, CreatorPayoutAccount } from '@/shared/types';
+
+// The newsletter list and program applications, kept in this browser for the demo.
+
+// A list kept in this browser's storage (empty when missing or corrupted).
+export const readList = <T>(key: string): T[] => {
+  const saved = storage.get(key);
+  if (!saved) return [];
+  try {
+    const parsed: unknown = JSON.parse(saved);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
+const subscribers = () => readList<string>(storageKeys.newsletter);
+
+// An application to sell on TILT as a creator (from the creator application).
+export interface AuthorApplication {
+  kind: 'author';
+  name: string;
+  email: string;
+  portfolio: string;
+  categories: string[];
+  about?: string; // what they make, in their words
+  accountId?: string; // the applicant's account, so the decision reaches them
+  identity?: CreatorIdentity; // the ID they sent, checked by the team before their first payout
+  payout?: CreatorPayoutAccount; // where their earnings are sent
+}
+
+export interface PartnerApplication {
+  kind: PartnerProgram;
+  name: string;
+  email: string;
+  website: string;
+  audience: string;
+  message: string;
+}
+
+// An application as stored, with the admin team's decision once there is one.
+export type SavedApplication = (AuthorApplication | PartnerApplication) & {
+  reference: string;
+  at: string;
+  status?: 'pending' | 'approved' | 'rejected';
+  decision?: { reason?: string; note: string; adminName: string; at: string };
+};
+
+export const readApplications = () => readList<SavedApplication>(storageKeys.applications);
+export const saveApplications = (list: SavedApplication[]) => storage.set(storageKeys.applications, JSON.stringify(list));
+
+export const resourcesApi = {
+  isSubscribed: (email: string) => subscribers().includes(normalizeEmail(email)),
+
+  // Signs up for the newsletter (signing up again changes nothing).
+  subscribe: (email: string) =>
+    call(() => {
+      const address = normalizeEmail(email);
+      storage.set(storageKeys.newsletter, JSON.stringify([...subscribers().filter((saved) => saved !== address), address]));
+      return address;
+    }),
+
+  unsubscribe: (email: string) =>
+    call(() => {
+      const address = normalizeEmail(email);
+      storage.set(storageKeys.newsletter, JSON.stringify(subscribers().filter((saved) => saved !== address)));
+      return address;
+    }),
+
+  // An application to become a creator or a partner. Returns its reference number.
+  apply: (application: AuthorApplication | PartnerApplication) =>
+    call(() => {
+      const reference = `APP-${randomDigits(6)}`;
+      saveApplications([...readApplications(), { ...application, reference, at: new Date().toISOString() }]);
+      return reference;
+    }),
+};

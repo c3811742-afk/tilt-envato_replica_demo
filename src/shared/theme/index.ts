@@ -1,9 +1,11 @@
-export { themes, theme } from './themes';
-export type { Theme } from './themes';
+export { buildTheme, theme, defaultThemeOptions } from './themes';
+export type { Theme, ThemeOptions } from './themes';
 export { vars, toCssVariables, applyTheme } from './cssVariables';
-export { fontsUrl } from './typography';
+export { fontsUrl, previewFonts } from './typography';
+export type { PreviewFont } from './typography';
 export { mediaQuery, customMedia } from './breakpoints';
-export { locales, defaultLocale, isLocale, nextLocale } from './locales';
+export { locales, localeCodes, defaultLocale, isLocale } from './locales';
 export type { Locale, Direction } from './locales';
-export type { AccentName } from './colors';
+export { colorModes, accentThemes, defaultAccentTheme } from './colors';
+export type { AccentName, AccentTheme, ColorMode } from './colors';
 export type { Breakpoint } from './breakpoints';

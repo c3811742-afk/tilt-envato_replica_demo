@@ -1,0 +1,61 @@
+.topBar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-index-sticky);
+  border-block-end: var(--top-bar-accent-width) var(--borders-style) var(--top-bar-accent);
+  background: var(--colors-surface);
+}
+
+.fullWidth {
+  padding-inline: var(--sizes-container-padding-x);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  min-block-size: var(--sizes-header-height);
+}
+
+.brand {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--colors-text);
+  text-decoration: none;
+}
+
+.logo {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-body);
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+/* Phones search from the page itself; the search and the row of links appear from tablet width up. */
+.search,
+.below {
+  display: none;
+}
+
+@media (--md-up) {
+  .search {
+    display: block;
+    flex: 1;
+    min-inline-size: 0; /* shrinks before the buttons next to it do */
+  }
+
+  .below {
+    display: block;
+    border-block-start: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  }
+}

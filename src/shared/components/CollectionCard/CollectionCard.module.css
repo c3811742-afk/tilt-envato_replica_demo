@@ -1,0 +1,16 @@
+.mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--borders-width-thin);
+  background: var(--collection-accent);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+}

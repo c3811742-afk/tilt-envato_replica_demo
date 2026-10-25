@@ -14,4 +14,11 @@ export const storage = {
       // Unavailable: the value just isn't remembered.
     }
   },
+  remove: (key: string) => {
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      // Unavailable: there was nothing stored to remove.
+    }
+  },
 };

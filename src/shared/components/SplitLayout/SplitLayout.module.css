@@ -1,0 +1,31 @@
+.layout {
+  display: grid;
+  gap: var(--split-gap);
+}
+
+.column {
+  min-inline-size: 0;
+}
+
+@media (--lg-up) {
+  .layout {
+    grid-template-columns: var(--split-columns);
+    align-items: start;
+  }
+
+  /* Stays under the sticky header (both its rows) while the main column scrolls. */
+  .sticky {
+    --split-sticky-top: calc(var(--sizes-header-total-height) + var(--spacing-5));
+
+    position: sticky;
+    inset-block-start: var(--split-sticky-top);
+  }
+
+  /* A panel taller than the screen scrolls on its own, so its end is always reachable. */
+  .scrollable {
+    max-block-size: calc(100dvh - var(--split-sticky-top) - var(--spacing-5));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-inline-end: var(--spacing-2); /* keeps the scrollbar off the panel's content */
+  }
+}

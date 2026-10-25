@@ -1,0 +1,9 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-block-size: var(--sizes-viewport-full-height);
+}
+
+.main {
+  padding-block: var(--spacing-6) var(--spacing-8);
+}

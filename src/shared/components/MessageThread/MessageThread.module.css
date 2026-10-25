@@ -1,0 +1,5 @@
+/* The team's replies sit slightly in from the start side, so the two voices are easy to follow. */
+.fromTeam {
+  padding-inline-start: var(--spacing-4);
+  border-inline-start: var(--borders-width-thick) var(--borders-style) var(--colors-primary);
+}

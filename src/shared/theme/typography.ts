@@ -1,8 +1,33 @@
 import type { Locale } from './locales';
 
-// Closest Google Fonts matches to the SYNC lettering. Load `fontsUrl` once, globally.
-export const fontsUrl =
-  'https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,700;0,800;0,900;1,800;1,900&family=Cairo:wght@400;700;900&family=Lalezar&family=Space+Mono:wght@400;700&display=swap';
+// Open fonts used for the live previews of font items (each font item names one). The browser only downloads
+// the files of a font when it's shown, so listing them here costs nothing until a preview needs one.
+export const previewFonts = [
+  'Reem Kufi',
+  'Noto Naskh Arabic',
+  'Cairo',
+  'Aref Ruqaa',
+  'Stardos Stencil',
+  'Rakkas',
+  'El Messiri',
+  'Changa',
+  'Tajawal',
+  'Lemonada',
+  'Playfair Display',
+  'Bebas Neue',
+  'Pacifico',
+  'Syncopate',
+] as const;
+
+export type PreviewFont = (typeof previewFonts)[number];
+
+// Closest Google Fonts matches to the SYNC lettering, plus the preview fonts. Load `fontsUrl` once, globally.
+const uiFamilies = 'family=Archivo:ital,wght@0,400;0,500;0,700;0,800;0,900;1,800;1,900&family=Cairo:wght@400;700;900&family=Lalezar&family=Space+Mono:wght@400;700';
+const previewFamilies = previewFonts
+  .filter((family) => family !== 'Cairo') // already loaded for the interface
+  .map((family) => `family=${family.replace(/ /g, '+')}`)
+  .join('&');
+export const fontsUrl = `https://fonts.googleapis.com/css2?${uiFamilies}&${previewFamilies}&display=swap`;
 
 // Each stack falls back to the other script's font, so mixed English/Arabic text renders correctly.
 const fontStack = {
@@ -82,6 +107,7 @@ const buildTypography = (locale: Locale) => {
     h4: textStyle('body', 'lg', fontWeight.bold, 'snug', caps),
     body: textStyle('body', 'md', fontWeight.regular, 'body'),
     bodySm: textStyle('body', 'sm', fontWeight.regular, 'body'),
+    title: textStyle('body', 'md', fontWeight.bold, 'snug'), // card and list titles (no uppercase)
     caption: textStyle('body', 'xs', fontWeight.bold, 'snug', caps),
     label: textStyle('mono', 'xs', fontWeight.bold, 'snug', caps, 'wide'),
     button: textStyle('display', 'md', displayWeight, 'tight', caps, 'caps'),

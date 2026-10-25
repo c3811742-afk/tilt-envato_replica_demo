@@ -1,0 +1,57 @@
+.stepper {
+  display: grid;
+  gap: var(--spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (--md-up) {
+  .stepper {
+    grid-template-columns: repeat(var(--stepper-count), minmax(0, 1fr));
+    gap: var(--spacing-3);
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.bar {
+  block-size: var(--spacing-1);
+  background: var(--stepper-upcoming);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.marker {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--sizes-icon-lg);
+  block-size: var(--sizes-icon-lg);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+  color: var(--colors-text-muted);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.done .bar,
+.current .bar {
+  background: var(--stepper-active);
+}
+
+.done .marker,
+.current .marker {
+  border-color: var(--stepper-active);
+  background: var(--stepper-active);
+  color: var(--stepper-active-text);
+}

@@ -1,0 +1,35 @@
+.dropdown {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-block-size: var(--dropdown-trigger-height);
+  padding-inline: var(--spacing-3);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  color: var(--colors-text);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.square {
+  justify-content: center;
+  inline-size: var(--dropdown-trigger-height);
+  padding-inline: 0;
+}
+
+/* Opens under the button, lined up with its end edge (mirrors in Arabic). */
+.panel {
+  composes: popover from '@/shared/styles/surfaces.module.css';
+  inset-block-start: calc(100% + var(--spacing-2));
+  inset-inline-end: 0;
+  inline-size: var(--dropdown-width);
+}
+
+/* Opens toward the end side instead, when the start side has no room (set by the component). */
+.flipped {
+  inset-inline: 0 auto;
+}

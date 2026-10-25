@@ -1,0 +1,24 @@
+/* Laid out like the admin's tables: a bordered surface, rows padded like table cells, with a divider between them. */
+.list {
+  max-block-size: var(--item-picker-max-height);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  list-style: none;
+}
+
+.row {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border-muted);
+}
+
+.row:last-child {
+  border-block-end: none;
+}
+
+/* A chosen item stands out, like a selected row. */
+.chosen {
+  background: var(--colors-surface-muted);
+}

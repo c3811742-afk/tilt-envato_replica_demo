@@ -1,0 +1,15 @@
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--avatar-size);
+  block-size: var(--avatar-size);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--radii-full);
+  background: var(--avatar-background);
+  color: var(--avatar-color);
+  font-family: var(--text-styles-h4-font-family);
+  font-size: var(--avatar-font-size);
+  font-weight: var(--font-weight-black);
+}

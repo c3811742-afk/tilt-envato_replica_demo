@@ -1,0 +1,23 @@
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: var(--sizes-track-bar-gap);
+  inline-size: 100%;
+  block-size: var(--waveform-height);
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.bar {
+  flex: 1;
+  block-size: var(--bar-height);
+  background: var(--waveform-color);
+  opacity: var(--opacity-faint);
+}
+
+.played {
+  background: var(--waveform-played);
+  opacity: var(--opacity-full);
+}

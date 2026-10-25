@@ -1,0 +1,11 @@
+/* Shared surface styles. Use them from a CSS module with `composes`, never copy them. */
+
+/* A floating panel over the page (dropdowns, hover menus). Position it in the composing class. */
+.popover {
+  position: absolute;
+  z-index: var(--z-index-dropdown);
+  padding: var(--spacing-4);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--colors-surface);
+  box-shadow: var(--shadows-hard);
+}

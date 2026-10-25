@@ -1,0 +1,107 @@
+/* Phones and tablets: the button, then the panel when it's open, then the page. */
+.phoneToggle {
+  padding: var(--spacing-3) var(--sizes-container-padding-x) 0;
+}
+
+.rail {
+  display: none;
+  border-block-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  background: var(--sidebar-layout-background);
+  color: var(--sidebar-layout-color);
+}
+
+.open {
+  display: block;
+  margin-block-start: var(--spacing-3);
+}
+
+.sidebar {
+  padding: var(--spacing-3) var(--sizes-container-padding-x) var(--spacing-5);
+}
+
+.main {
+  min-inline-size: 0;
+}
+
+/* Folding is a desktop thing: on phones the panel opens and closes with the button above the page. */
+.handle {
+  display: none;
+}
+
+@media (--lg-up) {
+  .layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-layout-width) minmax(0, 1fr);
+    transition: grid-template-columns var(--motion-base) var(--motion-ease); /* folding slides the panel */
+  }
+
+  .phoneToggle {
+    display: none;
+  }
+
+  /* Reaches the footer: the space the app leaves under every page moves inside the main column. */
+  .reachFooter {
+    margin-block-end: calc(-1 * var(--sizes-page-end-space));
+  }
+
+  .reachFooter .main {
+    padding-block-end: var(--sizes-page-end-space);
+  }
+
+  /* The panel's background and edge, the full height of the page, so it joins the top bar (and the footer). */
+  .rail {
+    position: relative;
+    display: block;
+    margin-block-start: 0;
+    border-block-end: 0;
+    border-inline-end: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  }
+
+  /* The panel's content: in view under the top bar, the height of the screen, scrolling on its own. */
+  .sidebar {
+    position: sticky;
+    inset-block-start: var(--sidebar-layout-top);
+    max-block-size: calc(var(--sizes-viewport-full-height) - var(--sidebar-layout-top));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--spacing-3) var(--spacing-5) var(--spacing-6);
+  }
+
+  /* Folded: the panel is tucked away; its edge and tab stay. */
+  .folded {
+    overflow: hidden;
+    padding-inline: 0;
+  }
+
+  /* Follows the page under the top bar, so the tab is always within reach. */
+  .handle {
+    position: sticky;
+    inset-block-start: var(--sidebar-layout-top);
+    z-index: var(--z-index-sticky);
+    display: block;
+    block-size: 0;
+  }
+
+  /* The tab sticks out of the panel's edge: the panel's own background, its border carried round, open on the
+     panel's side so the two read as one piece. */
+  .tab {
+    position: absolute;
+    inset-block-start: var(--spacing-4);
+    inset-inline-start: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--sizes-sidebar-tab-width);
+    block-size: var(--sizes-sidebar-tab-height);
+    padding: 0;
+    border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+    border-inline-start: 0;
+    background: var(--sidebar-layout-background);
+    color: var(--sidebar-layout-color);
+    cursor: pointer;
+  }
+
+  .tab:hover {
+    background: var(--colors-surface-muted);
+  }
+}

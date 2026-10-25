@@ -1,0 +1,22 @@
+/* Quiet on purpose: muted grey text with a chevron, no underline; full text color on hover. */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--spacing-1);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--colors-text-muted);
+  font-family: var(--text-styles-body-sm-font-family);
+  font-size: var(--text-styles-body-sm-font-size);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--text-styles-body-sm-line-height);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.backLink:hover,
+.backLink:focus-visible {
+  color: var(--colors-text);
+}

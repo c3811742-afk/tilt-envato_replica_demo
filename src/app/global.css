@@ -5,8 +5,12 @@
   box-sizing: border-box;
 }
 
+/* Scrollbars follow the theme: a slim brand-color thumb on the surface color. Both properties are inherited,
+   so the page and every scrolling panel (filters, menus, dialogs) match, in light and dark mode. */
 html {
   font-size: var(--root-font-size);
+  scrollbar-color: var(--colors-primary) var(--colors-surface);
+  scrollbar-width: thin;
 }
 
 body {
@@ -34,6 +38,26 @@ select,
 textarea {
   font: inherit;
   color: inherit;
+}
+
+/* One focus ring for every interactive element: keyboard users always see where they are. */
+:focus-visible {
+  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
+  outline-offset: 0;
+}
+
+/* Lists and definition lists styled by a component start without browser spacing or bullets. */
+ul[class],
+ol[class],
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+ul[class],
+ol[class] {
+  list-style: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

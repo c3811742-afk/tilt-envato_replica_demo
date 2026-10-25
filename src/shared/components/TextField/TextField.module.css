@@ -1,0 +1,56 @@
+.control {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--sizes-input-height);
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+  border-radius: var(--radii-none);
+  background: var(--colors-surface);
+}
+
+/* The ring goes around the whole field, prefix and end button included. */
+.control:focus-within {
+  outline: var(--borders-width-thick) var(--borders-style) var(--colors-focus);
+}
+
+.prefix {
+  padding-inline-start: var(--sizes-input-padding-x);
+  color: var(--colors-text-muted);
+  font-weight: var(--font-weight-bold);
+}
+
+.input {
+  flex: 1;
+  align-self: stretch;
+  min-inline-size: 0;
+  padding-inline: var(--sizes-input-padding-x);
+  border: none;
+  background: transparent;
+  color: var(--colors-text);
+  font-size: var(--text-styles-body-font-size);
+}
+
+.multiline {
+  padding-block: var(--spacing-3);
+  font-family: inherit;
+  line-height: var(--text-styles-body-line-height);
+  resize: vertical;
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+.disabled {
+  opacity: var(--opacity-disabled);
+}
+
+.invalid {
+  border-color: var(--colors-danger);
+}
+
+/* A button inside the field (e.g. "Apply", "Show password"): kept off the field's border. */
+.endAction {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding-inline-end: var(--spacing-1);
+}

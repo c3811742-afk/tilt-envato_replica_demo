@@ -1,0 +1,25 @@
+.preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  max-block-size: var(--sizes-media-preview-max-height);
+  aspect-ratio: var(--media-preview-aspect-ratio);
+  overflow: hidden;
+  background: var(--media-preview-background);
+}
+
+.bordered {
+  border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+}
+
+.media {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: var(--media-preview-fit);
+}
+
+.audio {
+  inline-size: 100%;
+  padding-inline: var(--spacing-4);
+}

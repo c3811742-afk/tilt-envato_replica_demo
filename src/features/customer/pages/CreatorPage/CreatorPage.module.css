@@ -1,0 +1,7 @@
+.page {
+  padding-block-start: var(--spacing-6);
+}
+
+.bio {
+  max-inline-size: var(--sizes-readable-max-width);
+}

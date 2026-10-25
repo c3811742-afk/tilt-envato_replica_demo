@@ -1,1 +1,83 @@
 export type { TextShape } from './text';
+export type { CookieConsent } from './consent';
+export { categoryIds } from './catalog';
+export type {
+  AssetCredit,
+  CategoryId,
+  Category,
+  LocalizedText,
+  Creator,
+  ItemTier,
+  TrackVersion,
+  MusicInfo,
+  FontInfo,
+  Item,
+  FilterValues,
+  Facets,
+  SoundProfile,
+  SearchQuery,
+  Page,
+  SearchResults,
+  CatalogStats,
+  CreatorProfile,
+  Collection,
+  CollectionWithItems,
+  SearchSuggestion,
+  SearchReport, AnnouncementAudience, SiteAnnouncement } from './catalog';
+export type {
+  PlanId,
+  PromoCode,
+  CreditTier,
+  Plan,
+  PassId,
+  ProjectPass,
+  UserProfile,
+  NotificationSettings,
+  LicensingSettings,
+  BillingAddress,
+  StudentStatus,
+  SavedPaymentMethod,
+  InvoiceLine,
+  InvoiceStatus,
+  Invoice,
+  TaxDocument,
+  Download,
+  YoutubeChannel,
+  UploadRef,
+  UserCollection,
+  Alert,
+  Generation,
+  User,
+  SubscriptionStatus,
+  Subscription,
+  PassPurchase,
+  Session,
+  SupportRequest,
+  SupportReply,
+  CopyrightReport,
+  Suspension,
+  AiRequest,
+  GenerationOutput,
+  TeamRole,
+  InviteRole,
+  TeamMember,
+  TeamInvite,
+  Team,
+  TeamSession,
+  TeamInvitation,
+  License,
+  LicenseRecord,
+} from './account';
+export type {
+  LegalPageId,
+  SiteArticle,
+  SiteArticleKind,
+  SiteArticleStatus,
+  SiteFaq,
+  SiteLegalPage, LocalizedList, HelpArticle, LearnGuide, BlogPost, CourseLesson, Course, Job, NewsPost } from './content';
+export type { Banner, FeaturedKind, FeaturedSlot, FreeElements, HomepageSettings, Occasion as HomepageOccasion } from './homepage';
+export type { AiContentRules, AiCostKey, AiSettings, AiToolSetting, BlockedGeneration, BlockedStage, ContentRuleKey } from './aiSettings';
+export type { EmptySearch, SentSearchReport } from './catalog';
+export type { Program, ProgramInput, ProgramKind, ProgramStatus } from './programs';
+export type { IdType, PayoutMethod, TaxStatus, FileInfo, CreatorApplication, CreatorApplicationReceipt, CreatorIdentity, CreatorPayoutAccount } from './creator';
+export type { StudioFile, StudioSource, StudioReview, StudioAppeal, StudioElement, StudioPayout, StudioPayoutStatus, PayoutRules, StudioClaim, StudioElementStats } from './studio';

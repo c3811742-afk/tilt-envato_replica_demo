@@ -1,0 +1,5 @@
+.banner {
+  padding-block: var(--spacing-2);
+  background: var(--colors-primary);
+  color: var(--colors-on-primary);
+}

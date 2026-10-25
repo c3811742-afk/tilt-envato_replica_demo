@@ -1,0 +1,109 @@
+import { mockItems } from '@/shared/mocks';
+import { accountPath, renewalReminderDays, type RevokeReason, type SuspensionReason } from '@/shared/constants';
+import {
+  call,
+  findByEmail,
+  newAccount,
+  notifyFollowers,
+  readCatalogEvents,
+  readLicenses,
+  recordItemRemoved,
+  revokeLicenseRecord,
+  saveAccount,
+  saveTeam,
+  signedInAccount,
+  teamOf,
+  toSessionAccount,
+  withAlert,
+  writeCatalogEvents,
+  withDueReminders,
+} from './accountStore';
+import { ApiError } from './apiError';
+import { originalTitle } from './itemText';
+
+const dayMs = 24 * 60 * 60 * 1000;
+
+// Takes an item out of the library: it no longer shows in search, and everyone who downloaded it is told
+// (their licenses stay valid). Used by the demo page and by the admin. False when there is no such item.
+export const removeItemFromLibrary = (itemId: string) => {
+  const item = mockItems.find((candidate) => candidate.id === itemId);
+  if (!item) return false;
+  recordItemRemoved(itemId, originalTitle(item));
+  return true;
+};
+
+// Things that happen to an account over time (a renewal coming up, a payment failing, a creator publishing).
+// The demo page triggers them on demand so each notification can be seen.
+export const demoApi = {
+  // Moves the plan's renewal to a few days from now, which sends the renewal reminder.
+  renewalSoon: () =>
+    call(() => {
+      const account = signedInAccount();
+      if (!account.subscription) throw new ApiError('noActivePlan');
+      const endsAt = new Date(Date.now() + (renewalReminderDays - 4) * dayMs);
+      const startedAt = new Date(endsAt);
+      startedAt.setMonth(startedAt.getMonth() - account.subscription.duration);
+      const subscription = { ...account.subscription, startedAt: startedAt.toISOString(), endsAt: endsAt.toISOString(), autoRenew: true, canceledAt: undefined };
+      return toSessionAccount(saveAccount(withDueReminders({ ...account, subscription })));
+    }),
+
+  // A renewal payment that failed.
+  paymentFailed: () =>
+    call(() => toSessionAccount(saveAccount(withAlert(signedInAccount(), 'paymentFailed', { method: 'card' }, accountPath('billing'))))),
+
+  // Removes an item from the library. Everyone who licensed it is told; their licenses stay valid.
+  removeItem: (itemId: string) =>
+    call(() => {
+      if (!removeItemFromLibrary(itemId)) throw new ApiError('itemRemoved');
+      return toSessionAccount(signedInAccount());
+    }),
+
+  // Revokes the user's newest license, with a reason.
+  revokeLatestLicense: (reason: RevokeReason) =>
+    call(() => {
+      const account = signedInAccount();
+      const latest = readLicenses().find((license) => license.ownerId === account.id && !license.revoked);
+      if (!latest) throw new ApiError('noDownloadAccess');
+      revokeLicenseRecord(latest.code, reason);
+      return toSessionAccount(signedInAccount());
+    }),
+
+  // A creator publishes a new item: everyone who follows them is told.
+  creatorPublishes: (creatorId: string) =>
+    call(() => {
+      const item = mockItems.find((candidate) => candidate.creator.id === creatorId);
+      if (!item) throw new ApiError('collectionNotFound');
+      const events = readCatalogEvents();
+      writeCatalogEvents({ ...events, publishedAt: { ...events.publishedAt, [item.id]: new Date().toISOString() } });
+      notifyFollowers(creatorId, item.creator.name, item.id, originalTitle(item));
+      return toSessionAccount(signedInAccount());
+    }),
+
+  // Someone accepts the team's oldest invitation (an account is made for them), so the team can be tried out alone.
+  teammateJoins: () =>
+    call(() => {
+      const account = signedInAccount();
+      const team = teamOf(account.id);
+      const invite = team?.invites[0];
+      if (!team || !invite) throw new ApiError('inviteNotFound');
+      const teammate = findByEmail(invite.email) ?? saveAccount(newAccount({ name: invite.email.split('@')[0], email: invite.email, emailVerified: true, passwordHash: null, linkedProviders: [] }, 'en'));
+      saveTeam({
+        ...team,
+        members: [...team.members, { accountId: teammate.id, name: teammate.name, email: teammate.email, role: invite.role, joinedAt: new Date().toISOString() }],
+        invites: team.invites.filter((candidate) => candidate.id !== invite.id),
+      });
+      return toSessionAccount(signedInAccount());
+    }),
+
+  // Suspends the account with a reason (the user is told why and can appeal), or lifts the suspension.
+  suspend: (reason: SuspensionReason) =>
+    call(() => toSessionAccount(saveAccount({ ...signedInAccount(), suspension: { reason, at: new Date().toISOString(), appeal: null } }))),
+
+  liftSuspension: () => call(() => toSessionAccount(saveAccount({ ...signedInAccount(), suspension: null }))),
+
+  // Puts removed and published items back the way they were.
+  resetCatalog: () =>
+    call(() => {
+      writeCatalogEvents({ removedItemIds: {}, publishedAt: {} });
+    }),
+};

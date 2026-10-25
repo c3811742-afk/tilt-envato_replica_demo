@@ -1,0 +1,5 @@
+.logo {
+  flex-shrink: 0;
+  inline-size: var(--brand-logo-size);
+  block-size: var(--brand-logo-size);
+}

@@ -1,0 +1,11 @@
+/* Shared accessibility styles. Use them from a CSS module with `composes`, never copy them. */
+
+/* Read by screen readers, not shown (e.g. the label of a search box that shows a placeholder). */
+.offscreen {
+  position: absolute;
+  inline-size: var(--sizes-hairline);
+  block-size: var(--sizes-hairline);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
