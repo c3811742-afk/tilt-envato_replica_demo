@@ -3,7 +3,16 @@ import { Button, Card, DetailList, Meter, Modal, Stack, Table, Text } from '@/sh
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Session } from '@/shared/types';
-import { accountAllowance, accountCredits, fillText, formatDate, formatNumber, planUsage, operationName } from '@/shared/utils';
+import {
+  accountAllowance,
+  accountCredits,
+  fillText,
+  formatCount,
+  formatDate,
+  formatNumber,
+  operationName,
+  planUsage,
+} from '@/shared/utils';
 
 type SignedIn = Extract<Session, { status: 'signedIn' }>;
 
@@ -47,7 +56,7 @@ export const UsageMeters = ({ session }: { session: SignedIn }) => {
           />
           <Stack direction="row" wrap align="center" justify="space-between" gap={vars.spacing[2]}>
             <Text variant="bodySm" color={vars.colors.textMuted}>
-              {fillText(text.planPage.creditsLeft, { count: count(credits.remaining) })}
+              {formatCount(text.planPage.creditsLeft, credits.remaining, locale)}
             </Text>
             <Button variant="outline" size="sm" onClick={() => setDetailsOpen(true)}>
               {text.planPage.creditDetails}
@@ -74,7 +83,7 @@ const CreditDetailsDialog = ({ session, onClose }: { session: SignedIn; onClose:
       <DetailList
         rows={[
           { label: text.planPage.creditsTitle, value: fillText(text.planPage.creditAllowance, { total: formatNumber(credits.total, locale) }) },
-          { label: text.pricing.compare.concurrent, value: fillText(text.planPage.concurrent, { count: formatNumber(credits.concurrent, locale) }) },
+          { label: text.pricing.compare.concurrent, value: formatCount(text.planPage.concurrent, credits.concurrent, locale) },
           { label: text.pricing.compare.models, value: credits.models.map((model) => text.ai.models[model]).join(', ') },
         ]}
       />

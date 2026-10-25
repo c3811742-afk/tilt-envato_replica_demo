@@ -1,5 +1,6 @@
 import { locales, type Locale } from '@/shared/theme';
 import { currency, displayCurrencies, type DisplayCurrency } from '@/shared/constants';
+import type { Creator } from '@/shared/types';
 import { fillText } from './fillText';
 
 const intlTag = (locale: Locale) => locales[locale].intl;
@@ -10,8 +11,11 @@ export const formatNumber = (value: number, locale: Locale) => new Intl.NumberFo
 // Text files give 'other' and any forms the language needs; a missing form falls back to 'other'.
 export type CountForms = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string };
 
+// The form of a text for a count ("1 item" / "2 items"), before the count is filled in.
+export const countForm = (forms: CountForms, count: number, locale: Locale) => forms[new Intl.PluralRules(intlTag(locale)).select(count)] ?? forms.other;
+
 export const formatCount = (forms: CountForms, count: number, locale: Locale) =>
-  fillText(forms[new Intl.PluralRules(intlTag(locale)).select(count)] ?? forms.other, { count: formatNumber(count, locale) });
+  fillText(countForm(forms, count, locale), { count: formatNumber(count, locale) });
 
 // 12500 -> "13K" / "13 ألف"
 export const formatCompactNumber = (value: number, locale: Locale) =>
@@ -32,6 +36,13 @@ export const formatPrice = (amount: number, locale: Locale, currencyCode: Displa
 // A country's name in the active language: "EG" -> "Egypt" / "مصر".
 export const formatCountry = (code: string, locale: Locale) =>
   new Intl.DisplayNames([intlTag(locale)], { type: 'region' }).of(code) ?? code;
+
+// Where a creator is: "Cairo, Egypt" with `pattern` ("{city}, {country}"), or only the country when there's no city.
+export const formatCreatorLocation = (creator: Pick<Creator, 'city' | 'country'>, pattern: string, locale: Locale) => {
+  const country = formatCountry(creator.country, locale);
+  const city = creator.city[locale].trim();
+  return city ? fillText(pattern, { city, country }) : country;
+};
 
 // A language's name in the active language: "ar" -> "Arabic" / "العربية".
 export const formatLanguageName = (code: string, locale: Locale) =>

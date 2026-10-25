@@ -5,7 +5,7 @@ import { catalog, categoryFilters, searchPath } from '@/shared/constants';
 import { useLocale, usePagedAsync, useSearchFilters, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Facets, Item, SearchResults } from '@/shared/types';
-import { api, countSelectedFilters, fillText, formatNumber, preferences } from '@/shared/utils';
+import { api, countSelectedFilters, fillText, formatCount, formatNumber, preferences } from '@/shared/utils';
 import { ChipLinks, SearchBox } from '@/features/customer/components';
 import { ActiveFilters } from './ActiveFilters';
 import { FilterPanel } from './FilterPanel';
@@ -99,7 +99,7 @@ export const SearchPage = () => {
         headerContent={
           results.state.status === 'success' && (
             <Text color={vars.colors.textMuted}>
-              {fillText(text.search.resultCount, { count: formatNumber(total, locale) })}
+              {formatCount(text.search.resultCount, total, locale)}
             </Text>
           )
         }

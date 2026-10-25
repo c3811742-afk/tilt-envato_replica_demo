@@ -96,7 +96,21 @@ export const arabicStemMinLength = 3;
 
 // Descriptive searches ("calm oud music for a Ramadan video") match items that have most of the words:
 // with more than `strictWordCount` words, an item needs this share of them.
+// When that finds fewer than `minResults` items, the closest ones are shown too (any of the words, most matches first),
+// so "a logo for my coffee shop" shows the logos and the coffee items instead of nothing.
 export const naturalSearch = {
   strictWordCount: 2,
   minMatchShare: 0.6,
+  minResults: 6,
+} as const;
+
+// How much a match in each part of an item counts. A title says what the item is, so it counts most: "Wedding
+// Slideshow" ranks above a font tagged "wedding" for invitations.
+export const searchWeights = {
+  title: 4,
+  tag: 3,
+  tagWord: 2,
+  meta: 1.5,
+  creator: 1,
+  description: 0.5,
 } as const;

@@ -6,6 +6,7 @@ export { safeAsync, isEmptyData } from './safeAsync';
 export type { Result } from './safeAsync';
 export {
   formatNumber,
+  countForm,
   formatCount,
   formatCompactNumber,
   formatPercent,
@@ -13,6 +14,7 @@ export {
   formatDate,
   formatFileSize,
   formatCountry,
+  formatCreatorLocation,
   formatCurrencyName,
   formatLanguageName,
   formatDuration,
@@ -45,7 +47,7 @@ export type { AddedLanguage, CategorySettings, SiteLanguageOption, TagEdits } fr
 export { textEditStore, withTextEdits } from './siteText';
 export { aiSettingsStore, aiCost, aiCostKeys, defaultAiCosts, aiToolSetting, aiToolAccess, isAiToolOn, blockedPhraseIn, aiBlockedStore } from './siteAi';
 export type { TextEdits } from './siteText';
-export { homepageStore, isShowingOn, currentOccasion, currentBanner, featuredIds, freeItemIdsThisMonth } from './siteHomepage';
+export { homepageStore, isShowingOn, currentOccasion, currentBanner, featuredIds, freeItemIdsThisMonth, freeItemIdsNow } from './siteHomepage';
 export { faqStore, faqGroups, legalPageStore, legalPage, articleStore, helpArticles, learnGuides, publishedReleaseNotes } from './siteContent';
 export type { StoredValue } from './storedValue';
 export { preferences } from './preferences';
@@ -179,6 +181,7 @@ export { creatorApi, creatorApplicationStatus, subscribeToApplications, applicat
 export type { CreatorApplicationStatus } from './creatorApi';
 export { studioApi, studioDemo, isApprovedCreator, isEditableElement, canAppeal, applyStudioAppealDecision, applyStudioPayoutDecision, withDueAnnouncements, missingForReview, libraryItems, studioCreators, applyStudioReview, applyStudioUnpublish } from './studioApi';
 export { readStudioClaims, readStudioElements, readStudioPayouts } from './studioStore';
+export { loadStudioPreviews, studioFileUrl, studioPreview } from './studioPreviews';
 export type { StudioChanges, StudioMissing } from './studioApi';
 export { earningsByMonth, earningsOf, studioBalance, translateDraft } from './studio';
 export type { StudioBalance, StudioDay } from './studio';

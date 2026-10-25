@@ -1,7 +1,8 @@
-import { fontCategories, fontSpacings, musicMoods, optimumSizes, studioEarnings, type MusicMood } from '@/shared/constants';
+import { bilingualTerms, fontCategories, fontSpacings, musicMoods, optimumSizes, studioEarnings, type MusicMood } from '@/shared/constants';
 import { previewFonts, type Locale } from '@/shared/theme';
 import type { Creator, Item, StudioElement, StudioPayout } from '@/shared/types';
 import { seededRandom } from './ai';
+import { studioPreview } from './studioPreviews';
 
 const dayMs = 24 * 60 * 60 * 1000;
 
@@ -68,85 +69,16 @@ export const studioBalance = (days: StudioDay[], payouts: StudioPayout[], minimu
 
 // ---------- Translation ----------
 
-// Words that come up in element titles and tags, both ways. The demo has no translation service: anything not in
-// this list is kept as written, and the creator reviews and corrects the result.
-const glossary: [string, string][] = [
-  ['ramadan', 'رمضان'],
-  ['eid', 'عيد'],
-  ['wedding', 'زفاف'],
-  ['invitation', 'دعوة'],
-  ['graduation', 'تخرج'],
-  ['birthday', 'عيد ميلاد'],
-  ['logo', 'شعار'],
-  ['intro', 'مقدمة'],
-  ['opener', 'افتتاحية'],
-  ['template', 'قالب'],
-  ['video', 'فيديو'],
-  ['music', 'موسيقى'],
-  ['sound', 'صوت'],
-  ['font', 'خط'],
-  ['arabic', 'عربي'],
-  ['english', 'إنجليزي'],
-  ['poster', 'ملصق'],
-  ['flyer', 'منشور'],
-  ['menu', 'قائمة طعام'],
-  ['restaurant', 'مطعم'],
-  ['story', 'ستوري'],
-  ['instagram', 'إنستجرام'],
-  ['social', 'سوشيال'],
-  ['media', 'ميديا'],
-  ['presentation', 'عرض تقديمي'],
-  ['business', 'أعمال'],
-  ['modern', 'عصري'],
-  ['minimal', 'بسيط'],
-  ['elegant', 'أنيق'],
-  ['gold', 'ذهبي'],
-  ['blue', 'أزرق'],
-  ['calm', 'هادئ'],
-  ['happy', 'سعيد'],
-  ['energetic', 'حماسي'],
-  ['cinematic', 'سينمائي'],
-  ['oud', 'عود'],
-  ['piano', 'بيانو'],
-  ['guitar', 'جيتار'],
-  ['drums', 'طبول'],
-  ['loop', 'لوب'],
-  ['beat', 'إيقاع'],
-  ['morning', 'صباح'],
-  ['school', 'مدرسة'],
-  ['kids', 'أطفال'],
-  ['education', 'تعليم'],
-  ['travel', 'سفر'],
-  ['nature', 'طبيعة'],
-  ['summer', 'صيف'],
-  ['winter', 'شتاء'],
-  ['slideshow', 'عرض شرائح'],
-  ['transition', 'انتقال'],
-  ['title', 'عنوان'],
-  ['icon', 'أيقونة'],
-  ['pattern', 'نقش'],
-  ['night', 'ليل'],
-  ['city', 'مدينة'],
-  ['cairo', 'القاهرة'],
-  ['nile', 'النيل'],
-  ['desert', 'صحراء'],
-  ['photo', 'صورة'],
-  ['pack', 'مجموعة'],
-  ['kit', 'حزمة'],
-  ['background', 'خلفية'],
-  ['frame', 'إطار'],
-  ['greeting', 'تهنئة'],
-  ['card', 'بطاقة'],
-  ['sale', 'تخفيضات'],
-  ['and', 'و'],
-  ['for', 'لـ'],
-  ['with', 'مع'],
-];
-
 // A first translation for the creator to review: known words are swapped, the rest is kept as written.
 export const translateDraft = (value: string, from: Locale, to: Locale) => {
   if (from === to || !value.trim()) return value;
-  const lookup = new Map(glossary.map(([en, ar]) => (from === 'en' ? [en, ar] : [ar, en])));
+  // The demo has no translation service: words in the shared list are swapped (their usual translation), the rest
+  // is kept as written, and the creator reviews and corrects the result.
+  const lookup = new Map<string, string>();
+  for (const [en, ar] of bilingualTerms) {
+    const [source, target] = from === 'en' ? [en, ar] : [ar, en];
+    if (!lookup.has(source)) lookup.set(source, target);
+  }
   return value
     .split(/(\s+)/)
     .map((word) => {
@@ -172,6 +104,8 @@ export const studioItem = (element: StudioElement, creator: Creator, downloads: 
     creator,
     tags: [...new Set([...element.tags.en, ...element.tags.ar])],
     accent: creator.accent,
+    image: studioPreview(element, 'image')?.url,
+    previewVideo: studioPreview(element, 'video')?.url,
     tier: 'premium',
     formats: [...new Set(element.files.map((file) => (file.name.split('.').pop() ?? '').toUpperCase()).filter(Boolean))],
     fileSize: element.files.reduce((sum, file) => sum + file.size, 0),

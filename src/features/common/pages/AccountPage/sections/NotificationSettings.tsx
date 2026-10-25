@@ -22,7 +22,8 @@ export const NotificationSettings = () => {
   });
   const phone = `${phoneCountryCode} ${(user.profile?.phone ?? '').replace(/^0/, '')}`;
   const preview = texts[form.values.language].emailPreview;
-  const firstDownload = user.downloads[0]?.itemTitle ?? text.notifications.title;
+  // The latest download, or a sample item before the user has downloaded anything.
+  const firstDownload = user.downloads[0]?.itemTitle ?? preview.sampleItem;
 
   return (
     <Stack gap={vars.spacing[8]}>

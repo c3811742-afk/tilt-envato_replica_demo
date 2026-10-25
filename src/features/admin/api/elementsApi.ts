@@ -10,6 +10,7 @@ import {
   originalTitle,
   readCatalogEvents,
   readStudioElements,
+  studioPreview,
   removeItemFromLibrary,
 } from '@/shared/utils';
 import { AdminApiError } from './errors';
@@ -69,6 +70,7 @@ const fromStudio = (current: StudioElement): CatalogElement => {
     bilingual: element.bilingual,
     creator: { id: element.creatorId, name: element.creatorName },
     files: element.files.map((file) => ({ name: file.name, sizeBytes: file.size })),
+    ...firstPreview(element),
     sources: element.sources,
     submittedAt: element.submittedAt ?? element.createdAt,
     publishedAt: element.publishedAt,
@@ -76,6 +78,16 @@ const fromStudio = (current: StudioElement): CatalogElement => {
     status: element.status === 'disabled' ? 'unpublished' : (element.status as CatalogElement['status']),
     source: 'creator',
   };
+};
+
+// A creator's preview for the review page: its link, and whether it's an image, a video or audio.
+const firstPreview = (element: StudioElement): Pick<CatalogElement, 'previewUrl' | 'previewKind'> => {
+  const kinds = ['video', 'image', 'audio'] as const;
+  for (const kind of kinds) {
+    const preview = studioPreview(element, kind);
+    if (preview) return { previewUrl: preview.url, previewKind: kind };
+  }
+  return {};
 };
 
 // Elements customers can see: the site's library and creators' submissions (the rest is the admin's demo data).

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Badge, Button, Divider, Dropdown, FieldMessage, Icon, Stack, Text, TextLink } from '@/shared/components';
-import { accountPath, accountSections, routes } from '@/shared/constants';
+import { accountPath, accountSections, routes, tabPath } from '@/shared/constants';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Subscription, User } from '@/shared/types';
-import { fillText, formatDate, formatNumber, isSubscriptionActive, unreadCount } from '@/shared/utils';
+import { fillText, formatDate, formatNumber, isSubscriptionActive, unreadCount, unreadReleaseNotes } from '@/shared/utils';
 import styles from './AccountMenu.module.css';
 
 interface AccountMenuProps {
@@ -20,6 +20,7 @@ export const AccountMenu = ({ user, subscription }: AccountMenuProps) => {
   const navigate = useNavigate();
   const [signOutFailed, setSignOutFailed] = useState(false);
   const unread = unreadCount(user);
+  const unreadNotes = unreadReleaseNotes(user).length;
 
   const planStatus = (() => {
     if (!subscription) return text.auth.noPlan;
@@ -111,6 +112,12 @@ export const AccountMenu = ({ user, subscription }: AccountMenuProps) => {
               <TextLink to={routes.notifications} variant="bodySm" underline={false}>
                 {text.nav.notifications}
                 {unread > 0 && <Badge variant="highlight">{formatNumber(unread, locale)}</Badge>}
+              </TextLink>
+            </li>
+            <li>
+              <TextLink to={tabPath(routes.notifications, 'updates')} variant="bodySm" underline={false}>
+                {text.notifications.tabs.updates}
+                {unreadNotes > 0 && <Badge variant="highlight">{formatNumber(unreadNotes, locale)}</Badge>}
               </TextLink>
             </li>
           </Stack>

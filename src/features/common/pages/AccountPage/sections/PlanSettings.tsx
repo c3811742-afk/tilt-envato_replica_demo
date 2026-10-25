@@ -5,7 +5,16 @@ import { cardPaymentMethods, planChangeParam, routes } from '@/shared/constants'
 import { useAccountAction, useAsync, useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { PlanId, Subscription } from '@/shared/types';
-import { api, billingApi, fillText, formatDate, formatNumber, isSubscriptionActive, type SessionAccount } from '@/shared/utils';
+import {
+  api,
+  billingApi,
+  fillText,
+  formatCount,
+  formatDate,
+  formatNumber,
+  isSubscriptionActive,
+  type SessionAccount,
+} from '@/shared/utils';
 import { ChangePlanDialog } from './plan/ChangePlanDialog';
 import { StudentVerification } from './plan/StudentVerification';
 import { UsageMeters } from './plan/UsageMeters';
@@ -115,7 +124,7 @@ const CurrentPlan = ({ subscription, onDialog }: { subscription: Subscription; o
         <Text variant="bodySm" color={vars.colors.textMuted}>
           {[
             text.pricing.durations[`month${subscription.duration}`],
-            subscription.members > 1 ? fillText(text.planPage.seats, { count: formatNumber(subscription.members, locale) }) : null,
+            subscription.members > 1 ? formatCount(text.planPage.seats, subscription.members, locale) : null,
             fillText(text.planPage.creditAllowance, { total: formatNumber(subscription.credits, locale) }),
           ]
             .filter(Boolean)

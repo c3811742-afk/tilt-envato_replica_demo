@@ -1,5 +1,5 @@
 import { collectionMaxDepth, uploadKinds, uploadMaxBytes, youtubeChannelPattern, type BrokenDownloadReason, type LicenseUse, type UploadKind } from '@/shared/constants';
-import { mockItems, mockLicenses } from '@/shared/mocks';
+import { mockLicenses } from '@/shared/mocks';
 import type { Download, Item, LicenseRecord, PassPurchase, Subscription, Team, TeamSession, UserCollection } from '@/shared/types';
 import {
   call,
@@ -22,12 +22,12 @@ import { fileStore } from './fileStore';
 import { originalTitle } from './itemText';
 import { createLicenseCode } from './license';
 import { creditAllowance } from './ai';
+import { freeItemIdsNow } from './siteHomepage';
 import { libraryItems, reportStudioBrokenFile } from './studioApi';
 import { collectionWithDescendants, downloadAllowance, itemIdFromLink } from './library';
 
 // Downloads and licenses, favorites, collections, follows and YouTube channels (the demo keeps them in this browser).
 
-const freeItemIds = new Set(mockItems.filter((item) => item.tier === 'free').map((item) => item.id));
 
 interface UsageSource {
   user: Pick<StoredAccount, 'downloads' | 'generations'>;
@@ -41,7 +41,7 @@ export const planUsage = ({ user, team }: UsageSource) =>
   team?.usesTeamPlan ? { downloads: team.downloads, generations: team.generations } : { downloads: user.downloads, generations: user.generations };
 
 // How many downloads the signed-in user (or their team) has left, for showing it before a download.
-export const accountAllowance = (source: UsageSource) => downloadAllowance(planUsage(source).downloads, source.subscription, source.pass, freeItemIds);
+export const accountAllowance = (source: UsageSource) => downloadAllowance(planUsage(source).downloads, source.subscription, source.pass, freeItemIdsNow());
 
 // The AI credits the signed-in user (or their team) has this month.
 export const accountCredits = (source: UsageSource) => creditAllowance(planUsage(source).generations, source.subscription);
@@ -58,6 +58,7 @@ const issueLicense = (account: StoredAccount, { item, projectName, use }: Licens
   if (readCatalogEvents().removedItemIds[item.id]) throw new ApiError('itemRemoved');
   const access = planAccess(account);
   const team = access.viaTeam ? teamOf(account.id) : null;
+  const freeItemIds = freeItemIdsNow();
   if (!freeItemIds.has(item.id)) {
     const used = access.pool.flatMap((member) => member.downloads);
     const allowance = downloadAllowance(used, access.subscription, account.pass, freeItemIds);

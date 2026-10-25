@@ -24,7 +24,7 @@
 }
 
 /* Folding is a desktop thing: on phones the panel opens and closes with the button above the page. */
-.toggle {
+.handle {
   display: none;
 }
 
@@ -50,6 +50,7 @@
 
   /* The panel's background and edge, the full height of the page, so it joins the top bar (and the footer). */
   .rail {
+    position: relative;
     display: block;
     margin-block-start: 0;
     border-block-end: 0;
@@ -66,20 +67,41 @@
     padding: var(--spacing-3) var(--spacing-5) var(--spacing-6);
   }
 
-  /* Folded: only the button that opens it again, centered in the strip. */
+  /* Folded: the panel is tucked away; its edge and tab stay. */
   .folded {
     overflow: hidden;
-    padding-inline: var(--spacing-2);
+    padding-inline: 0;
   }
 
-  /* The fold button sits at the panel's top end corner, beside the page. */
-  .toggle {
+  /* Follows the page under the top bar, so the tab is always within reach. */
+  .handle {
+    position: sticky;
+    inset-block-start: var(--sidebar-layout-top);
+    z-index: var(--z-index-sticky);
+    display: block;
+    block-size: 0;
+  }
+
+  /* The tab sticks out of the panel's edge: the panel's own background, its border carried round, open on the
+     panel's side so the two read as one piece. */
+  .tab {
+    position: absolute;
+    inset-block-start: var(--spacing-4);
+    inset-inline-start: 100%;
     display: flex;
-    justify-content: flex-end;
-    margin-block-end: var(--spacing-2);
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--sizes-sidebar-tab-width);
+    block-size: var(--sizes-sidebar-tab-height);
+    padding: 0;
+    border: var(--borders-width-thin) var(--borders-style) var(--colors-border);
+    border-inline-start: 0;
+    background: var(--sidebar-layout-background);
+    color: var(--sidebar-layout-color);
+    cursor: pointer;
   }
 
-  .folded .toggle {
-    justify-content: center;
+  .tab:hover {
+    background: var(--colors-surface-muted);
   }
 }

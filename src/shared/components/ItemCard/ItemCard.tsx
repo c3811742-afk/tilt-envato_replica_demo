@@ -36,7 +36,8 @@ export const ItemCard = (props: ItemCardProps) => {
             icon={categoryIcons[item.categoryId]}
             seed={item.id}
             sample={item.font && { family: item.font.family, text: item.font.arabic ? `${fontSpecimen.latin} ${fontSpecimen.arabic}` : fontSpecimen.latin }}
-            previewOnHover={preview && kind === 'video'}
+            previewOnHover={preview && (kind === 'video' || Boolean(item.previewVideo))}
+            video={item.previewVideo}
             fill
           />
           <span className={styles.tier}>

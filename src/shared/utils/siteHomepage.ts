@@ -47,3 +47,8 @@ export const featuredIds = (kind: 'element' | 'collection') =>
 // This month's free items, or null when the team hasn't chosen any.
 export const freeItemIdsThisMonth = (day: string = today()) =>
   homepageStore.get().freeElements.find((entry) => entry.month === day.slice(0, 7))?.elementIds ?? null;
+
+// The items anyone with an account can download this month without a plan: the team's picks for the month, or the
+// library's own free items when it hasn't picked any. Every page and the download check use this.
+export const freeItemIdsNow = (day: string = today()): ReadonlySet<string> =>
+  new Set(freeItemIdsThisMonth(day) ?? mockItems.filter((item) => item.tier === 'free').map((item) => item.id));

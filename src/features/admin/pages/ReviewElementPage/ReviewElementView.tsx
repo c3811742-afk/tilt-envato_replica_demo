@@ -86,7 +86,7 @@ export const ReviewElementView = ({ element: loaded }: { element: CatalogElement
         stickyAside={false}
         main={
         <Stack>
-          <MediaPreview kind={previewKind(element.type)} src={element.previewUrl} alt={element.title} />
+          <MediaPreview kind={element.previewKind ?? previewKind(element.type)} src={element.previewUrl} alt={element.title} />
 
           <Card title={t.details}>
             <DetailList

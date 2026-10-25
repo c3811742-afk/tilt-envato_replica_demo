@@ -2,7 +2,7 @@ import { adminErrorCode } from '@/features/admin/api';
 import type { AuditEntry } from '@/features/admin/types';
 import type { Text } from '@/shared/constants';
 import type { Locale } from '@/shared/theme';
-import { fillText, formatList, formatNumber, formatPrice, isolate } from '@/shared/utils';
+import { fillText, formatCount, formatList, formatPrice, isolate } from '@/shared/utils';
 
 // The friendly message for a failed admin action (save, send, review...). Never shows technical details.
 export const errorMessage = (error: unknown, text: Text) => {
@@ -54,7 +54,7 @@ export const describeAuditDetails = ({ details }: AuditEntry, text: Text, locale
     lines.push(fillText(t.amount, { amount: formatPrice(details.amount, locale) }));
   }
   if (details.recipients !== undefined) {
-    lines.push(fillText(t.recipients, { count: formatNumber(details.recipients, locale) }));
+    lines.push(formatCount(t.recipients, details.recipients, locale));
   }
   if (details.note) lines.push(fillText(t.note, { note: isolate(details.note) }));
   return lines;

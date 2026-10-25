@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { categoryIcons, itemPath } from '@/shared/constants';
 import { useLocale, usePlayback, usePlaybackTime } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { cx, fillText, formatDuration, formatNumber, previewPeaks, previewSource, withDefaults } from '@/shared/utils';
+import { cx, fillText, formatCount, formatDuration, formatNumber, previewPeaks, previewSource, withDefaults } from '@/shared/utils';
 import { Icon } from '../Icon';
 import { ItemCover } from '../ItemCover';
 import { PlayButton } from '../PlayButton';
@@ -93,7 +93,7 @@ export const TrackRow = (props: TrackRowProps) => {
       {showVersions && versions.length > 0 && (
         <>
           <button type="button" className={styles.expand} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-            {expanded ? text.tracks.hideVersions : fillText(text.tracks.showVersions, { count: formatNumber(versions.length, locale) })}
+            {expanded ? text.tracks.hideVersions : formatCount(text.tracks.showVersions, versions.length, locale)}
             <span className={cx(styles.chevron, expanded && styles.open)}>
               <Icon name="chevronDown" size={vars.sizes.icon.sm} />
             </span>

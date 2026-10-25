@@ -1,7 +1,7 @@
 import { catalog, spotlights, type SortOption } from '@/shared/constants';
 import { mockCategories, mockCollections, mockCreators, mockDownloadedTogether, mockPasses } from '@/shared/mocks';
 import { libraryItems, studioCreators } from './studioApi';
-import { featuredIds, freeItemIdsThisMonth } from './siteHomepage';
+import { featuredIds, freeItemIdsNow } from './siteHomepage';
 import { byCategoryOrder, categorySettingsStore, editedTags, logEmptySearch, plansOnSale, searchReportStore } from './siteSettings';
 import type {
   CatalogStats,
@@ -29,14 +29,25 @@ import { itemSoundProfile, soundDistance } from './soundProfile';
 import { suggestSearches } from './suggestions';
 
 // Items with the demo's catalog events applied: a creator's newly published item is new; removed items are marked.
-const withEvents = (item: Item): Item => {
+// An item as customers see it now: the team's tag changes, its publish and removal dates, and whether it's free this
+// month (the team's picks; the rest are premium).
+const withEvents = (item: Item, freeIds: ReadonlySet<string> = freeItemIdsNow()): Item => {
   const { publishedAt, removedItemIds } = readCatalogEvents();
-  return { ...item, tags: editedTags(item.tags), createdAt: publishedAt[item.id] ?? item.createdAt, removedAt: removedItemIds[item.id] };
+  return {
+    ...item,
+    tier: freeIds.has(item.id) ? 'free' : 'premium',
+    tags: editedTags(item.tags),
+    createdAt: publishedAt[item.id] ?? item.createdAt,
+    removedAt: removedItemIds[item.id],
+  };
 };
 
 // The items people can browse: removed items are left out (licensed users still reach them by link).
 // The library and creators' live elements, as customers see them.
-const catalogItems = () => libraryItems().map(withEvents).filter((item) => !item.removedAt);
+const catalogItems = () => {
+  const freeIds = freeItemIdsNow();
+  return libraryItems().map((item) => withEvents(item, freeIds)).filter((item) => !item.removedAt);
+};
 
 // The categories shown on the site, in the team's order, without the ones it hid (set in the admin).
 const categoriesWithCounts = (): Category[] => {
@@ -96,6 +107,7 @@ const rankResults = (query: SearchQuery): Item[] => {
         return profile ? [{ item, distance: soundDistance(soundsLike, profile) }] : [];
       })
       .sort((a, b) => a.distance - b.distance)
+      .filter(({ distance }, index) => index < catalog.soundMatchMin || distance <= catalog.soundMatchMaxDistance)
       .slice(0, catalog.soundMatchLimit);
     return sort && sort !== 'relevant'
       ? sortScored(bySound.map(({ item }) => ({ item, matched: 0, score: 0 })), sort)
@@ -143,10 +155,8 @@ export const api = {
   // This month's free items: anyone with an account can download them.
   // This month's free items chosen by the team, or the library's free items when none are chosen.
   getFreeItems: (limit: number = catalog.railSize): Promise<Item[]> => {
-    const chosen = freeItemIdsThisMonth();
     const items = catalogItems();
-    const free = chosen ? chosen.flatMap((id) => items.filter((item) => item.id === id)) : items.filter((item) => item.tier === 'free');
-    return respond(free.slice(0, limit));
+    return respond([...freeItemIdsNow()].flatMap((id) => items.filter((item) => item.id === id)).slice(0, limit));
   },
 
   // Items from a home page browse section: an occasion, a business type or a local spotlight.

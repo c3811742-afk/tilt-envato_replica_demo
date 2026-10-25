@@ -5,7 +5,16 @@ import { aiShortcuts, aiSourceParam, aiTools, routes, withReturnTo, type AiOpera
 import { useLocale, useSession, useStoredValue } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Session } from '@/shared/types';
-import { accountCredits, aiSettingsStore, aiToolAccess, fillText, formatCount, formatNumber, planUsage, operationName } from '@/shared/utils';
+import {
+  accountCredits,
+  aiSettingsStore,
+  aiToolAccess,
+  fillText,
+  formatCount,
+  formatNumber,
+  operationName,
+  planUsage,
+} from '@/shared/utils';
 import { findOutput, GenerationQueue } from '@/features/common/components';
 import { AudioForm, EditForm, ImageForm, MockupForm, VideoForm } from './ToolForms';
 import type { ImageSource } from './imageSource';
@@ -102,7 +111,7 @@ const ToolWorkspace = ({ tool, session }: { tool: AiOperation; session: Extract<
               valueText={fillText(text.planPage.creditsUsed, { used: formatNumber(credits.used, locale), total: formatNumber(credits.total, locale) })}
             />
             <Text variant="bodySm" color={vars.colors.textMuted}>
-              {fillText(text.ai.concurrentNote, { count: formatNumber(credits.concurrent, locale) })}
+              {formatCount(text.ai.concurrentNote, credits.concurrent, locale)}
             </Text>
             <TextLink to={routes.aiHistory} variant="bodySm">
               {text.ai.history}

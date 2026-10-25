@@ -4,7 +4,16 @@ import { collectionMaxDepth, collectionNameMaxLength, importFileTypes, sharedCol
 import { useAccountAction, useCopy, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { UserCollection } from '@/shared/types';
-import { appUrl, collectionTree, collectionWithDescendants, fillText, formatNumber, libraryApi, safeAsync } from '@/shared/utils';
+import {
+  appUrl,
+  collectionTree,
+  collectionWithDescendants,
+  fillText,
+  formatCount,
+  formatNumber,
+  libraryApi,
+  safeAsync,
+} from '@/shared/utils';
 
 // Runs a collection request, keeps the account in sync and explains a failure.
 // "New collection" (at the top level or inside another one) and "Rename".
@@ -136,7 +145,7 @@ export const DeleteCollectionsDialog = ({ ids, onClose, onDeleted }: { ids: stri
   return (
     <Modal open onClose={onClose} title={text.myCollections.deleteTitle}>
       <Stack as="form" gap={vars.spacing[4]} onSubmit={submit} noValidate>
-        <Text>{fillText(text.myCollections.deleteText, { count: formatNumber(ids.length, locale) })}</Text>
+        <Text>{formatCount(text.myCollections.deleteText, ids.length, locale)}</Text>
         <FieldMessage tone="error" message={error} />
         <ModalActions confirmLabel={text.myCollections.delete} tone="danger" submit busy={busy} onCancel={onClose} />
       </Stack>

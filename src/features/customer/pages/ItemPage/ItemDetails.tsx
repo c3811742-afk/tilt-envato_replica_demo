@@ -18,7 +18,7 @@ import { creatorPath, routes, searchPath } from '@/shared/constants';
 import { useCopy, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { Item } from '@/shared/types';
-import { fillText, formatCountry, formatLanguageName, isTranslated } from '@/shared/utils';
+import { fillText, formatCreatorLocation, formatLanguageName, isTranslated } from '@/shared/utils';
 import { FavoriteButton, ItemDownload, SaveToCollection } from '@/features/customer/components';
 import { ItemReports } from './ItemReports';
 import { ItemFacts } from './ItemFacts';
@@ -98,10 +98,7 @@ export const ItemDetails = ({ item }: { item: Item }) => {
                     {item.creator.name}
                   </TextLink>
                   <Text variant="bodySm" color={vars.colors.textMuted}>
-                    {fillText(text.creatorPage.location, {
-                      city: item.creator.city[locale],
-                      country: formatCountry(item.creator.country, locale),
-                    })}
+                    {formatCreatorLocation(item.creator, text.creatorPage.location, locale)}
                   </Text>
                 </Stack>
               </Stack>

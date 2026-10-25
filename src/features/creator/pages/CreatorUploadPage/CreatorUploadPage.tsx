@@ -3,7 +3,7 @@ import { Card, FieldMessage, FileInput, IconNote, Select, Stack, TextLink } from
 import { creatorElementPath, routes, studioLimits } from '@/shared/constants';
 import { useAction, useLocale } from '@/shared/hooks';
 import { localeCodes, vars, type Locale } from '@/shared/theme';
-import { fillText, formatFileSize, formatNumber, studioApi } from '@/shared/utils';
+import { fillText, formatCount, formatFileSize, studioApi } from '@/shared/utils';
 import { CreatorArea } from '@/features/creator/components';
 
 
@@ -41,7 +41,7 @@ export const CreatorUploadPage = () => {
       </Card>
       {created.length > 0 && (
         <Stack gap={vars.spacing[3]}>
-          <IconNote icon="check" text={fillText(text.studio.uploaded, { count: formatNumber(created.length, locale) })} />
+          <IconNote icon="check" text={formatCount(text.studio.uploaded, created.length, locale)} />
           <Stack as="ul" gap={vars.spacing[2]}>
             {created.map((draft) => (
               <li key={draft.id}>

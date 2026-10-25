@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useRef, type CSSProperties } from 'react';
 import type { IconName } from '@/shared/assets';
 import { vars } from '@/shared/theme';
 import { cx, withDefaults } from '@/shared/utils';
@@ -15,7 +15,9 @@ const shapeFor = (seed: string) =>
 
 // An item's cover: its preview image, a font's letters, or generated flat cover art (accent color, bold shape, category icon).
 export const ItemCover = (props: ItemCoverProps) => {
-  const { image, accent, icon, title, showTitle, seed, aspectRatio, label, sample, previewOnHover, fill } = withDefaults(itemCoverDefaults, props);
+  const { image, accent, icon, title, showTitle, seed, aspectRatio, label, sample, previewOnHover, fill, video } = withDefaults(itemCoverDefaults, props);
+  const clip = useRef<HTMLVideoElement>(null);
+  const playsClip = previewOnHover && Boolean(video);
   const colors = vars.accentPairs[accent];
 
   const style = {
@@ -39,9 +41,26 @@ export const ItemCover = (props: ItemCoverProps) => {
   };
 
   return (
-    <div className={cx(styles.cover, previewOnHover && styles.preview, fill && styles.fill)} style={style} role={label ? 'img' : undefined} aria-label={label}>
+    <div
+      className={cx(styles.cover, previewOnHover && (playsClip ? styles.clipPreview : styles.preview), fill && styles.fill)}
+      style={style}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      // A real clip plays while the pointer is over the cover, and starts again from the beginning next time.
+      onPointerEnter={playsClip ? () => clip.current?.play().catch((error: unknown) => console.error(error)) : undefined}
+      onPointerLeave={
+        playsClip
+          ? () => {
+              if (!clip.current) return;
+              clip.current.pause();
+              clip.current.currentTime = 0;
+            }
+          : undefined
+      }
+    >
       {art()}
-      {previewOnHover && <span className={styles.progress} aria-hidden="true" />}
+      {playsClip && <video ref={clip} className={styles.clip} src={video} muted loop playsInline preload="metadata" aria-hidden="true" />}
+      {previewOnHover && !playsClip && <span className={styles.progress} aria-hidden="true" />}
     </div>
   );
 };

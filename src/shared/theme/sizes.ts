@@ -15,7 +15,8 @@ export const sizes = {
     fullHeight: '100dvh',
     heroMinHeight: '60dvh',
   },
-  sidebar: { width: 'clamp(15rem, 22vw, 18rem)', collapsedWidth: '3.5rem' }, // folded: just the button that opens it
+  // Folded: the panel tucks away completely; only its tab, on the edge, stays to open it again.
+  sidebar: { width: 'clamp(15rem, 22vw, 18rem)', collapsedWidth: '0rem', tabWidth: '1.5rem', tabHeight: '3.5rem' },
   splitLayout: { columns: '3fr 2fr' }, // main content and side panel on desktop (checkout, item page)
   modal: { width: 'min(90vw, 32rem)', maxHeight: '85dvh', sideWidth: 'min(100vw, 26rem)', wideWidth: 'min(94vw, 56rem)' }, // side: a panel along the edge
   authForm: { maxWidth: '28rem' }, // sign in, sign up and the other onboarding forms

@@ -5,6 +5,7 @@ import {
   licenseCheckPath,
   notificationTopics,
   renewalReminderDays,
+  routes,
   storageKeys,
   type AlertKind,
   type RevokeReason,
@@ -303,6 +304,27 @@ export const readCatalogEvents = (): CatalogEvents => {
 };
 
 export const writeCatalogEvents = (events: CatalogEvents) => storage.set(storageKeys.catalogEvents, JSON.stringify(events));
+
+// An item left the library (the team removed it, or a creator's element was taken down, turned off or deleted).
+// Everyone who downloaded it is told, and their license stays valid: Downloads and the license check say it was removed.
+export const recordItemRemoved = (itemId: string, title: string) => {
+  const events = readCatalogEvents();
+  if (events.removedItemIds[itemId]) return;
+  writeCatalogEvents({ ...events, removedItemIds: { ...events.removedItemIds, [itemId]: new Date().toISOString() } });
+  writeAccounts(
+    readAccounts().map((account) =>
+      account.downloads.some((download) => download.itemId === itemId) ? withAlert(account, 'itemRemoved', { title }, routes.downloads) : account,
+    ),
+  );
+};
+
+// An item is back in the library (a creator's element turned on again or republished after an appeal).
+export const recordItemRestored = (itemId: string) => {
+  const events = readCatalogEvents();
+  if (!events.removedItemIds[itemId]) return;
+  const { [itemId]: _restored, ...removedItemIds } = events.removedItemIds;
+  writeCatalogEvents({ ...events, removedItemIds });
+};
 
 // ---------- Teams ----------
 

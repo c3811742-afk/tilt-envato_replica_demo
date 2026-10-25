@@ -2,7 +2,7 @@ import { Card, DetailList, Stack, Text } from '@/shared/components';
 import { currency, vatRate } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { fillText, formatNumber, formatPercent, formatPrice, getPlanPrice, type PaymentBreakdown } from '@/shared/utils';
+import { fillText, formatCount, formatNumber, formatPercent, formatPrice, getPlanPrice, type PaymentBreakdown } from '@/shared/utils';
 import type { Purchase } from './purchase';
 
 interface OrderSummaryProps {
@@ -29,7 +29,7 @@ export const OrderSummary = ({ purchase, members, student, breakdown, promoCode,
               label: fillText(text.checkout.planLine, { plan: text.pricing.plans[plan.id].name, duration: text.pricing.durations[`month${duration}`] }),
               value: `${showPrice(price.perMonth)} ${plan.perMember ? text.pricing.perMemberMonth : text.pricing.perMonth}`,
             },
-            ...(plan.perMember ? [{ label: text.checkout.members, value: fillText(text.checkout.membersLine, { count: formatNumber(members, locale) }) }] : []),
+            ...(plan.perMember ? [{ label: text.checkout.members, value: formatCount(text.checkout.membersLine, members, locale) }] : []),
             ...(creditTier
               ? [{ label: text.pricing.creditTierLabel, value: fillText(text.checkout.creditsLine, { credits: formatNumber(creditTier.credits, locale) }) }]
               : []),

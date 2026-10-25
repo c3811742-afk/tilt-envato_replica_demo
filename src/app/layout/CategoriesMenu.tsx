@@ -4,7 +4,7 @@ import { AsyncContent, Divider, HoverMenu, Icon, Stack, Text, TextLink } from '@
 import { routes, searchPath } from '@/shared/constants';
 import { useCategories, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { fillText, formatNumber } from '@/shared/utils';
+import { formatCount } from '@/shared/utils';
 import styles from './CategoriesMenu.module.css';
 
 interface CategoriesMenuProps {
@@ -37,7 +37,7 @@ export const CategoriesMenu = ({ trigger }: CategoriesMenuProps) => {
                             {text.categories[category.id].name}
                           </Text>
                           <Text as="span" variant="bodySm" color={vars.colors.textMuted}>
-                            {fillText(text.categoriesPage.itemCount, { count: formatNumber(category.itemCount, locale) })}
+                            {formatCount(text.categoriesPage.itemCount, category.itemCount, locale)}
                           </Text>
                         </Stack>
                       </Link>

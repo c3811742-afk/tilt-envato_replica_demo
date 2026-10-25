@@ -177,6 +177,9 @@ export const checkoutPath = (planId: string, months: number, credits?: number) =
 export const withReturnTo = (path: string, returnTo?: string) =>
   returnTo ? `${path}?${new URLSearchParams({ [returnToParam]: returnTo })}` : path;
 
+// A page opened on one of its tabs: tabPath(routes.notifications, 'updates') -> '/notifications?tab=updates'
+export const tabPath = (path: string, tab: string) => `${path}?${new URLSearchParams({ tab })}`;
+
 // routes.account for one settings page: accountPath('security') -> '/account/security'
 export const accountPath = (section: string) => routes.account.replace(':section', section);
 

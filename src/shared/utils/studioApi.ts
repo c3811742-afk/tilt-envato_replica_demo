@@ -10,13 +10,14 @@ import {
 import { mockItems } from '@/shared/mocks';
 import type { Locale } from '@/shared/theme';
 import type { CategoryId, Creator, Item, StudioClaim, StudioElement, StudioFile, StudioPayout, StudioReview, StudioSource } from '@/shared/types';
-import { call, findById, randomDigits, readAccounts, saveAccount, signedInAccount, toSessionAccount, withAlert, writeAccounts, type StoredAccount } from './accountStore';
+import { call, findById, recordItemRemoved, recordItemRestored, randomDigits, readAccounts, saveAccount, signedInAccount, toSessionAccount, withAlert, writeAccounts, type StoredAccount } from './accountStore';
 import { ApiError } from './apiError';
 import { creatorApplicationDetails, creatorApplicationStatus, latestCreatorApplication } from './creatorApi';
 import { fileStore } from './fileStore';
 import { readApplications, saveApplications } from './resourcesApi';
 import { earningsByMonth, earningsOf, studioActivity, studioBalance, studioItem, translateDraft, type StudioDay } from './studio';
 import { announcementStore, editedTags, payoutRulesStore } from './siteSettings';
+import { loadStudioPreviews } from './studioPreviews';
 import { readStudioClaims, readStudioElements, readStudioPayouts, saveStudioElement, writeStudioClaims, writeStudioElements, writeStudioPayouts } from './studioStore';
 
 const now = () => new Date().toISOString();
@@ -266,7 +267,9 @@ export const studioApi = {
       const { element } = mine(id);
       if (!isEditableElement(element)) throw new ApiError('elementLocked');
       const stored = await storeFiles(files, slot === 'files' ? studioLimits.fileMaxBytes : studioLimits.previewMaxBytes);
-      return saveStudioElement({ ...editing(element), [slot]: [...element[slot], ...stored], updatedAt: now() });
+      const saved = saveStudioElement({ ...editing(element), [slot]: [...element[slot], ...stored], updatedAt: now() });
+      if (slot === 'previews') await loadStudioPreviews();
+      return saved;
     }),
 
   addVersion: (id: string, kind: TrackVersionKind, file: File) =>
@@ -356,6 +359,8 @@ export const studioApi = {
     call(() => {
       const { element } = mine(id);
       if (disabled ? element.status !== 'live' : element.status !== 'disabled') throw new ApiError('elementLocked');
+      if (disabled) recordItemRemoved(element.id, element.title[element.language]);
+      else recordItemRestored(element.id);
       return saveStudioElement({ ...element, status: disabled ? 'disabled' : 'live', updatedAt: now() });
     }),
 
@@ -371,6 +376,7 @@ export const studioApi = {
   remove: (id: string) =>
     call(async () => {
       const { element } = mine(id);
+      if (element.publishedAt) recordItemRemoved(element.id, element.title[element.language]);
       await removeFiles([...allFiles(element), ...(element.liveVersion ? unusedFiles(element.liveVersion, element) : [])]);
       writeStudioElements(readStudioElements().filter((candidate) => candidate.id !== id));
       return id;
@@ -493,6 +499,7 @@ export const applyStudioUnpublish = (elementId: string, reason: string, note: st
   const element = readStudioElements().find((candidate) => candidate.id === elementId);
   if (!element) return;
   saveStudioElement({ ...element, status: 'unpublished', unpublish: { reason, note, at: now() }, appeal: undefined });
+  recordItemRemoved(element.id, element.title[element.language]);
   alertCreator(element, 'elementUnpublished', { reason, note }, creatorElementPath(element.id));
 };
 
@@ -505,6 +512,7 @@ export const applyStudioAppealDecision = (elementId: string, accepted: boolean, 
   const saved = saveStudioElement(
     accepted ? { ...element, status: 'live', unpublish: undefined, appeal, updatedAt: now() } : { ...element, appeal, updatedAt: now() },
   );
+  if (accepted) recordItemRestored(element.id);
   alertCreator(element, accepted ? 'appealAccepted' : 'appealRejected', {}, creatorElementPath(element.id));
   return saved;
 };

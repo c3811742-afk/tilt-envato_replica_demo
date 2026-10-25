@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   DetailList,
+  MediaPreview,
   FontPreviewControls,
   FontSample,
   fontPreviewDefaults,
@@ -56,6 +57,11 @@ const CoverPreview = ({ item, title }: ItemPreviewProps) => {
   const source = useMemo(() => previewSource(item, { song }), [item, song]);
   const peaks = useMemo(() => previewPeaks(source), [source]);
   const [font, setFont] = useState<FontPreviewSettings>(fontPreviewDefaults);
+
+  // A creator's own preview clip plays as it is.
+  if (item.previewVideo) {
+    return <MediaPreview kind="video" src={item.previewVideo} alt={fillText(text.item.previewLabel, { title })} />;
+  }
 
   if (kind === 'video') {
     return (

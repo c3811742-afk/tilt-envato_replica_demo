@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router';
 import { Page, ReleaseNotesList, SegmentedControl } from '@/shared/components';
 import { useLocale, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { accountCredits, authApi, planUsage, safeAsync, unreadReleaseNotes } from '@/shared/utils';
+import { accountCredits, authApi, isOneOf, planUsage, safeAsync, unreadReleaseNotes } from '@/shared/utils';
 import { GenerationQueue } from '@/features/common/components';
 import { AlertsList } from './AlertsList';
 import { DownloadsQueue } from './DownloadsQueue';
@@ -18,8 +19,13 @@ export const NotificationsPage = () => {
   const user = session.status === 'signedIn' ? session.user : null;
   const [unreadNotes] = useState<string[]>(() => (user ? unreadReleaseNotes(user).map((note) => note.id) : []));
   const [unreadAlerts] = useState<string[]>(() => (user ? user.alerts.filter((alert) => !alert.read).map((alert) => alert.id) : []));
-  // Opens on the account notifications when there's something new there, otherwise on "What's new".
-  const [tab, setTab] = useState<NotificationsTab>(() => (unreadAlerts.length || !unreadNotes.length ? 'alerts' : 'updates'));
+  // Opens on the tab a link asked for (?tab=updates from "What's new" in the account menu); otherwise on the account
+  // notifications when there's something new there, or on "What's new".
+  const [params] = useSearchParams();
+  const asked = params.get('tab');
+  const [tab, setTab] = useState<NotificationsTab>(() =>
+    asked && isOneOf(asked, tabs) ? asked : unreadAlerts.length || !unreadNotes.length ? 'alerts' : 'updates',
+  );
 
   // Opening a tab marks what it shows as read (the badge in the header goes down).
   useEffect(() => {

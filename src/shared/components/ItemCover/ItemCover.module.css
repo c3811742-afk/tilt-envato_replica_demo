@@ -94,3 +94,18 @@
     inline-size: 100%;
   }
 }
+
+/* A real preview clip lies over the picture and shows while it plays (on hover). */
+.clip {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  opacity: var(--opacity-none);
+  transition: opacity var(--motion-base) var(--motion-ease);
+}
+
+.clipPreview:hover .clip {
+  opacity: var(--opacity-full);
+}

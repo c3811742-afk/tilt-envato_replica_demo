@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { categoryIcons, collectionPath } from '@/shared/constants';
 import { useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { fillText, formatNumber, withDefaults } from '@/shared/utils';
+import { fillText, formatCount, withDefaults } from '@/shared/utils';
 import { Badge } from '../Badge';
 import { Card } from '../Card';
 import { ItemCover } from '../ItemCover';
@@ -47,7 +47,7 @@ export const CollectionCard = (props: CollectionCardProps) => {
           {from}
         </Text>
         <Text variant="label" color={vars.colors.textMuted}>
-          {fillText(text.collections.itemCount, { count: formatNumber(collection.items.length, locale) })}
+          {formatCount(text.collections.itemCount, collection.items.length, locale)}
         </Text>
       </div>
     </Card>

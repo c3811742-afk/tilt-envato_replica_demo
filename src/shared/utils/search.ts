@@ -1,11 +1,13 @@
 import {
   arabicPrefixes,
   arabicStemMinLength,
+  bilingualTerms,
   defaultSort,
   formatSoftware,
   naturalSearch,
   searchStopWords,
   searchSynonyms,
+  searchWeights,
   texts,
   type SortOption,
 } from '@/shared/constants';
@@ -39,14 +41,31 @@ const synonyms = new Map(
 );
 const prefixes = arabicPrefixes.map(normalizeSearchText);
 
-// A word and everything it may stand for: its synonyms and, for Arabic, the word without a joined prefix.
+// The same word in the other language, both ways ("مطعم" <-> "restaurant").
+const translations = bilingualTerms.reduce((map, [en, ar]) => {
+  const [english, arabic] = [normalizeSearchText(en), normalizeSearchText(ar)];
+  map.set(english, [...(map.get(english) ?? []), arabic]);
+  map.set(arabic, [...(map.get(arabic) ?? []), english]);
+  return map;
+}, new Map<string, string[]>());
+
+// A word and what it means: its synonyms, for Arabic the word without a joined prefix, and all of these in the
+// other language, so a search finds the same items in English and Arabic.
 const alternativesOf = (word: string) => {
-  const alternatives = new Set([word, ...(synonyms.get(word) ?? [])]);
+  const meanings = new Set([word, ...(synonyms.get(word) ?? [])]);
   for (const prefix of prefixes) {
     const stem = word.slice(prefix.length);
     if (word.startsWith(prefix) && stem.length >= arabicStemMinLength) {
-      alternatives.add(stem);
-      for (const meaning of synonyms.get(stem) ?? []) alternatives.add(meaning);
+      meanings.add(stem);
+      for (const meaning of synonyms.get(stem) ?? []) meanings.add(meaning);
+    }
+  }
+  // Its translations, and their other forms in the first language ("مطعم" -> "restaurant" -> "مطاعم").
+  const alternatives = new Set(meanings);
+  for (const meaning of meanings) {
+    for (const translation of translations.get(meaning) ?? []) {
+      alternatives.add(translation);
+      for (const form of translations.get(translation) ?? []) alternatives.add(form);
     }
   }
   return [...alternatives];
@@ -146,11 +165,11 @@ const wordScore = (fields: SearchFields, alternatives: string[]) =>
   Math.max(
     ...alternatives.map((word) =>
       Math.max(
-        matches(fields.titles, word) ? 3 : 0,
-        fields.tags.includes(word) || fields.formats.includes(word) ? 3 : matches(fields.tagWords, word) ? 2 : 0,
-        matches(fields.meta, word) ? 1.5 : 0,
-        matches(fields.creator, word) ? 1 : 0,
-        matches(fields.descriptions, word) ? 0.5 : 0,
+        matches(fields.titles, word) ? searchWeights.title : 0,
+        fields.tags.includes(word) || fields.formats.includes(word) ? searchWeights.tag : matches(fields.tagWords, word) ? searchWeights.tagWord : 0,
+        matches(fields.meta, word) ? searchWeights.meta : 0,
+        matches(fields.creator, word) ? searchWeights.creator : 0,
+        matches(fields.descriptions, word) ? searchWeights.description : 0,
       ),
     ),
   );
@@ -172,15 +191,18 @@ export const matchItems = (
   const needed =
     words.length <= naturalSearch.strictWordCount ? words.length : Math.ceil(words.length * naturalSearch.minMatchShare);
 
-  return items.flatMap((item) => {
+  const scored = items.flatMap((item) => {
     const fields = fieldsOf(item, categories);
     if (excluded.some((word) => wordScore(fields, [word]) > 0)) return [];
     if (required.some((alternatives) => wordScore(fields, alternatives) === 0)) return [];
     const scores = words.map((alternatives) => wordScore(fields, alternatives));
     const matched = scores.filter((score) => score > 0).length;
-    if (matched < needed) return [];
-    return [{ item, matched, score: scores.reduce((total, score) => total + score, 0) }];
+    return matched > 0 || !words.length ? [{ item, matched, score: scores.reduce((total, score) => total + score, 0) }] : [];
   });
+  const close = scored.filter(({ matched }) => matched >= needed);
+  // A descriptive search that finds too little also shows the nearest items (relevance puts the closest first).
+  const descriptive = words.length > naturalSearch.strictWordCount;
+  return descriptive && close.length < naturalSearch.minResults ? scored : close;
 };
 
 const byNewest = (a: Item, b: Item) => b.createdAt.localeCompare(a.createdAt);

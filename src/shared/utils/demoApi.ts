@@ -1,5 +1,5 @@
 import { mockItems } from '@/shared/mocks';
-import { accountPath, itemPath, renewalReminderDays, routes, type RevokeReason, type SuspensionReason } from '@/shared/constants';
+import { accountPath, itemPath, renewalReminderDays, type RevokeReason, type SuspensionReason } from '@/shared/constants';
 import {
   call,
   findByEmail,
@@ -7,6 +7,7 @@ import {
   readAccounts,
   readCatalogEvents,
   readLicenses,
+  recordItemRemoved,
   revokeLicenseRecord,
   saveAccount,
   saveTeam,
@@ -28,15 +29,7 @@ const dayMs = 24 * 60 * 60 * 1000;
 export const removeItemFromLibrary = (itemId: string) => {
   const item = mockItems.find((candidate) => candidate.id === itemId);
   if (!item) return false;
-  const events = readCatalogEvents();
-  writeCatalogEvents({ ...events, removedItemIds: { ...events.removedItemIds, [itemId]: new Date().toISOString() } });
-  writeAccounts(
-    readAccounts().map((account) =>
-      account.downloads.some((download) => download.itemId === itemId)
-        ? withAlert(account, 'itemRemoved', { title: originalTitle(item) }, routes.downloads)
-        : account,
-    ),
-  );
+  recordItemRemoved(itemId, originalTitle(item));
   return true;
 };
 

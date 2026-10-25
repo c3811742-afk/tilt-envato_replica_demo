@@ -2,7 +2,7 @@ import { AsyncContent, Avatar, BackLink, ItemGrid, Section, Stack, stateMessageH
 import { useLocale, usePagedAsync } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
 import type { CreatorProfile, Item } from '@/shared/types';
-import { api, fillText, formatCompactNumber, formatCountry, formatDate, formatNumber } from '@/shared/utils';
+import { api, countForm, fillText, formatCompactNumber, formatCount, formatCreatorLocation, formatDate } from '@/shared/utils';
 import { FollowButton, LoadMore } from '@/features/customer/components';
 import styles from './CreatorPage.module.css';
 
@@ -23,14 +23,14 @@ export const CreatorProfileView = ({ profile }: { profile: CreatorProfile }) => 
               {creator.name}
             </Text>
             <Text color={vars.colors.textMuted}>
-              {fillText(text.creatorPage.location, { city: creator.city[locale], country: formatCountry(creator.country, locale) })}
+              {formatCreatorLocation(creator, text.creatorPage.location, locale)}
             </Text>
             <Stack direction="row" wrap gap={vars.spacing[4]}>
               <Text as="span" variant="label">
-                {fillText(text.creatorPage.itemCount, { count: formatNumber(itemCount, locale) })}
+                {formatCount(text.creatorPage.itemCount, itemCount, locale)}
               </Text>
               <Text as="span" variant="label">
-                {fillText(text.creatorPage.downloads, { count: formatCompactNumber(downloads, locale) })}
+                {fillText(countForm(text.creatorPage.downloads, downloads, locale), { count: formatCompactNumber(downloads, locale) })}
               </Text>
               <Text as="span" variant="label" color={vars.colors.textMuted}>
                 {fillText(text.creatorPage.memberSince, { date: formatDate(creator.joinedAt, locale, { month: 'long', year: 'numeric' }) })}

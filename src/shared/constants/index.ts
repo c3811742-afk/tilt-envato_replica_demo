@@ -17,6 +17,7 @@ export {
   checkoutParamKeys,
   checkoutPath,
   withReturnTo,
+  tabPath,
   planChangeParam,
   planChangePath,
   collectionScopeParam,
@@ -194,7 +195,8 @@ export type {
   TextAlignment,
   TemplateCategory,
 } from './browse';
-export { searchSynonyms, searchStopWords, arabicPrefixes, arabicStemMinLength, naturalSearch } from './searchWords';
+export { searchSynonyms, searchStopWords, arabicPrefixes, arabicStemMinLength, naturalSearch, searchWeights } from './searchWords';
+export { bilingualTerms } from './bilingualTerms';
 export { cookieCategories, optionalCookieCategories } from './cookies';
 export type { CookieCategory, OptionalCookieCategory } from './cookies';
 export { modePreferences, defaultModePreference, darkModeQuery } from './appearance';

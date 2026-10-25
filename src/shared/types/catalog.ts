@@ -113,6 +113,7 @@ export interface Item {
   occasions: Occasion[];
   businesses: BusinessType[];
   image?: string; // preview image URL (from the asset registry); without one, the cover is generated
+  previewVideo?: string; // a real preview clip (a creator's upload): plays on hover and on the item page
   imageCredit?: AssetCredit;
   color?: ColorFilter; // main color of the preview image
   look?: string; // the preview image's color layout (see imageLook in utils), for "search by image"

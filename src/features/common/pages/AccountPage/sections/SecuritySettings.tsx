@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrandLogo, Button, Card, FieldMessage, PasswordField, Stack, Text } from '@/shared/components';
+import { BrandLogo, Button, Card, ConfirmModal, PasswordField, Stack, Text } from '@/shared/components';
 import { auth, socialProviders, type SocialProvider } from '@/shared/constants';
 import { useForm, useLocale, useMessages, useSession } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
@@ -63,12 +63,26 @@ const LinkedAccounts = () => {
   const { requestError } = useMessages();
   const user = useSignedInUser();
   const [linking, setLinking] = useState<SocialProvider | null>(null);
+  // Unlinking is confirmed first: the user can no longer sign in that way.
+  const [unlinking, setUnlinking] = useState<SocialProvider | null>(null);
+  const [pending, setPending] = useState(false);
   const [unlinkError, setUnlinkError] = useState<unknown>(null);
 
+  const closeUnlink = () => {
+    setUnlinking(null);
+    setUnlinkError(null);
+  };
+
   const unlink = async (provider: SocialProvider) => {
+    setPending(true);
     const result = await safeAsync(() => authApi.unlinkProvider(provider));
-    setUnlinkError(result.ok ? null : result.error);
-    if (result.ok) setAccount(result.data);
+    setPending(false);
+    if (!result.ok) {
+      setUnlinkError(result.error);
+      return;
+    }
+    setAccount(result.data);
+    closeUnlink();
   };
 
   return (
@@ -79,7 +93,6 @@ const LinkedAccounts = () => {
         </Text>
         <Text color={vars.colors.textMuted}>{text.account.linked.intro}</Text>
       </Stack>
-      <FieldMessage tone="error" message={unlinkError ? requestError(unlinkError) : undefined} />
       <Stack as="ul" gap={vars.spacing[3]}>
         {socialProviders.map((provider) => {
           const linked = user.linkedProviders.includes(provider);
@@ -96,7 +109,7 @@ const LinkedAccounts = () => {
                   </Stack>
                 </Stack>
                 {linked ? (
-                  <Button variant="outline" size="sm" onClick={() => unlink(provider)}>
+                  <Button variant="outline" size="sm" onClick={() => setUnlinking(provider)}>
                     {text.account.linked.unlink}
                   </Button>
                 ) : (
@@ -109,6 +122,18 @@ const LinkedAccounts = () => {
           );
         })}
       </Stack>
+      {unlinking && (
+        <ConfirmModal
+          title={fillText(text.account.linked.unlinkTitle, { provider: text.providers[unlinking] })}
+          message={fillText(text.account.linked.unlinkMessage, { provider: text.providers[unlinking] })}
+          confirmLabel={text.account.linked.unlink}
+          tone="danger"
+          pending={pending}
+          error={unlinkError ? requestError(unlinkError) : undefined}
+          onConfirm={() => void unlink(unlinking)}
+          onClose={closeUnlink}
+        />
+      )}
       {linking && (
         <SocialAuthDialog
           provider={linking}

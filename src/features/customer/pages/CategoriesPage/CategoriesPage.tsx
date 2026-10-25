@@ -2,7 +2,7 @@ import { AsyncContent, Card, Grid, Icon, Page, Stack, Text } from '@/shared/comp
 import { searchPath } from '@/shared/constants';
 import { useCategories, useLocale } from '@/shared/hooks';
 import { vars } from '@/shared/theme';
-import { fillText, formatNumber } from '@/shared/utils';
+import { formatCount } from '@/shared/utils';
 
 export const CategoriesPage = () => {
   const { text, locale } = useLocale();
@@ -28,7 +28,7 @@ export const CategoriesPage = () => {
                   </Stack>
                   <Stack direction="row" align="center" justify="space-between" gap={vars.spacing[2]}>
                     <Text as="span" variant="label" color={colors.text}>
-                      {fillText(text.categoriesPage.itemCount, { count: formatNumber(category.itemCount, locale) })}
+                      {formatCount(text.categoriesPage.itemCount, category.itemCount, locale)}
                     </Text>
                     <Icon name="arrowEnd" size={vars.sizes.icon.sm} />
                   </Stack>

@@ -19,7 +19,9 @@ export const catalog = {
   referenceImages: 8, // "search by image": example images to pick from
   uploadLimits: { imageBytes: 10 * 1024 * 1024, audioBytes: 20 * 1024 * 1024 }, // largest files the searches read
   imageMatchMaxDistance: 0.2, // search by image: how different (0-1) a match may look
-  soundMatchLimit: 12, // find similar music: tracks shown
+  soundMatchLimit: 6, // find similar music: the most tracks shown
+  soundMatchMin: 3, // ... and the nearest ones always shown, so there's something to listen to
+  soundMatchMaxDistance: 0.15, // tracks further than this (0 = same tempo and energy) don't sound alike
   tutorialSongId: 'lofi-study-beats', // background music of the template tutorials
   tutorialStepSeconds: 6, // how long each tutorial step is shown
   defaultPreviewSeconds: 20, // preview length when an item has no duration

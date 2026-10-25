@@ -83,6 +83,7 @@ export interface CatalogElement {
   files: ElementFile[];
   sources: SourceDeclaration[];
   previewUrl?: string; // no preview yet: the page shows a placeholder
+  previewKind?: 'image' | 'video' | 'audio'; // a creator's preview file; without it the element's type decides
   submittedAt: string;
   version: number; // 1 for a first submission, higher when resubmitted after a soft reject
   status: ElementStatus;
